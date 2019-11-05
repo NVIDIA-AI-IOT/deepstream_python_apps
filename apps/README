@@ -1,0 +1,98 @@
+################################################################################
+# Copyright (c) 2019, NVIDIA CORPORATION. All rights reserved.
+#
+# Permission is hereby granted, free of charge, to any person obtaining a
+# copy of this software and associated documentation files (the "Software"),
+# to deal in the Software without restriction, including without limitation
+# the rights to use, copy, modify, merge, publish, distribute, sublicense,
+# and/or sell copies of the Software, and to permit persons to whom the
+# Software is furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
+# THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+# FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+# DEALINGS IN THE SOFTWARE.
+################################################################################
+
+================================================================================
+DeepStream SDK Python Bindings
+================================================================================
+Setup pre-requisites:
+- Ubuntu 18.04
+- DeepStream SDK 4.0.1
+- Python 3
+- Gst-python
+
+--------------------------------------------------------------------------------
+Package Contents
+--------------------------------------------------------------------------------
+The DeepStream Python package includes:
+1. Python bindings for DeepStream Metadata libraries
+   These bindings are provided as a compiled module, available for
+   x86_64 and Jetson platforms. Find them at:
+   bindings
+      |- x86_64
+      |     |- pyds.so
+      |- jetson
+            |- pyds.so
+2. DeepStream test apps in Python
+   Four test apps are available:
+   deepstream-test1/deepstream_test_1.py
+   deepstream-test2/deepstream_test_2.py
+   deepstream-test3/deepstream_test_3.py
+   deepstream-test3/deepstream_test_4.py
+
+--------------------------------------------------------------------------------
+Installing Pre-requisites:
+--------------------------------------------------------------------------------
+
+DeepStream SDK 4.0.1
+--------------------
+Download and install from https://developer.nvidia.com/deepstream-download
+
+Python 3
+----------
+Should be already installed with Ubuntu 18.04
+
+Gst-python
+----------
+Should be already installed on Jetson
+If missing, install with the following steps:
+   $ sudo apt-get install python-gi-dev
+   $ export GST_LIBS="-lgstreamer-1.0 -lgobject-2.0 -lglib-2.0"
+   $ export GST_CFLAGS="-pthread -I/usr/include/gstreamer-1.0 -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include"
+   $ git clone https://github.com/GStreamer/gst-python.git
+   $ cd gst-python
+   $ git checkout 1a8f48a
+   $ ./autogen.sh PYTHON=python3
+   $ ./configure PYTHON=python3
+   $ make
+   $ sudo make install
+
+--------------------------------------------------------------------------------
+Running the samples
+--------------------------------------------------------------------------------
+The apps are configured to work from inside the DeepStream SDK 4.0.1 installation.
+Untar the contents into <DeepStream install root>/sources/.
+
+Note that the apps import the pyds module from this relative path:
+../bindings/<platform>
+
+Follow README in each app's directory to run the app.
+
+Example: running test1 app:
+$ cd deepstream-test1
+$ python3 deepstream_test_1.py <input .h264 file>
+
+--------------------------------------------------------------------------------
+Notes:
+--------------------------------------------------------------------------------
+As with DeepStream SDK, if the application runs into errors, cannot create gst elements, 
+try again after removing gstreamer cache
+   rm ${HOME}/.cache/gstreamer-1.0/registry.x86_64.bin

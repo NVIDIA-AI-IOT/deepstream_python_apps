@@ -1,0 +1,63 @@
+################################################################################
+# Copyright (c) 2019, NVIDIA CORPORATION. All rights reserved.
+#
+# Permission is hereby granted, free of charge, to any person obtaining a
+# copy of this software and associated documentation files (the "Software"),
+# to deal in the Software without restriction, including without limitation
+# the rights to use, copy, modify, merge, publish, distribute, sublicense,
+# and/or sell copies of the Software, and to permit persons to whom the
+# Software is furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
+# THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+# FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+# DEALINGS IN THE SOFTWARE.
+################################################################################
+
+Prequisites:
+- DeepStreamSDK 4.0.1
+- Python 3
+- Gst-python
+
+To run the test app:
+  $ python3 deepstream_test_2.py <h264_elementary_stream>
+
+This document shall describe about the sample deepstream-test2 application.
+
+It is meant for simple demonstration of how to use the various DeepStream SDK
+elements in the pipeline and extract meaningful insights from a video stream.
+
+This sample creates multiple instances of "nvinfer" element. Each instance of
+the "nvinfer" uses TensorRT API to infer on frames/objects. Every
+instance is configured through its respective config file. Using a correct
+configuration for a nvinfer element instance is therefore very important as
+considerable behaviors of the instance are parameterized through these configs.
+
+For reference, here are the config files used for this sample :
+1. The 4-class detector (referred to as pgie in this sample) uses
+    dstest2_pgie_config.txt
+2. The vehicle color classifier (referred to as sgie1 in this sample) uses
+    dstest2_sgie1_config.txt
+3. The vehicle make classifier (referred to as sgie2 in this sample) uses
+    dstest2_sgie2_config.txt
+4. The vehicle type classifier (referred to as sgie3 in this sample) uses
+    dstest2_sgie3_config.txt
+5. The tracker (referred to as nvtracker in this sample) uses
+    dstest2_tracker_config.txt
+
+In this sample, we first create one instance of "nvinfer", referred as the pgie.
+This is our 4 class detector and it detects for "Vehicle , RoadSign, TwoWheeler,
+Person". After this we link a "nvtracker" instance which tracks the objects
+detected by the pgie. After this we create 3 more instances of "nvinfer"
+referred to as sgie1, sgie2, sgie3 respectively.
+Each of the nvinfer elements attach some MetaData to the buffer. By attaching
+the probe function at the end of the pipeline, one can extract meaningful
+information from these inferences. Please refer the "osd_sink_pad_buffer_probe"
+function in the sample code. For details on the Metadata format, refer to the
+file "gstnvdsmeta.h"

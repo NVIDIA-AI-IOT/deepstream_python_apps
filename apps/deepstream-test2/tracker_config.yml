@@ -1,0 +1,19 @@
+%YAML:1.0
+  
+NvDCF:
+  maxTargetsPerStream: 30 # Max number of targets to track per stream. Recommended to set >10. Note: this value should account for the targets being tracked in shadow mode as well. Max value depends on the GPU memory capacity
+
+  filterLr: 0.11 # learning rate for DCF filter in exponential moving average. Valid Range: [0.0, 1.0]
+  gaussianSigma: 0.75 # Standard deviation for Gaussian for desired response when creating DCF filter
+
+  minDetectorConfidence: 0.0 # If the confidence of a detector bbox is lower than this, then it won't be considered for tracking
+  minTrackerConfidence: 0.6 # If the confidence of an object tracker is lower than this on the fly, then it will be tracked in shadow mode. Valid Range: [0.0, 1.0]
+
+  featureImgSizeLevel: 1 # Size of a feature image. Valid range: {1, 2, 3, 4, 5}, from the smallest to the largest
+  SearchRegionPaddingScale: 3 # Search region size. Determines how large the search region should be scaled from the target bbox.  Valid range: {1, 2, 3}, from the smallest to the largest
+
+  maxShadowTrackingAge: 9        # Max length of shadow tracking (the shadow tracking age is incremented when (1) there's detector input yet no match or (2) tracker confidence is lower than minTrackerConfidence). Once reached, the tracker will be terminated.
+  probationAge: 0                # Once the tracker age (incremented at every frame) reaches this, the tracker is considered to be valid
+  earlyTerminationAge: 0         # Early termination age (in terms of shadow tracking age) during the probation period
+
+  minVisibiilty4Tracking: 0.5    # If the visibility of the bbox of a tracker gets lower, then it will be terminated
