@@ -14,7 +14,7 @@ This guide provides resources for DeepStream application development in Python.
 ## Prerequisites
 
 * Ubuntu 18.04
-* DeepStream SDK 4.0.1
+* [DeepStream SDK 4.0.1](https://developer.nvidia.com/deepstream-download) or later
 * Python 3
 * [Gst Python](https://gstreamer.freedesktop.org/modules/gst-python.html) v1.14.5
 
@@ -68,7 +68,7 @@ The SDK MetaData library is developed in C/C++. Python bindings provide access t
 ```
 
 Applications can import the module thus:
-```
+```python
 import sys
 sys.path.append('../') # Add path to the bindings directory
 # The common/is_aarch64.py module adds the platform-specific path to pyds module
@@ -88,16 +88,16 @@ When MetaData objects are allocated in Python, an allocation function is provide
 
 Example:
 To allocate an NvDsEventMsgMeta instance, use this:  
-```
+```python
 msg_meta = pyds.alloc_nvds_event_msg_meta() # get reference to allocated instance without claiming memory ownership  
 ```
 NOT this:  
-```
+```python
 msg_meta = NvDsEventMsgMeta() # memory will be freed by the garbage collector when msg_meta goes out of scope in Python  
 ```
 
 Allocators are available for the following structs:  
-```
+```python
 NvDsVehicleObject: alloc_nvds_vehicle_object()  
 NvDsPersonObject:  alloc_nvds_person_object()  
 NvDsFaceObject:    alloc_nvds_face_object()  
@@ -120,21 +120,21 @@ This memory is owned by the C code and will be freed later. To free the buffer i
 
 ##### Reading String Fields
 Directly reading a string field returns C address of the field in the form of an int, e.g.:  
-```
+```python
 obj = pyds.glist_get_nvds_vehicle_object(data);
 print(obj.type)
 ```
 This will print an int representing the address of obj.type in C (which is a char*).  
 
 To retrieve the string value of this field, use ```pyds.get_string()```, e.g.:  
-```
+```python
 print(pyds.get_string(obj.type))
 ```
 
 #### Casting
 
 Some MetaData instances are stored in GList form. To access the data in a GList node, the data field needs to be cast to the appropriate structure. This casting is done via binding functions:  
-```
+```python
 glist_get_nvds_batch_meta
 glist_get_nvds_frame_meta
 glist_get_nvds_object_meta
@@ -149,7 +149,7 @@ glist_get_nvds_person_object
 ```
 
 Example:
-```
+```python
 l_frame = batch_meta.frame_meta_list
 frame_meta = pyds.glist_get_nvds_frame_meta(l_frame.data)
 ```
@@ -159,7 +159,7 @@ frame_meta = pyds.glist_get_nvds_frame_meta(l_frame.data)
 Custom MetaData added to NvDsUserMeta require custom copy and release functions. The MetaData library relies on these custom functions to perform deep-copy of the custom structure, and free allocated resources. These functions are registered as callback function pointers in the NvDsUserMeta structure.
 
 Callback functions are registered using these functions:  
-```
+```python
 pyds.set_user_copyfunc(NvDsUserMeta_instance, copy_function)
 pyds.set_user_releasefunc(NvDsUserMeta_instance, free_func)
 ```
@@ -180,7 +180,7 @@ The following optimized functions are available:
 ##### pyds.NvOSD_ColorParams.set(double red, double green, double blue, double alpha)
 
 This is a simple function that performs the same operations as the following:  
-```
+```python
 txt_params.text_bg_clr.red = red
 txt_params.text_bg_clr.green = green
 txt_params.text_bg_clr.blue = blue
