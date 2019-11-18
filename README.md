@@ -2,10 +2,10 @@
 
 This repository contains Python bindings and sample applications for the [DeepStream SDK](https://developer.nvidia.com/deepstream-sdk).  
 
-The bindings and apps are currently in *Alpha* at [v0.5](https://github.com/NVIDIA-AI-IOT-private/deepstream_python_apps/releases/tag/v0.5-alpha). API changes are expected in future releases.  
+The bindings and apps are currently in *Alpha* at [v0.5](../..//releases/tag/v0.5-alpha). API changes are expected in future releases.  
 SDK version supported: 4.0.1  
 
-Download the latest release package complete with bindings and sample applications from the [release section](https://github.com/NVIDIA-AI-IOT-private/deepstream_python_apps/releases).  
+Download the latest release package complete with bindings and sample applications from the [release section](../../releases).  
 
 * [Sample Applications](#sample_applications)
 * [MetaData Bindings](#metadata_bindings)
