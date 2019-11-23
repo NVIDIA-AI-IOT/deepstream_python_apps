@@ -7,6 +7,8 @@ SDK version supported: 4.0.1
 
 Download the latest release package complete with bindings and sample applications from the [release section](../../releases).  
 
+Please report any issues or bugs on the [Deepstream SDK Forums](https://devtalk.nvidia.com/default/board/209).  
+
 * [Python Bindings](#metadata_bindings)
 * [Sample Applications](#sample_applications)
 
