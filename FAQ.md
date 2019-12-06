@@ -1,11 +1,21 @@
 # Frequently Asked Questions and Troubleshooting Guide
 
+[Application fails to work with mp4 stream](#faq0)  
 [Ctrl-C does not stop the app during engine file generation](#faq1)  
 [Application fails to create gst elements](#faq2)  
 [GStreamer debugging](#faq3)  
 [Application stuck with no playback](#faq4)  
 [Error on setting string field](#faq5)  
 [Pipeline unable to perform at real time](#faq6)  
+
+<a name="faq0"></a>
+### Application fails to work with mp4 stream
+Deepstream-test1,2 and 4 apps only work with H264 elementary streams such as sample_720p.h264 provided with the DeepStream SDK. These include test apps 1, 2 and 4. Attempting to use other such types of streams will result in the following error:  
+```
+Error: gst-stream-error-quark: Internal data stream error. (1): gstbaseparse.c(3611): gst_base_parse_loop ():   /GstPipeline:pipeline0/GstH264Parse:h264-parser:  
+streaming stopped, reason not-negotiated (-4)  
+```
+Deepstream-test3 supports various stream types including mp4 and RTSP. Please see the app README for usage.  
 
 <a name="faq1"></a>
 ### Ctrl-C does not stop the app during engine file generation
