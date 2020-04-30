@@ -1,0 +1,76 @@
+################################################################################
+# Copyright (c) 2020, NVIDIA CORPORATION. All rights reserved.
+#
+# Permission is hereby granted, free of charge, to any person obtaining a
+# copy of this software and associated documentation files (the "Software"),
+# to deal in the Software without restriction, including without limitation
+# the rights to use, copy, modify, merge, publish, distribute, sublicense,
+# and/or sell copies of the Software, and to permit persons to whom the
+# Software is furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
+# THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+# FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+# DEALINGS IN THE SOFTWARE.
+################################################################################
+
+Prequisites:
+- DeepStreamSDK 5.0
+- NVIDIA Triton Inference Server
+- Python 3.6
+- Gst-python
+- NumPy
+
+To set up Triton Inference Server:
+For x86_64 and Jetson Docker:
+  1. Use the provided docker container and follow directions for
+     Triton Inference Server in the SDK README --
+     be sure to prepare the detector models.
+  2. Run the docker with this Python Bindings directory mapped
+  3. Install required Python packages inside the container:
+     $ apt install
+     $ apt install python3-gi python3-dev python3-gst-1.0 python3-numpy -y
+
+For Jetson without Docker:
+  1. Install NumPy:
+     $ apt update
+     $ apt install python3-numpy
+  2. Follow instructions in the DeepStream SDK README to set up
+     Triton Inference Server:
+     2.1 Compile and install the nvdsinfer_customparser
+     2.2 Prepare at least the Triton detector models
+  3. Add to LD_PRELOAD:
+     /usr/lib/aarch64-linux-gnu/libgomp.so.1
+     This is to work around the following problem with TLS usage limitation:
+     https://gcc.gnu.org/bugzilla/show_bug.cgi?id=91938
+  4. Clear the GStreamer cache if pipeline creation fails:
+     rm ~/.cache/gstreamer-1.0/*
+
+To run the test app:
+  $ python3 deepstream_ssd_parser.py <h264_elementary_stream>
+
+This document shall describe the sample deepstream-ssd-parser application.
+
+It is meant for simple demonstration of how to make a custom neural network
+output parser and use it in the pipeline to extract meaningful insights
+from a video stream.
+
+This example:
+- Uses SSD neural network running on Triton Inference Server
+- Selects custom post-processing in the Triton Inference Server config file
+- Parses the inference output into bounding boxes
+- Performs post-processing on the generated boxes with NMS (Non-maximum Suppression)
+- Adds detected objects into the pipeline metadata for downstream processing
+- Encodes OSD output and saves to MP4 file. Note that there is no visual output on screen.
+
+Known Issue:
+On Jetson, if libgomp is not preloaded, this error may occur:
+(python3:21041): GStreamer-WARNING **: 14:35:44.113: Failed to load plugin '/usr/lib/aarch64-linux-gnu/gstreamer-1.0/libgstlibav.so': /usr/lib/aarch64-linux-gnu/libgomp.so.1: cannot allocate memory in static TLS block
+Unable to create Encoder
+

@@ -24,9 +24,6 @@
 
 import sys
 sys.path.append('../')
-import platform
-import configparser
-
 import gi
 gi.require_version('Gst', '1.0')
 from gi.repository import GObject, Gst
@@ -40,6 +37,7 @@ PGIE_CLASS_ID_BICYCLE = 1
 PGIE_CLASS_ID_PERSON = 2
 PGIE_CLASS_ID_ROADSIGN = 3
 
+
 def osd_sink_pad_buffer_probe(pad,info,u_data):
     frame_number=0
     #Intiallizing object counter with 0.
@@ -50,6 +48,7 @@ def osd_sink_pad_buffer_probe(pad,info,u_data):
         PGIE_CLASS_ID_ROADSIGN:0
     }
     num_rects=0
+
     gst_buffer = info.get_buffer()
     if not gst_buffer:
         print("Unable to get GstBuffer ")
@@ -67,7 +66,7 @@ def osd_sink_pad_buffer_probe(pad,info,u_data):
             # The casting also keeps ownership of the underlying memory
             # in the C code, so the Python garbage collector will leave
             # it alone.
-            frame_meta = pyds.NvDsFrameMeta.cast(l_frame.data)
+           frame_meta = pyds.NvDsFrameMeta.cast(l_frame.data)
         except StopIteration:
             break
 
@@ -120,12 +119,14 @@ def osd_sink_pad_buffer_probe(pad,info,u_data):
             l_frame=l_frame.next
         except StopIteration:
             break
+			
     return Gst.PadProbeReturn.OK	
+
 
 def main(args):
     # Check input arguments
     if len(args) != 2:
-        sys.stderr.write("usage: %s <media file or uri>\n" % args[0])
+        sys.stderr.write("usage: %s <v4l2-device-path>\n" % args[0])
         sys.exit(1)
 
     # Standard GStreamer initialization
@@ -142,51 +143,53 @@ def main(args):
 
     # Source element for reading from the file
     print("Creating Source \n ")
-    source = Gst.ElementFactory.make("filesrc", "file-source")
+    source = Gst.ElementFactory.make("v4l2src", "usb-cam-source")
     if not source:
         sys.stderr.write(" Unable to create Source \n")
 
-    # Since the data format in the input file is elementary h264 stream,
-    # we need a h264parser
-    print("Creating H264Parser \n")
-    h264parser = Gst.ElementFactory.make("h264parse", "h264-parser")
-    if not h264parser:
-        sys.stderr.write(" Unable to create h264 parser \n")
+    caps_v4l2src = Gst.ElementFactory.make("capsfilter", "v4l2src_caps")
+    if not caps_v4l2src:
+        sys.stderr.write(" Unable to create v4l2src capsfilter \n")
 
-    # Use nvdec_h264 for hardware accelerated decode on GPU
-    print("Creating Decoder \n")
-    decoder = Gst.ElementFactory.make("nvv4l2decoder", "nvv4l2-decoder")
-    if not decoder:
-        sys.stderr.write(" Unable to create Nvv4l2 Decoder \n")
+
+    print("Creating Video Converter \n")
+
+    # Adding videoconvert -> nvvideoconvert as not all
+    # raw formats are supported by nvvideoconvert;
+    # Say YUYV is unsupported - which is the common
+    # raw format for many logi usb cams
+    # In case we have a camera with raw format supported in
+    # nvvideoconvert, GStreamer plugins' capability negotiation
+    # shall be intelligent enough to reduce compute by
+    # videoconvert doing passthrough (TODO we need to confirm this)
+
+
+    # videoconvert to make sure a superset of raw formats are supported
+    vidconvsrc = Gst.ElementFactory.make("videoconvert", "convertor_src1")
+    if not vidconvsrc:
+        sys.stderr.write(" Unable to create videoconvert \n")
+
+    # nvvideoconvert to convert incoming raw buffers to NVMM Mem (NvBufSurface API)
+    nvvidconvsrc = Gst.ElementFactory.make("nvvideoconvert", "convertor_src2")
+    if not nvvidconvsrc:
+        sys.stderr.write(" Unable to create Nvvideoconvert \n")
+
+    caps_vidconvsrc = Gst.ElementFactory.make("capsfilter", "nvmm_caps")
+    if not caps_vidconvsrc:
+        sys.stderr.write(" Unable to create capsfilter \n")
 
     # Create nvstreammux instance to form batches from one or more sources.
     streammux = Gst.ElementFactory.make("nvstreammux", "Stream-muxer")
     if not streammux:
         sys.stderr.write(" Unable to create NvStreamMux \n")
 
-    # Use nvinfer to run inferencing on decoder's output,
+    # Use nvinfer to run inferencing on camera's output,
     # behaviour of inferencing is set through config file
     pgie = Gst.ElementFactory.make("nvinfer", "primary-inference")
     if not pgie:
         sys.stderr.write(" Unable to create pgie \n")
 
-    tracker = Gst.ElementFactory.make("nvtracker", "tracker")
-    if not tracker:
-        sys.stderr.write(" Unable to create tracker \n")
-
-    sgie1 = Gst.ElementFactory.make("nvinfer", "secondary1-nvinference-engine")
-    if not sgie1:
-        sys.stderr.write(" Unable to make sgie1 \n")
-
-
-    sgie2 = Gst.ElementFactory.make("nvinfer", "secondary2-nvinference-engine")
-    if not sgie1:
-        sys.stderr.write(" Unable to make sgie2 \n")
-
-    sgie3 = Gst.ElementFactory.make("nvinfer", "secondary3-nvinference-engine")
-    if not sgie3:
-        sys.stderr.write(" Unable to make sgie3 \n")
-
+    # Use convertor to convert from NV12 to RGBA as required by nvosd
     nvvidconv = Gst.ElementFactory.make("nvvideoconvert", "convertor")
     if not nvvidconv:
         sys.stderr.write(" Unable to create nvvidconv \n")
@@ -206,54 +209,26 @@ def main(args):
     if not sink:
         sys.stderr.write(" Unable to create egl sink \n")
 
-    print("Playing file %s " %args[1])
-    source.set_property('location', args[1])
+    print("Playing cam %s " %args[1])
+    caps_v4l2src.set_property('caps', Gst.Caps.from_string("video/x-raw, framerate=30/1"))
+    caps_vidconvsrc.set_property('caps', Gst.Caps.from_string("video/x-raw(memory:NVMM)"))
+    source.set_property('device', args[1])
     streammux.set_property('width', 1920)
     streammux.set_property('height', 1080)
     streammux.set_property('batch-size', 1)
     streammux.set_property('batched-push-timeout', 4000000)
-
-    #Set properties of pgie and sgie
-    pgie.set_property('config-file-path', "dstest2_pgie_config.txt")
-    sgie1.set_property('config-file-path', "dstest2_sgie1_config.txt")
-    sgie2.set_property('config-file-path', "dstest2_sgie2_config.txt")
-    sgie3.set_property('config-file-path', "dstest2_sgie3_config.txt")
-
-    #Set properties of tracker
-    config = configparser.ConfigParser()
-    config.read('dstest2_tracker_config.txt')
-    config.sections()
-
-    for key in config['tracker']:
-        if key == 'tracker-width' :
-            tracker_width = config.getint('tracker', key)
-            tracker.set_property('tracker-width', tracker_width)
-        if key == 'tracker-height' :
-            tracker_height = config.getint('tracker', key)
-            tracker.set_property('tracker-height', tracker_height)
-        if key == 'gpu-id' :
-            tracker_gpu_id = config.getint('tracker', key)
-            tracker.set_property('gpu_id', tracker_gpu_id)
-        if key == 'll-lib-file' :
-            tracker_ll_lib_file = config.get('tracker', key)
-            tracker.set_property('ll-lib-file', tracker_ll_lib_file)
-        if key == 'll-config-file' :
-            tracker_ll_config_file = config.get('tracker', key)
-            tracker.set_property('ll-config-file', tracker_ll_config_file)
-        if key == 'enable-batch-process' :
-            tracker_enable_batch_process = config.getint('tracker', key)
-            tracker.set_property('enable_batch_process', tracker_enable_batch_process)
+    pgie.set_property('config-file-path', "dstest1_pgie_config.txt")
+    # Set sync = false to avoid late frame drops at the display-sink
+    sink.set_property('sync', False)
 
     print("Adding elements to Pipeline \n")
     pipeline.add(source)
-    pipeline.add(h264parser)
-    pipeline.add(decoder)
+    pipeline.add(caps_v4l2src)
+    pipeline.add(vidconvsrc)
+    pipeline.add(nvvidconvsrc)
+    pipeline.add(caps_vidconvsrc)
     pipeline.add(streammux)
     pipeline.add(pgie)
-    pipeline.add(tracker)
-    pipeline.add(sgie1)
-    pipeline.add(sgie2)
-    pipeline.add(sgie3)
     pipeline.add(nvvidconv)
     pipeline.add(nvosd)
     pipeline.add(sink)
@@ -261,25 +236,23 @@ def main(args):
         pipeline.add(transform)
 
     # we link the elements together
-    # file-source -> h264-parser -> nvh264-decoder ->
-    # nvinfer -> nvvidconv -> nvosd -> video-renderer
+    # v4l2src -> nvvideoconvert -> mux -> 
+    # nvinfer -> nvvideoconvert -> nvosd -> video-renderer
     print("Linking elements in the Pipeline \n")
-    source.link(h264parser)
-    h264parser.link(decoder)
+    source.link(caps_v4l2src)
+    caps_v4l2src.link(vidconvsrc)
+    vidconvsrc.link(nvvidconvsrc)
+    nvvidconvsrc.link(caps_vidconvsrc)
 
     sinkpad = streammux.get_request_pad("sink_0")
     if not sinkpad:
         sys.stderr.write(" Unable to get the sink pad of streammux \n")
-    srcpad = decoder.get_static_pad("src")
+    srcpad = caps_vidconvsrc.get_static_pad("src")
     if not srcpad:
-        sys.stderr.write(" Unable to get source pad of decoder \n")
+        sys.stderr.write(" Unable to get source pad of caps_vidconvsrc \n")
     srcpad.link(sinkpad)
     streammux.link(pgie)
-    pgie.link(tracker)
-    tracker.link(sgie1)
-    sgie1.link(sgie2)
-    sgie2.link(sgie3)
-    sgie3.link(nvvidconv)
+    pgie.link(nvvidconv)
     nvvidconv.link(nvosd)
     if is_aarch64():
         nvosd.link(transform)
@@ -287,10 +260,8 @@ def main(args):
     else:
         nvosd.link(sink)
 
-
-    # create and event loop and feed gstreamer bus mesages to it
+    # create an event loop and feed gstreamer bus mesages to it
     loop = GObject.MainLoop()
-
     bus = pipeline.get_bus()
     bus.add_signal_watch()
     bus.connect ("message", bus_call, loop)
@@ -301,18 +272,16 @@ def main(args):
     osdsinkpad = nvosd.get_static_pad("sink")
     if not osdsinkpad:
         sys.stderr.write(" Unable to get sink pad of nvosd \n")
+
     osdsinkpad.add_probe(Gst.PadProbeType.BUFFER, osd_sink_pad_buffer_probe, 0)
 
-
+    # start play back and listen to events
     print("Starting pipeline \n")
-    
-    # start play back and listed to events
     pipeline.set_state(Gst.State.PLAYING)
     try:
-      loop.run()
+        loop.run()
     except:
-      pass
-
+        pass
     # cleanup
     pipeline.set_state(Gst.State.NULL)
 

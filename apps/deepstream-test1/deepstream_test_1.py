@@ -1,5 +1,7 @@
+#!/usr/bin/env python3
+
 ################################################################################
-# Copyright (c) 2019, NVIDIA CORPORATION. All rights reserved.
+# Copyright (c) 2020, NVIDIA CORPORATION. All rights reserved.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a
 # copy of this software and associated documentation files (the "Software"),
@@ -19,8 +21,6 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 # DEALINGS IN THE SOFTWARE.
 ################################################################################
-
-#!/usr/bin/env python
 
 import sys
 sys.path.append('../')
@@ -66,7 +66,8 @@ def osd_sink_pad_buffer_probe(pad,info,u_data):
             # The casting also keeps ownership of the underlying memory
             # in the C code, so the Python garbage collector will leave
             # it alone.
-            frame_meta = pyds.glist_get_nvds_frame_meta(l_frame.data)
+            #frame_meta = pyds.glist_get_nvds_frame_meta(l_frame.data)
+            frame_meta = pyds.NvDsFrameMeta.cast(l_frame.data)
         except StopIteration:
             break
 
@@ -76,10 +77,12 @@ def osd_sink_pad_buffer_probe(pad,info,u_data):
         while l_obj is not None:
             try:
                 # Casting l_obj.data to pyds.NvDsObjectMeta
-                obj_meta=pyds.glist_get_nvds_object_meta(l_obj.data)
+                #obj_meta=pyds.glist_get_nvds_object_meta(l_obj.data)
+                obj_meta=pyds.NvDsObjectMeta.cast(l_obj.data)
             except StopIteration:
                 break
             obj_counter[obj_meta.class_id] += 1
+            obj_meta.rect_params.border_color.set(0.0, 0.0, 1.0, 0.0)
             try: 
                 l_obj=l_obj.next
             except StopIteration:

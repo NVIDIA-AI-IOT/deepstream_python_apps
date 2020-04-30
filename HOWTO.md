@@ -8,14 +8,16 @@ This guide provides resources for DeepStream application development in Python.
 * [Running Sample Applications](#run_samples)
 * [Pipeline Construction](#pipeline_construction)
 * [MetaData Access](#metadata_access)
+* [Image Data Access](#imagedata_access)
+* [Custom Inference Output Parsing](apps/deepstream-ssd-parser/custom_parser_guide.md)
 * [FAQ and Troubleshooting](FAQ.md)
 
 <a name="prereqs"></a>
 ## Prerequisites
 
 * Ubuntu 18.04
-* [DeepStream SDK 4.0.1](https://developer.nvidia.com/deepstream-download) or later
-* Python 3
+* [DeepStream SDK 5.0 Developer Preview](https://developer.nvidia.com/deepstream-download) or later
+* Python 3.6
 * [Gst Python](https://gstreamer.freedesktop.org/modules/gst-python.html) v1.14.5
 
 Gst python should be already installed on Jetson.  
@@ -36,11 +38,11 @@ If missing, install with the following steps:
 <a name="run_samples"></a>
 ## Running Sample Applications
 
-Download the release package and unpack it under DS 4.0.1 installation:  
-```tar xf ds_pybind_0.5.tbz2 -C <DeepStream 4.0.1 ROOT>/sources```  
+Download the release package and unpack it under DS 5.0 installation:  
+```tar xf ds_pybind_v0.9.tbz2 -C <DeepStream 5.0 ROOT>/sources```  
 
 This will create the following directory:  
-```<DeepStream 4.0.1 ROOT>/sources/python```  
+```<DeepStream 5.0 ROOT>/sources/python```  
 
 The Python apps and bindings are under the "python" directory.  
 Go into each app directory and follow instructions in the README.  
@@ -56,7 +58,7 @@ See [sample applications](apps/) main functions for pipeline construction exampl
 <a name="metadata_access"></a>
 ## MetaData Access
 
-DeepStream MetaData contains inference results and other information used in analytics. The MetaData is attached to the Gst Buffer received by each pipeline component. The metadata format is described in detail in the [SDK MetaData documentation](https://docs.nvidia.com/metropolis/deepstream/plugin-manual/index.html#page/DeepStream_Plugin_Manual%2Fdeepstream_plugin_metadata.03.1.html) and [API Guide](https://docs.nvidia.com/metropolis/deepstream/dev-guide/DeepStream_Development_Guide/baggage/group__metadata__structures.html).  
+DeepStream MetaData contains inference results and other information used in analytics. The MetaData is attached to the Gst Buffer received by each pipeline component. The metadata format is described in detail in the [SDK MetaData documentation](https://docs.nvidia.com/metropolis/deepstream/plugin-manual/index.html#page/DeepStream_Plugin_Manual%2Fdeepstream_plugin_metadata.03.1.html) and [API Guide](https://docs.nvidia.com/metropolis/deepstream/python-api/index.html).  
 
 The SDK MetaData library is developed in C/C++. Python bindings provide access to the MetaData from Python applications. The bindings are provided in a compiled module, available for x86_64 and Jetson platforms. Find them in the release package with the following layout:
 ```
@@ -118,10 +120,12 @@ This will cause a memory buffer to be allocated, and the string "TYPE" will be c
 This memory is owned by the C code and will be freed later. To free the buffer in Python code, use:  
 ```pyds.free_buffer(obj.type)```  
 
+NOTE: NvOSD_TextParams.display_text string now gets freed automatically when a new string is assigned.
+
 ##### Reading String Fields
 Directly reading a string field returns C address of the field in the form of an int, e.g.:  
 ```python
-obj = pyds.glist_get_nvds_vehicle_object(data);
+obj = pyds.NvDsVehicleObject.cast(data);
 print(obj.type)
 ```
 This will print an int representing the address of obj.type in C (which is a char*).  
@@ -133,16 +137,29 @@ print(pyds.get_string(obj.type))
 
 #### Casting
 
-Some MetaData instances are stored in GList form. To access the data in a GList node, the data field needs to be cast to the appropriate structure. This casting is done via binding functions:  
+Some MetaData instances are stored in GList form. To access the data in a GList node, the data field needs to be cast to the appropriate structure. This casting is done via cast() member function for the target type:
+```python
+NvDsBatchMeta.cast
+NvDsFrameMeta.cast
+NvDsObjectMeta.cast
+NvDsUserMeta.cast
+NvDsClassifierMeta.cast
+NvDsDisplayMeta.cast
+NvDsLabelInfo.cast
+NvDsEventMsgMeta.cast
+NvDsVehicleObject.cast
+NvDsPersonObject.cast
+```
+
+In version v0.5, standalone cast functions were provided. Those are now deprecated and superseded by the cast() functions above:
 ```python
 glist_get_nvds_batch_meta
 glist_get_nvds_frame_meta
 glist_get_nvds_object_meta
-glist_get_nvds_user_met
+glist_get_nvds_user_meta
 glist_get_nvds_classifier_meta
 glist_get_nvds_display_meta
 glist_get_nvds_label_info
-glist_get_nvds_event_msg_meta
 glist_get_nvds_event_msg_meta
 glist_get_nvds_vehicle_object
 glist_get_nvds_person_object
@@ -151,7 +168,7 @@ glist_get_nvds_person_object
 Example:
 ```python
 l_frame = batch_meta.frame_meta_list
-frame_meta = pyds.glist_get_nvds_frame_meta(l_frame.data)
+frame_meta = pyds.NvDsFrameMeta.cast(l_frame.data)
 ```
 
 #### Callback Function Registration
@@ -193,3 +210,9 @@ These are performend on each object in deepstream_test_4.py, causing the aggrega
 
 This function populates the input buffer with a timestamp generated according to RFC3339:  
 ```%Y-%m-%dT%H:%M:%S.nnnZ\0```
+
+<a name="imagedata_access"></a>
+## Image Data Access
+
+Decoded images are accessible as NumPy arrays via the `get_nvds_buf_surface` function. This function is documented in the [API Guide](https://docs.nvidia.com/metropolis/deepstream/5.0/python-api/index.html).
+Please see the [deepstream-imagedata-multistream](apps/deepstream-imagedata-multistream) sample application for an example of image data usage.

@@ -1,5 +1,5 @@
 ################################################################################
-# Copyright (c) 2018-2019, NVIDIA CORPORATION. All rights reserved.
+# Copyright (c) 2018-2020, NVIDIA CORPORATION. All rights reserved.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a
 # copy of this software and associated documentation files (the "Software"),
@@ -61,6 +61,7 @@
 gpu-id=0
 net-scale-factor=1
 model-file=../../../../samples/models/Secondary_VehicleTypes/resnet18.caffemodel
+model-engine-file=../../../../samples/models/Secondary_VehicleTypes/resnet18.caffemodel_b16_gpu0_int8.engine
 proto-file=../../../../samples/models/Secondary_VehicleTypes/resnet18.prototxt
 mean-file=../../../../samples/models/Secondary_VehicleTypes/mean.ppm
 labelfile-path=../../../../samples/models/Secondary_VehicleTypes/labels.txt
@@ -80,4 +81,3 @@ is-classifier=1
 output-blob-names=predictions/Softmax
 classifier-async-mode=1
 classifier-threshold=0.51
-gie-mode=2

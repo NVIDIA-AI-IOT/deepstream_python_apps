@@ -1,5 +1,5 @@
 ################################################################################
-# Copyright (c) 2019, NVIDIA CORPORATION. All rights reserved.
+# Copyright (c) 2019-2020, NVIDIA CORPORATION. All rights reserved.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a
 # copy of this software and associated documentation files (the "Software"),
@@ -21,14 +21,14 @@
 ################################################################################
 
 Prequisites:
-- DeepStreamSDK 4.0.1
-- Python 3
+- DeepStreamSDK 5.0
+- Python 3.6
 - Gst-python
 
 To run the test app:
   $ python3 deepstream_test_1.py <h264_elementary_stream>
 
-This document shall describe about the sample deepstream-test1 application.
+This document shall describe the sample deepstream-test1 application.
 
 It is meant for simple demonstration of how to use the various DeepStream SDK
 elements in the pipeline and extract meaningful insights from a video stream.

@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 ################################################################################
 # Copyright (c) 2019, NVIDIA CORPORATION. All rights reserved.
 #
@@ -19,8 +21,6 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 # DEALINGS IN THE SOFTWARE.
 ################################################################################
-
-#!/usr/bin/env python
 
 import sys
 sys.path.append('../')
@@ -63,17 +63,17 @@ pgie_classes_str=["Vehicle", "TwoWheeler", "Person","Roadsign"]
 # Callback function for deep-copying an NvDsEventMsgMeta struct
 def meta_copy_func(data,user_data):
     # Cast data to pyds.NvDsUserMeta
-    user_meta=pyds.glist_get_nvds_user_meta(data)
+    user_meta=pyds.NvDsUserMeta.cast(data)
     src_meta_data=user_meta.user_meta_data
     # Cast src_meta_data to pyds.NvDsEventMsgMeta
-    srcmeta=pyds.glist_get_nvds_event_msg_meta(src_meta_data)
+    srcmeta=pyds.NvDsEventMsgMeta.cast(src_meta_data)
     # Duplicate the memory contents of srcmeta to dstmeta
     # First use pyds.get_ptr() to get the C address of srcmeta, then
     # use pyds.memdup() to allocate dstmeta and copy srcmeta into it.
     # pyds.memdup returns C address of the allocated duplicate.
     dstmeta_ptr=pyds.memdup(pyds.get_ptr(srcmeta), sys.getsizeof(pyds.NvDsEventMsgMeta))
     # Cast the duplicated memory to pyds.NvDsEventMsgMeta
-    dstmeta=pyds.glist_get_nvds_event_msg_meta(dstmeta_ptr)
+    dstmeta=pyds.NvDsEventMsgMeta.cast(dstmeta_ptr)
 
     # Duplicate contents of ts field. Note that reading srcmeat.ts
     # returns its C address. This allows to memory operations to be
@@ -94,7 +94,7 @@ def meta_copy_func(data,user_data):
 
     if(srcmeta.extMsgSize>0):
         if(srcmeta.objType==pyds.NvDsObjectType.NVDS_OBJECT_TYPE_VEHICLE):
-            srcobj = pyds.glist_get_nvds_vehicle_object(srcmeta.extMsg);
+            srcobj = pyds.NvDsVehicleObject.cast(srcmeta.extMsg);
             obj = pyds.alloc_nvds_vehicle_object();
             obj.type=pyds.get_string(srcobj.type)
             obj.make=pyds.get_string(srcobj.make)
@@ -105,7 +105,7 @@ def meta_copy_func(data,user_data):
             dstmeta.extMsg = obj;
             dstmeta.extMsgSize = sys.getsizeof(pyds.NvDsVehicleObject)
         if(srcmeta.objType==pyds.NvDsObjectType.NVDS_OBJECT_TYPE_PERSON):
-            srcobj = pyds.glist_get_nvds_person_object(srcmeta.extMsg);
+            srcobj = pyds.NvDsPersonObject.cast(srcmeta.extMsg);
             obj = pyds.alloc_nvds_person_object()
             obj.age = srcobj.age
             obj.gender = pyds.get_string(srcobj.gender);
@@ -119,8 +119,8 @@ def meta_copy_func(data,user_data):
 
 # Callback function for freeing an NvDsEventMsgMeta instance
 def meta_free_func(data,user_data):
-    user_meta=pyds.glist_get_nvds_user_meta(data)
-    srcmeta=pyds.glist_get_nvds_event_msg_meta(user_meta.user_meta_data)
+    user_meta=pyds.NvDsUserMeta.cast(data)
+    srcmeta=pyds.NvDsEventMsgMeta.cast(user_meta.user_meta_data)
 
     # pyds.free_buffer takes C address of a buffer and frees the memory
     # It's a NOP if the address is NULL
@@ -133,7 +133,7 @@ def meta_free_func(data,user_data):
 
     if(srcmeta.extMsgSize > 0):
         if(srcmeta.objType == pyds.NvDsObjectType.NVDS_OBJECT_TYPE_VEHICLE):
-            obj =pyds.glist_get_nvds_vehicle_object(srcmeta.extMsg)
+            obj =pyds.NvDsVehicleObject.cast(srcmeta.extMsg)
             pyds.free_buffer(obj.type);
             pyds.free_buffer(obj.color);
             pyds.free_buffer(obj.make);
@@ -141,7 +141,7 @@ def meta_free_func(data,user_data):
             pyds.free_buffer(obj.license);
             pyds.free_buffer(obj.region);
         if(srcmeta.objType == pyds.NvDsObjectType.NVDS_OBJECT_TYPE_PERSON):
-            obj = pyds.glist_get_nvds_person_object(srcmeta.extMsg);
+            obj = pyds.NvDsPersonObject.cast(srcmeta.extMsg);
             pyds.free_buffer(obj.gender);
             pyds.free_buffer(obj.cap);
             pyds.free_buffer(obj.hair);
@@ -150,7 +150,7 @@ def meta_free_func(data,user_data):
         srcmeta.extMsgSize = 0;
 
 def generate_vehicle_meta(data):
-    obj = pyds.glist_get_nvds_vehicle_object(data);
+    obj = pyds.NvDsVehicleObject.cast(data);
     obj.type ="sedan"
     obj.color="blue"
     obj.make ="Bugatti"
@@ -160,7 +160,7 @@ def generate_vehicle_meta(data):
     return obj
 
 def generate_person_meta(data):
-    obj = pyds.glist_get_nvds_person_object(data)
+    obj = pyds.NvDsPersonObject.cast(data)
     obj.age = 45
     obj.cap = "none"
     obj.hair = "black"
@@ -169,7 +169,7 @@ def generate_person_meta(data):
     return obj
 
 def generate_event_msg_meta(data, class_id):
-    meta =pyds.glist_get_nvds_event_msg_meta(data)
+    meta =pyds.NvDsEventMsgMeta.cast(data)
     meta.sensorId = 0
     meta.placeId = 0
     meta.moduleId = 0
@@ -231,11 +231,11 @@ def osd_sink_pad_buffer_probe(pad,info,u_data):
     while l_frame is not None:
         try:
             # Note that l_frame.data needs a cast to pyds.NvDsFrameMeta
-            # The casting is done by pyds.glist_get_nvds_frame_meta()
+            # The casting is done by pyds.NvDsFrameMeta.cast()
             # The casting also keeps ownership of the underlying memory
             # in the C code, so the Python garbage collector will leave
             # it alone.
-            frame_meta = pyds.glist_get_nvds_frame_meta(l_frame.data)
+            frame_meta = pyds.NvDsFrameMeta.cast(l_frame.data)
         except StopIteration:
             continue
         is_first_object = True;
@@ -252,15 +252,15 @@ def osd_sink_pad_buffer_probe(pad,info,u_data):
         l_obj=frame_meta.obj_meta_list
         while l_obj is not None:
             try:
-                obj_meta=pyds.glist_get_nvds_object_meta(l_obj.data)
+                obj_meta=pyds.NvDsObjectMeta.cast(l_obj.data)
             except StopIteration:
                 continue
 
             # Update the object text display
             txt_params=obj_meta.text_params
-            if(txt_params.display_text):
-                pyds.free_buffer(txt_params.display_text)
 
+            # Set display_text. Any existing display_text string will be
+            # freed by the bindings module.
             txt_params.display_text = pgie_classes_str[obj_meta.class_id]
 
             obj_counter[obj_meta.class_id] += 1
@@ -411,7 +411,8 @@ def main(args):
     msgconv.set_property('payload-type', schema_type)
     msgbroker.set_property('proto-lib', proto_lib)
     msgbroker.set_property('conn-str', conn_str)
-    msgbroker.set_property('config', cfg_file)
+    if cfg_file is not None:
+        msgbroker.set_property('config', cfg_file)
     if topic is not None:
         msgbroker.set_property('topic', topic)
     msgbroker.set_property('sync', False)

@@ -37,10 +37,19 @@ import platform
 from common.is_aarch_64 import is_aarch64
 from common.bus_call import bus_call
 from common.FPS import GETFPS
-
+import numpy as np
 import pyds
-
+import cv2
+import os
+import os.path
+from os import path
 fps_streams={}
+frame_count={}
+saved_count={}
+global PGIE_CLASS_ID_VEHICLE
+PGIE_CLASS_ID_VEHICLE=0
+global PGIE_CLASS_ID_PERSON
+PGIE_CLASS_ID_PERSON=2
 
 MAX_DISPLAY_LEN=64
 PGIE_CLASS_ID_VEHICLE = 0
@@ -48,27 +57,29 @@ PGIE_CLASS_ID_BICYCLE = 1
 PGIE_CLASS_ID_PERSON = 2
 PGIE_CLASS_ID_ROADSIGN = 3
 MUXER_OUTPUT_WIDTH=1920
-MUXER_OUTPUT_HEIGHT=80
+MUXER_OUTPUT_HEIGHT=1080
 MUXER_BATCH_TIMEOUT_USEC=4000000
 TILED_OUTPUT_WIDTH=1920
 TILED_OUTPUT_HEIGHT=1080
 GST_CAPS_FEATURES_NVMM="memory:NVMM"
 pgie_classes_str= ["Vehicle", "TwoWheeler", "Person","RoadSign"]
 
-# tiler_sink_pad_buffer_probe  will extract metadata received on OSD sink pad
+
+# tiler_sink_pad_buffer_probe  will extract metadata received on tiler src pad
 # and update params for drawing rectangle, object information etc.
-def tiler_src_pad_buffer_probe(pad,info,u_data):
+def tiler_sink_pad_buffer_probe(pad,info,u_data):
     frame_number=0
     num_rects=0
     gst_buffer = info.get_buffer()
     if not gst_buffer:
         print("Unable to get GstBuffer ")
         return
-
+        
     # Retrieve batch metadata from the gst_buffer
     # Note that pyds.gst_buffer_get_nvds_batch_meta() expects the
     # C address of gst_buffer as input, which is obtained with hash(gst_buffer)
     batch_meta = pyds.gst_buffer_get_nvds_batch_meta(hash(gst_buffer))
+    
     l_frame = batch_meta.frame_meta_list
     while l_frame is not None:
         try:
@@ -81,17 +92,11 @@ def tiler_src_pad_buffer_probe(pad,info,u_data):
         except StopIteration:
             break
 
-        '''
-        print("Frame Number is ", frame_meta.frame_num)
-        print("Source id is ", frame_meta.source_id)
-        print("Batch id is ", frame_meta.batch_id)
-        print("Source Frame Width ", frame_meta.source_frame_width)
-        print("Source Frame Height ", frame_meta.source_frame_height)
-        print("Num object meta ", frame_meta.num_obj_meta)
-        '''
         frame_number=frame_meta.frame_num
         l_obj=frame_meta.obj_meta_list
         num_rects = frame_meta.num_obj_meta
+        is_first_obj = True
+        save_image = False
         obj_counter = {
         PGIE_CLASS_ID_VEHICLE:0,
         PGIE_CLASS_ID_PERSON:0,
@@ -105,33 +110,33 @@ def tiler_src_pad_buffer_probe(pad,info,u_data):
             except StopIteration:
                 break
             obj_counter[obj_meta.class_id] += 1
+            # Periodically check for objects with borderline confidence value that may be false positive detections.
+            # If such detections are found, annoate the frame with bboxes and confidence value.
+            # Save the annotated frame to file.
+            if((saved_count["stream_"+str(frame_meta.pad_index)]%30==0) and (obj_meta.confidence>0.3 and obj_meta.confidence<0.31)):
+                if is_first_obj:
+                    is_first_obj = False
+                    # Getting Image data using nvbufsurface
+                    # the input should be address of buffer and batch_id
+                    n_frame=pyds.get_nvds_buf_surface(hash(gst_buffer),frame_meta.batch_id)
+                    #convert python array into numy array format.
+                    frame_image=np.array(n_frame,copy=True,order='C')
+                    #covert the array into cv2 default color format
+                    frame_image=cv2.cvtColor(frame_image,cv2.COLOR_RGBA2BGRA)
+
+                save_image = True
+                frame_image=draw_bounding_boxes(frame_image,obj_meta,obj_meta.confidence)
             try: 
                 l_obj=l_obj.next
             except StopIteration:
                 break
-        """display_meta=pyds.nvds_acquire_display_meta_from_pool(batch_meta)
-        display_meta.num_labels = 1
-        py_nvosd_text_params = display_meta.text_params[0]
-        py_nvosd_text_params.display_text = "Frame Number={} Number of Objects={} Vehicle_count={} Person_count={}".format(frame_number, num_rects, vehicle_count, person)
-        py_nvosd_text_params.x_offset = 10;
-        py_nvosd_text_params.y_offset = 12;
-        py_nvosd_text_params.font_params.font_name = "Serif"
-        py_nvosd_text_params.font_params.font_size = 10
-        py_nvosd_text_params.font_params.font_color.red = 1.0
-        py_nvosd_text_params.font_params.font_color.green = 1.0
-        py_nvosd_text_params.font_params.font_color.blue = 1.0
-        py_nvosd_text_params.font_params.font_color.alpha = 1.0
-        py_nvosd_text_params.set_bg_clr = 1
-        py_nvosd_text_params.text_bg_clr.red = 0.0
-        py_nvosd_text_params.text_bg_clr.green = 0.0
-        py_nvosd_text_params.text_bg_clr.blue = 0.0
-        py_nvosd_text_params.text_bg_clr.alpha = 1.0
-        #print("Frame Number=", frame_number, "Number of Objects=",num_rects,"Vehicle_count=",vehicle_count,"Person_count=",person)
-        pyds.nvds_add_display_meta_to_frame(frame_meta, display_meta)"""
-        print("Frame Number=", frame_number, "Number of Objects=",num_rects,"Vehicle_count=",obj_counter[PGIE_CLASS_ID_VEHICLE],"Person_count=",obj_counter[PGIE_CLASS_ID_PERSON])
 
+        print("Frame Number=", frame_number, "Number of Objects=",num_rects,"Vehicle_count=",obj_counter[PGIE_CLASS_ID_VEHICLE],"Person_count=",obj_counter[PGIE_CLASS_ID_PERSON])
         # Get frame rate through this probe
         fps_streams["stream{0}".format(frame_meta.pad_index)].get_fps()
+        if save_image:
+            cv2.imwrite(folder_name+"/stream_"+str(frame_meta.pad_index)+"/frame_"+str(frame_number)+".jpg",frame_image)
+        saved_count["stream_"+str(frame_meta.pad_index)]+=1        
         try:
             l_frame=l_frame.next
         except StopIteration:
@@ -139,7 +144,18 @@ def tiler_src_pad_buffer_probe(pad,info,u_data):
 
     return Gst.PadProbeReturn.OK
 
-
+def draw_bounding_boxes(image,obj_meta,confidence):
+    confidence='{0:.2f}'.format(confidence)
+    rect_params=obj_meta.rect_params
+    top=int(rect_params.top)
+    left=int(rect_params.left)
+    width=int(rect_params.width)
+    height=int(rect_params.height)
+    obj_name=pgie_classes_str[obj_meta.class_id]
+    image=cv2.rectangle(image,(left,top),(left+width,top+height),(0,0,255,0),2)
+    # Note that on some systems cv2.putText erroneously draws horizontal lines across the image
+    image=cv2.putText(image,obj_name+',C='+str(confidence),(left-10,top-10),cv2.FONT_HERSHEY_SIMPLEX,0.5,(0,0,255,0),2)
+    return image
 
 def cb_newpad(decodebin, decoder_src_pad,data):
     print("In cb_newpad\n")
@@ -151,12 +167,10 @@ def cb_newpad(decodebin, decoder_src_pad,data):
 
     # Need to check if the pad created by the decodebin is for video and not
     # audio.
-    print("gstname=",gstname)
     if(gstname.find("video")!=-1):
         # Link the decodebin pad only if decodebin has picked nvidia
         # decoder plugin nvdec_*. We do this by checking if the pad caps contain
         # NVMM memory features.
-        print("features=",features)
         if features.contains("memory:NVMM"):
             # Get the source bin ghost pad
             bin_ghost_pad=source_bin.get_static_pad("src")
@@ -212,13 +226,21 @@ def create_source_bin(index,uri):
 def main(args):
     # Check input arguments
     if len(args) < 2:
-        sys.stderr.write("usage: %s <uri1> [uri2] ... [uriN]\n" % args[0])
+        sys.stderr.write("usage: %s <uri1> [uri2] ... [uriN] <folder to save frames>\n" % args[0])
         sys.exit(1)
 
-    for i in range(0,len(args)-1):
+    for i in range(0,len(args)-2):
         fps_streams["stream{0}".format(i)]=GETFPS(i)
-    number_sources=len(args)-1
+    number_sources=len(args)-2
 
+    global folder_name
+    folder_name=args[-1]
+    if path.exists(folder_name):
+        sys.stderr.write("The output folder %s already exists. Please remove it first.\n" % folder_name)
+        sys.exit(1)
+
+    os.mkdir(folder_name)
+    print("Frames will be saved in ",folder_name)
     # Standard GStreamer initialization
     GObject.threads_init()
     Gst.init(None)
@@ -240,6 +262,9 @@ def main(args):
 
     pipeline.add(streammux)
     for i in range(number_sources):
+        os.mkdir(folder_name+"/stream_"+str(i))
+        frame_count["stream_"+str(i)]=0
+        saved_count["stream_"+str(i)]=0
         print("Creating source_bin ",i," \n ")
         uri_name=args[i+1]
         if uri_name.find("rtsp://") == 0 :
@@ -260,6 +285,18 @@ def main(args):
     pgie = Gst.ElementFactory.make("nvinfer", "primary-inference")
     if not pgie:
         sys.stderr.write(" Unable to create pgie \n")
+    # Add nvvidconv1 and filter1 to convert the frames to RGBA
+    # which is easier to work with in Python.
+    print("Creating nvvidconv1 \n ")
+    nvvidconv1 = Gst.ElementFactory.make("nvvideoconvert", "convertor1")
+    if not nvvidconv1:
+        sys.stderr.write(" Unable to create nvvidconv1 \n")
+    print("Creating filter1 \n ")
+    caps1 = Gst.Caps.from_string("video/x-raw(memory:NVMM), format=RGBA")
+    filter1 = Gst.ElementFactory.make("capsfilter", "filter1")
+    if not filter1:
+        sys.stderr.write(" Unable to get the caps filter1 \n")
+    filter1.set_property("caps", caps1)
     print("Creating tiler \n ")
     tiler=Gst.ElementFactory.make("nvmultistreamtiler", "nvtiler")
     if not tiler:
@@ -291,7 +328,7 @@ def main(args):
     streammux.set_property('height', 1080)
     streammux.set_property('batch-size', number_sources)
     streammux.set_property('batched-push-timeout', 4000000)
-    pgie.set_property('config-file-path', "dstest3_pgie_config.txt")
+    pgie.set_property('config-file-path', "dstest_imagedata_config.txt")
     pgie_batch_size=pgie.get_property("batch-size")
     if(pgie_batch_size != number_sources):
         print("WARNING: Overriding infer-config batch-size",pgie_batch_size," with number of sources ", number_sources," \n")
@@ -303,40 +340,56 @@ def main(args):
     tiler.set_property("width", TILED_OUTPUT_WIDTH)
     tiler.set_property("height", TILED_OUTPUT_HEIGHT)
 
+    sink.set_property("sync", 0)
+
+    if not is_aarch64():
+        # Use CUDA unified memory in the pipeline so frames
+        # can be easily accessed on CPU in Python.
+        mem_type = int(pyds.NVBUF_MEM_CUDA_UNIFIED)
+        streammux.set_property("nvbuf-memory-type", mem_type)
+        nvvidconv.set_property("nvbuf-memory-type", mem_type)
+        nvvidconv1.set_property("nvbuf-memory-type", mem_type)
+        tiler.set_property("nvbuf-memory-type", mem_type)
+
     print("Adding elements to Pipeline \n")
     pipeline.add(pgie)
     pipeline.add(tiler)
     pipeline.add(nvvidconv)
+    pipeline.add(filter1)
+    pipeline.add(nvvidconv1)
     pipeline.add(nvosd)
     if is_aarch64():
         pipeline.add(transform)
     pipeline.add(sink)
 
     print("Linking elements in the Pipeline \n")
-    streammux.link(pgie)
-    pgie.link(tiler)
+    streammux.link(pgie)    
+    pgie.link(nvvidconv1)
+    nvvidconv1.link(filter1)
+    filter1.link(tiler)
     tiler.link(nvvidconv)
     nvvidconv.link(nvosd)
     if is_aarch64():
         nvosd.link(transform)
         transform.link(sink)
     else:
-        nvosd.link(sink)   
+        nvosd.link(sink)
 
     # create an event loop and feed gstreamer bus mesages to it
     loop = GObject.MainLoop()
     bus = pipeline.get_bus()
     bus.add_signal_watch()
     bus.connect ("message", bus_call, loop)
-    tiler_src_pad=pgie.get_static_pad("src")
-    if not tiler_src_pad:
+
+    tiler_sink_pad=tiler.get_static_pad("sink")
+    if not tiler_sink_pad:
         sys.stderr.write(" Unable to get src pad \n")
     else:
-        tiler_src_pad.add_probe(Gst.PadProbeType.BUFFER, tiler_src_pad_buffer_probe, 0)
+        tiler_sink_pad.add_probe(Gst.PadProbeType.BUFFER, tiler_sink_pad_buffer_probe, 0)
 
     # List the sources
     print("Now playing...")
-    for i, source in enumerate(args):
+    for i, source in enumerate(args[:-1]):
         if (i != 0):
             print(i, ": ", source)
 
@@ -353,5 +406,3 @@ def main(args):
 
 if __name__ == '__main__':
     sys.exit(main(sys.argv))
-
-

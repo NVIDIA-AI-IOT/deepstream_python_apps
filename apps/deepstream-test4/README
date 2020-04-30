@@ -1,5 +1,5 @@
 ################################################################################
-# Copyright (c) 2019, NVIDIA CORPORATION. All rights reserved.
+# Copyright (c) 2019-2020, NVIDIA CORPORATION. All rights reserved.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a
 # copy of this software and associated documentation files (the "Software"),
@@ -21,8 +21,8 @@
 ################################################################################
 
 Prerequisites:
-- DeepStreamSDK 4.0.1
-- Python 3
+- DeepStreamSDK 5.0
+- Python 3.6
 - Gst-python
 
 #Deepstream msgbroker supports sending messages to Azure(mqtt) IOThub, kafka and AMQP broker(rabbitmq)

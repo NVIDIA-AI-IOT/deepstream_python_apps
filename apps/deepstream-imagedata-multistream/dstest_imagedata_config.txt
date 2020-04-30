@@ -1,5 +1,5 @@
 ################################################################################
-# Copyright (c) 2018-2019, NVIDIA CORPORATION. All rights reserved.
+# Copyright (c) 2018-2020, NVIDIA CORPORATION. All rights reserved.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a
 # copy of this software and associated documentation files (the "Software"),
@@ -31,7 +31,7 @@
 #
 # Optional properties for detectors:
 #   enable-dbscan(Default=false), interval(Primary mode only, Default=0)
-#   custom-lib-path,
+#   custom-lib-path
 #   parse-bbox-func-name
 #
 # Mandatory properties for classifiers:
@@ -61,20 +61,21 @@
 gpu-id=0
 net-scale-factor=0.0039215697906911373
 model-file=../../../../samples/models/Primary_Detector/resnet10.caffemodel
-model-engine-file=../../../../samples/models/Primary_Detector/resnet10.caffemodel_b1_int8.engine
 proto-file=../../../../samples/models/Primary_Detector/resnet10.prototxt
 labelfile-path=../../../../samples/models/Primary_Detector/labels.txt
 int8-calib-file=../../../../samples/models/Primary_Detector/cal_trt.bin
 batch-size=1
+process-mode=1
+model-color-format=0
 network-mode=1
 num-detected-classes=4
 interval=0
-process-mode=1
-model-color-format=0
 gie-unique-id=1
 output-blob-names=conv2d_bbox;conv2d_cov/Sigmoid
+## 0=Group Rectangles, 1=DBSCAN, 2=NMS, 3 = None(No clustering)
+cluster-mode=1 
 
 [class-attrs-all]
 threshold=0.2
-eps=0.2
-group-threshold=1
+eps=0.7
+minBoxes=1

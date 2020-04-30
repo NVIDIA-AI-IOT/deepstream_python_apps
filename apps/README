@@ -1,5 +1,5 @@
 ################################################################################
-# Copyright (c) 2019, NVIDIA CORPORATION. All rights reserved.
+# Copyright (c) 2019-2020, NVIDIA CORPORATION. All rights reserved.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a
 # copy of this software and associated documentation files (the "Software"),
@@ -25,8 +25,8 @@ DeepStream SDK Python Bindings
 ================================================================================
 Setup pre-requisites:
 - Ubuntu 18.04
-- DeepStream SDK 4.0.1
-- Python 3
+- NVIDIA DeepStream SDK 5.0 Developer Preview
+- Python 3.6
 - Gst-python
 
 --------------------------------------------------------------------------------
@@ -42,21 +42,25 @@ The DeepStream Python package includes:
       |- jetson
             |- pyds.so
 2. DeepStream test apps in Python
-   Four test apps are available:
-   deepstream-test1/deepstream_test_1.py
-   deepstream-test2/deepstream_test_2.py
-   deepstream-test3/deepstream_test_3.py
-   deepstream-test3/deepstream_test_4.py
+   The following test apps are available:
+   deepstream-test1
+   deepstream-test2
+   deepstream-test3
+   deepstream-test4
+   deepstream-imagedata-multistream
+   deepstream-ssd-parser
+   deepstream-test1-rtsp-out
+   deepstream-test1-usbcam
 
 --------------------------------------------------------------------------------
 Installing Pre-requisites:
 --------------------------------------------------------------------------------
 
-DeepStream SDK 4.0.1
+DeepStream SDK 5.0 Developer Preview
 --------------------
 Download and install from https://developer.nvidia.com/deepstream-download
 
-Python 3
+Python 3.6
 ----------
 Should be already installed with Ubuntu 18.04
 
@@ -64,21 +68,13 @@ Gst-python
 ----------
 Should be already installed on Jetson
 If missing, install with the following steps:
-   $ sudo apt-get install python-gi-dev
-   $ export GST_LIBS="-lgstreamer-1.0 -lgobject-2.0 -lglib-2.0"
-   $ export GST_CFLAGS="-pthread -I/usr/include/gstreamer-1.0 -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include"
-   $ git clone https://github.com/GStreamer/gst-python.git
-   $ cd gst-python
-   $ git checkout 1a8f48a
-   $ ./autogen.sh PYTHON=python3
-   $ ./configure PYTHON=python3
-   $ make
-   $ sudo make install
+$ sudo apt update
+$ sudo apt install python3-gi python3-dev python3-gst-1.0 -y
 
 --------------------------------------------------------------------------------
 Running the samples
 --------------------------------------------------------------------------------
-The apps are configured to work from inside the DeepStream SDK 4.0.1 installation.
+The apps are configured to work from inside the DeepStream SDK 5.0 installation.
 Untar the contents into <DeepStream install root>/sources/.
 
 Note that the apps import the pyds module from this relative path:
@@ -91,8 +87,29 @@ $ cd deepstream-test1
 $ python3 deepstream_test_1.py <input .h264 file>
 
 --------------------------------------------------------------------------------
+Running the samples inside DeepStream SDK docker
+--------------------------------------------------------------------------------
+The general steps are:
+1. Pull the DeepStream SDK docker of choice following the latest DeepStream
+   Release Notes at https://developer.nvidia.com/deepstream-sdk for more info.
+   Note that the deepstream-ssd-parser app requires the Triton docker on x86_64.
+2. Run the docker with Python Bindings mapped using the following option:
+   -v <path to this python bindings directory>:/opt/nvidia/deepstream/deepstream-5.0/sources/python
+3. Inside the container, install packages required by all samples:
+   $ sudo apt update
+   $ sudo apt install python3-gi python3-dev python3-gst-1.0 -y
+4. Optionally install additional dependencies required by specific samples.
+   See README in app's directory for such requirements.
+   $ sudo apt install python3-opencv
+   $ sudo apt install python3-numpy
+   $ sudo apt install libgstrtspserver-1.0-0 gstreamer1.0-rtsp
+   $ sudo apt install libgirepository1.0-dev
+   $ sudo apt install gobject-introspection gir1.2-gst-rtsp-server-1.0
+5. Run sample apps following directions in each app's README.
+
+--------------------------------------------------------------------------------
 Notes:
 --------------------------------------------------------------------------------
 As with DeepStream SDK, if the application runs into errors, cannot create gst elements, 
 try again after removing gstreamer cache
-   rm ${HOME}/.cache/gstreamer-1.0/registry.x86_64.bin
+   rm ${HOME}/.cache/gstreamer-1.0/*

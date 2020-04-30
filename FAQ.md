@@ -1,12 +1,13 @@
 # Frequently Asked Questions and Troubleshooting Guide
 
-[Application fails to work with mp4 stream](#faq0)  
-[Ctrl-C does not stop the app during engine file generation](#faq1)  
-[Application fails to create gst elements](#faq2)  
-[GStreamer debugging](#faq3)  
-[Application stuck with no playback](#faq4)  
-[Error on setting string field](#faq5)  
-[Pipeline unable to perform at real time](#faq6)  
+* [Application fails to work with mp4 stream](#faq0)  
+* [Ctrl-C does not stop the app during engine file generation](#faq1)  
+* [Application fails to create gst elements](#faq2)  
+* [GStreamer debugging](#faq3)  
+* [Application stuck with no playback](#faq4)  
+* [Error on setting string field](#faq5)  
+* [Pipeline unable to perform at real time](#faq6)  
+* [Triton container problems with multi-GPU setup](#faq7)
 
 <a name="faq0"></a>
 ### Application fails to work with mp4 stream
@@ -93,3 +94,9 @@ The application appears to be stuck without any playback activity.
      (info.get_buffer()) from traversing the pipeline until user return.  
   b) loops inside probe() callback could be costly in python.  
 
+<a name="faq7"></a>
+### Triton container problems with multi-GPU setup
+The Triton Inference Server plugin currently only supports single-GPU usage.
+When running the docker, please specify  
+`--gpus device=<GPU ID>`  
+e.g.: `--gpus device=0`
