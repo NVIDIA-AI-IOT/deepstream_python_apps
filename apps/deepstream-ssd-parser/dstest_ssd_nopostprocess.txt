@@ -9,7 +9,7 @@ infer_config {
       model_repo {
         root: "../../../../samples/trtis_model_repo"
         log_level: 2
-        tf_gpu_memory_fraction: 0.6
+        tf_gpu_memory_fraction: 0.4
         tf_disable_soft_placement: 0
       }
     }

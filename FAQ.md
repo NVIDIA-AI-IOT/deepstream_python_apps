@@ -8,6 +8,7 @@
 * [Error on setting string field](#faq5)  
 * [Pipeline unable to perform at real time](#faq6)  
 * [Triton container problems with multi-GPU setup](#faq7)
+* [ModuleNotFoundError: No module named 'pyds'] (#faq8)
 
 <a name="faq0"></a>
 ### Application fails to work with mp4 stream
@@ -93,6 +94,7 @@ The application appears to be stuck without any playback activity.
   a) probe() callbacks are synchronous and thus holds the buffer  
      (info.get_buffer()) from traversing the pipeline until user return.  
   b) loops inside probe() callback could be costly in python.  
+  
 
 <a name="faq7"></a>
 ### Triton container problems with multi-GPU setup
@@ -100,3 +102,13 @@ The Triton Inference Server plugin currently only supports single-GPU usage.
 When running the docker, please specify  
 `--gpus device=<GPU ID>`  
 e.g.: `--gpus device=0`
+
+  
+<a name="faq8"></a>  
+### ModuleNotFoundError: No module named 'pyds'
+The pyds extension is installed under /opt/nvidia/deepstream/deepstream/lib
+The sample applications all include this path via the is_aarch_64 module.
+A setup.py is also provided to install this extension into standard path.
+Currently this needs to be run manually:
+   $ cd /opt/nvidia/deepstream/deepstream/lib
+   $ python3 setup.py install

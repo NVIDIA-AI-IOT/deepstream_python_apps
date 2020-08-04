@@ -33,7 +33,7 @@ Example:
 This document shall describe the sample deepstream-test1-usb application.
 
 It is meant for simple demonstration of how to use the various DeepStream SDK
-elements in the pipeline and extract meaningful insights from a video stream.
+elements in the pipeline and extract meaningful insights from a usb camera stream.
 
 This sample creates instance of "nvinfer" element. Instance of
 the "nvinfer" uses TensorRT API to execute inferencing on a model. Using a

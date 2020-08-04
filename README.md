@@ -2,8 +2,7 @@
 
 This repository contains Python bindings and sample applications for the [DeepStream SDK](https://developer.nvidia.com/deepstream-sdk).  
 
-The bindings and apps are currently in *Alpha* at v0.9. The API is maturing but changes are still expected.  
-SDK version supported: 5.0 Developer Preview  
+SDK version supported: 5.0  
 
 Download the latest release package complete with bindings and sample applications from the [release section](../../releases).  
 
@@ -16,7 +15,7 @@ Please report any issues or bugs on the [Deepstream SDK Forums](https://devtalk.
 ## Python Bindings
 
 DeepStream pipelines can be constructed using Gst Python, the GStreamer framework's Python bindings. For accessing DeepStream MetaData, 
-Python bindings are provided in the form of a compiled module. Download these bindings [here](https://developer.nvidia.com/deepstream-download#python_bindings). This module is generated using [Pybind11](https://github.com/pybind/pybind11).  
+Python bindings are provided in the form of a compiled module which is included in the DeepStream SDK. This module is generated using [Pybind11](https://github.com/pybind/pybind11).  
 
 <p align="center">
 <img src=".python-app-pipeline.png" alt="bindings pipeline" height="600px"/>

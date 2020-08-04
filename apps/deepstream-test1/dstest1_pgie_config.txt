@@ -65,14 +65,17 @@ proto-file=../../../../samples/models/Primary_Detector/resnet10.prototxt
 model-engine-file=../../../../samples/models/Primary_Detector/resnet10.caffemodel_b1_gpu0_int8.engine
 labelfile-path=../../../../samples/models/Primary_Detector/labels.txt
 int8-calib-file=../../../../samples/models/Primary_Detector/cal_trt.bin
+force-implicit-batch-dim=1
 batch-size=1
 network-mode=1
 num-detected-classes=4
 interval=0
 gie-unique-id=1
 output-blob-names=conv2d_bbox;conv2d_cov/Sigmoid
+#scaling-filter=0
+#scaling-compute-hw=0
 
 [class-attrs-all]
-threshold=0.2
+pre-cluster-threshold=0.2
 eps=0.2
 group-threshold=1

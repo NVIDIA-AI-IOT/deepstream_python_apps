@@ -16,7 +16,7 @@ This guide provides resources for DeepStream application development in Python.
 ## Prerequisites
 
 * Ubuntu 18.04
-* [DeepStream SDK 5.0 Developer Preview](https://developer.nvidia.com/deepstream-download) or later
+* [DeepStream SDK 5.0](https://developer.nvidia.com/deepstream-download) or later
 * Python 3.6
 * [Gst Python](https://gstreamer.freedesktop.org/modules/gst-python.html) v1.14.5
 
@@ -38,13 +38,13 @@ If missing, install with the following steps:
 <a name="run_samples"></a>
 ## Running Sample Applications
 
-Download the release package and unpack it under DS 5.0 installation:  
-```tar xf ds_pybind_v0.9.tbz2 -C <DeepStream 5.0 ROOT>/sources```  
+Clone the deepstream_python_apps repo under <DeepStream 5.0 ROOT>/sources:
+git clone https://github.com/NVIDIA-AI-IOT/deepstream_python_apps
 
 This will create the following directory:  
-```<DeepStream 5.0 ROOT>/sources/python```  
+```<DeepStream 5.0 ROOT>/sources/deepstream_python_apps```  
 
-The Python apps and bindings are under the "python" directory.  
+The Python apps are under the "apps" directory.  
 Go into each app directory and follow instructions in the README.  
 
 NOTE: The app configuration files contain relative paths for models.  
@@ -60,23 +60,13 @@ See [sample applications](apps/) main functions for pipeline construction exampl
 
 DeepStream MetaData contains inference results and other information used in analytics. The MetaData is attached to the Gst Buffer received by each pipeline component. The metadata format is described in detail in the [SDK MetaData documentation](https://docs.nvidia.com/metropolis/deepstream/plugin-manual/index.html#page/DeepStream_Plugin_Manual%2Fdeepstream_plugin_metadata.03.1.html) and [API Guide](https://docs.nvidia.com/metropolis/deepstream/python-api/index.html).  
 
-The SDK MetaData library is developed in C/C++. Python bindings provide access to the MetaData from Python applications. The bindings are provided in a compiled module, available for x86_64 and Jetson platforms. Find them in the release package with the following layout:
-```
-   bindings
-      |- x86_64
-      |     |- pyds.so
-      |- jetson
-            |- pyds.so
-```
+The SDK MetaData library is developed in C/C++. Python bindings provide access to the MetaData from Python applications. The bindings are provided in a compiled module, available for x86_64 and Jetson platforms. This module, pyds.so, is available as part of the DeepStream SDK installation under <DeepStream Root>/lib directory.  
 
-Applications can import the module thus:
-```python
-import sys
-sys.path.append('../') # Add path to the bindings directory
-# The common/is_aarch64.py module adds the platform-specific path to pyds module
-from common.is_aarch64 import is_aarch64
-import pyds
-```
+The sample applications gets the import path for this module through common/utils.py. A setup.py is also included for installing the module into standard path:  
+cd /opt/nvidia/deepstream/deepstream/lib  
+python3 setup.py install  
+
+This is currently not automatically done through the SDK installer because python usage is optional.  
 
 The bindings generally follow the same API as the underlying C/C++ library, with a few exceptions detailed in sections below.  
 

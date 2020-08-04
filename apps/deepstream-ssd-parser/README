@@ -70,7 +70,26 @@ This example:
 - Encodes OSD output and saves to MP4 file. Note that there is no visual output on screen.
 
 Known Issue:
-On Jetson, if libgomp is not preloaded, this error may occur:
+1. On Jetson, if libgomp is not preloaded, this error may occur:
 (python3:21041): GStreamer-WARNING **: 14:35:44.113: Failed to load plugin '/usr/lib/aarch64-linux-gnu/gstreamer-1.0/libgstlibav.so': /usr/lib/aarch64-linux-gnu/libgomp.so.1: cannot allocate memory in static TLS block
 Unable to create Encoder
+
+2. On Jetson Nano, ssd_inception_v2 is not expected to run with GPU instance.
+Switch to CPU instance when running on Nano:
+update config.pbtxt files in samples/trtis_modeo_repo:
+# Switch to CPU instance for Nano since memory might not be enough for
+# certain Models.
+
+# Specify CPU instance.
+instance_group {
+  count: 1
+  kind: KIND_CPU
+}
+
+# Specify GPU instance.
+#instance_group {
+#  kind: KIND_GPU
+#  count: 1
+#  gpus: 0
+#}
 

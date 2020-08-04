@@ -27,5 +27,4 @@ import sys
 def is_aarch64():
     return platform.uname()[4] == 'aarch64'
 
-
-sys.path.append('../../bindings/' + ('jetson' if is_aarch64() else 'x86_64'))
+sys.path.append('/opt/nvidia/deepstream/deepstream/lib')

@@ -30,7 +30,7 @@
 #   num-detected-classes
 #
 # Optional properties for detectors:
-#   enable-dbscan(Default=false), interval(Primary mode only, Default=0)
+#   cluster-mode(Default=Group Rectangles), interval(Primary mode only, Default=0)
 #   custom-lib-path,
 #   parse-bbox-func-name
 #
@@ -51,7 +51,7 @@
 # Other optional properties:
 #   net-scale-factor(Default=1), network-mode(Default=0 i.e FP32),
 #   model-color-format(Default=0 i.e. RGB) model-engine-file, labelfile-path,
-#   mean-file, gie-unique-id(Default=0), offsets, gie-mode (Default=1 i.e. primary),
+#   mean-file, gie-unique-id(Default=0), offsets, process-mode (Default=1 i.e. primary),
 #   custom-lib-path, network-mode(Default=0 i.e FP32)
 #
 # The values in the config file are overridden by values set through GObject
@@ -61,11 +61,12 @@
 gpu-id=0
 net-scale-factor=1
 model-file=../../../../samples/models/Secondary_VehicleTypes/resnet18.caffemodel
-model-engine-file=../../../../samples/models/Secondary_VehicleTypes/resnet18.caffemodel_b16_gpu0_int8.engine
 proto-file=../../../../samples/models/Secondary_VehicleTypes/resnet18.prototxt
+model-engine-file=../../../../samples/models/Secondary_VehicleTypes/resnet18.caffemodel_b16_gpu0_int8.engine
 mean-file=../../../../samples/models/Secondary_VehicleTypes/mean.ppm
 labelfile-path=../../../../samples/models/Secondary_VehicleTypes/labels.txt
 int8-calib-file=../../../../samples/models/Secondary_VehicleTypes/cal_trt.bin
+force-implicit-batch-dim=1
 batch-size=16
 # 0=FP32 and 1=INT8 mode
 network-mode=1
@@ -81,3 +82,6 @@ is-classifier=1
 output-blob-names=predictions/Softmax
 classifier-async-mode=1
 classifier-threshold=0.51
+process-mode=2
+#scaling-filter=0
+#scaling-compute-hw=0

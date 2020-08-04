@@ -48,11 +48,13 @@ PGIE_CLASS_ID_BICYCLE = 1
 PGIE_CLASS_ID_PERSON = 2
 PGIE_CLASS_ID_ROADSIGN = 3
 MUXER_OUTPUT_WIDTH=1920
-MUXER_OUTPUT_HEIGHT=80
+MUXER_OUTPUT_HEIGHT=1080
 MUXER_BATCH_TIMEOUT_USEC=4000000
-TILED_OUTPUT_WIDTH=1920
-TILED_OUTPUT_HEIGHT=1080
+TILED_OUTPUT_WIDTH=1280
+TILED_OUTPUT_HEIGHT=720
 GST_CAPS_FEATURES_NVMM="memory:NVMM"
+OSD_PROCESS_MODE= 0
+OSD_DISPLAY_TEXT= 0
 pgie_classes_str= ["Vehicle", "TwoWheeler", "Person","RoadSign"]
 
 # tiler_sink_pad_buffer_probe  will extract metadata received on OSD sink pad
@@ -256,6 +258,16 @@ def main(args):
         if not srcpad:
             sys.stderr.write("Unable to create src pad bin \n")
         srcpad.link(sinkpad)
+    queue1=Gst.ElementFactory.make("queue","queue1")
+    queue2=Gst.ElementFactory.make("queue","queue2")
+    queue3=Gst.ElementFactory.make("queue","queue3")
+    queue4=Gst.ElementFactory.make("queue","queue4")
+    queue5=Gst.ElementFactory.make("queue","queue5")
+    pipeline.add(queue1)
+    pipeline.add(queue2)
+    pipeline.add(queue3)
+    pipeline.add(queue4)
+    pipeline.add(queue5)
     print("Creating Pgie \n ")
     pgie = Gst.ElementFactory.make("nvinfer", "primary-inference")
     if not pgie:
@@ -272,6 +284,8 @@ def main(args):
     nvosd = Gst.ElementFactory.make("nvdsosd", "onscreendisplay")
     if not nvosd:
         sys.stderr.write(" Unable to create nvosd \n")
+    nvosd.set_property('process-mode',OSD_PROCESS_MODE)
+    nvosd.set_property('display-text',OSD_DISPLAY_TEXT)
     if(is_aarch64()):
         print("Creating transform \n ")
         transform=Gst.ElementFactory.make("nvegltransform", "nvegl-transform")
@@ -302,6 +316,7 @@ def main(args):
     tiler.set_property("columns",tiler_columns)
     tiler.set_property("width", TILED_OUTPUT_WIDTH)
     tiler.set_property("height", TILED_OUTPUT_HEIGHT)
+    sink.set_property("qos",0)
 
     print("Adding elements to Pipeline \n")
     pipeline.add(pgie)
@@ -313,15 +328,21 @@ def main(args):
     pipeline.add(sink)
 
     print("Linking elements in the Pipeline \n")
-    streammux.link(pgie)
-    pgie.link(tiler)
-    tiler.link(nvvidconv)
-    nvvidconv.link(nvosd)
+    streammux.link(queue1)
+    queue1.link(pgie)
+    pgie.link(queue2)
+    queue2.link(tiler)
+    tiler.link(queue3)
+    queue3.link(nvvidconv)
+    nvvidconv.link(queue4)
+    queue4.link(nvosd)
     if is_aarch64():
-        nvosd.link(transform)
+        nvosd.link(queue5)
+        queue5.link(transform)
         transform.link(sink)
     else:
-        nvosd.link(sink)   
+        nvosd.link(queue5)
+        queue5.link(sink)   
 
     # create an event loop and feed gstreamer bus mesages to it
     loop = GObject.MainLoop()

@@ -30,7 +30,7 @@
 #   num-detected-classes
 #
 # Optional properties for detectors:
-#   enable-dbscan(Default=false), interval(Primary mode only, Default=0)
+#   cluster-mode(Default=Group Rectangles), interval(Primary mode only, Default=0)
 #   custom-lib-path
 #   parse-bbox-func-name
 #
@@ -51,7 +51,7 @@
 # Other optional properties:
 #   net-scale-factor(Default=1), network-mode(Default=0 i.e FP32),
 #   model-color-format(Default=0 i.e. RGB) model-engine-file, labelfile-path,
-#   mean-file, gie-unique-id(Default=0), offsets, gie-mode (Default=1 i.e. primary),
+#   mean-file, gie-unique-id(Default=0), offsets, process-mode (Default=1 i.e. primary),
 #   custom-lib-path, network-mode(Default=0 i.e FP32)
 #
 # The values in the config file are overridden by values set through GObject
@@ -62,8 +62,10 @@ gpu-id=0
 net-scale-factor=0.0039215697906911373
 model-file=../../../../samples/models/Primary_Detector/resnet10.caffemodel
 proto-file=../../../../samples/models/Primary_Detector/resnet10.prototxt
+model-engine-file=../../../../samples/models/Primary_Detector/resnet10.caffemodel_b1_gpu0_int8.engine
 labelfile-path=../../../../samples/models/Primary_Detector/labels.txt
 int8-calib-file=../../../../samples/models/Primary_Detector/cal_trt.bin
+force-implicit-batch-dim=1
 batch-size=1
 process-mode=1
 model-color-format=0
@@ -79,3 +81,30 @@ cluster-mode=1
 threshold=0.2
 eps=0.7
 minBoxes=1
+
+#Use the config params below for dbscan clustering mode
+[class-attrs-all]
+detected-min-w=4
+detected-min-h=4
+minBoxes=3
+
+## Per class configurations
+[class-attrs-0]
+pre-cluster-threshold=0.05
+eps=0.7
+dbscan-min-score=0.95
+
+[class-attrs-1]
+pre-cluster-threshold=0.05
+eps=0.7
+dbscan-min-score=0.5
+
+[class-attrs-2]
+pre-cluster-threshold=0.1
+eps=0.6
+dbscan-min-score=0.95
+
+[class-attrs-3]
+pre-cluster-threshold=0.05
+eps=0.7
+dbscan-min-score=0.5

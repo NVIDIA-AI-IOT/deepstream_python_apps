@@ -29,7 +29,7 @@
 #
 [tracker]
 tracker-width=640
-tracker-height=368
+tracker-height=384
 gpu-id=0
 ll-lib-file=/opt/nvidia/deepstream/deepstream-5.0/lib/libnvds_mot_klt.so
 #ll-lib-file=/opt/nvidia/deepstream/deepstream-5.0/lib/libnvds_nvdcf.so

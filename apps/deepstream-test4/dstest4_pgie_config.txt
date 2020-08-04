@@ -1,5 +1,5 @@
 ################################################################################
-# Copyright (c) 2018-2019, NVIDIA CORPORATION. All rights reserved.
+# Copyright (c) 2018-2020, NVIDIA CORPORATION. All rights reserved.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a
 # copy of this software and associated documentation files (the "Software"),
@@ -30,7 +30,7 @@
 #   num-detected-classes
 #
 # Optional properties for detectors:
-#   enable-dbscan(Default=false), interval(Primary mode only, Default=0)
+#   cluster-mode(Default=Group Rectangles), interval(Primary mode only, Default=0)
 #   custom-lib-path,
 #   parse-bbox-func-name
 #
@@ -51,7 +51,7 @@
 # Other optional properties:
 #   net-scale-factor(Default=1), network-mode(Default=0 i.e FP32),
 #   model-color-format(Default=0 i.e. RGB) model-engine-file, labelfile-path,
-#   mean-file, gie-unique-id(Default=0), offsets, gie-mode (Default=1 i.e. primary),
+#   mean-file, gie-unique-id(Default=0), offsets, process-mode (Default=1 i.e. primary),
 #   custom-lib-path, network-mode(Default=0 i.e FP32)
 #
 # The values in the config file are overridden by values set through GObject
@@ -61,10 +61,11 @@
 gpu-id=0
 net-scale-factor=0.0039215697906911373
 model-file=../../../../samples/models/Primary_Detector/resnet10.caffemodel
-model-engine-file=../../../../samples/models/Primary_Detector/resnet10.caffemodel_b1_int8.engine
 proto-file=../../../../samples/models/Primary_Detector/resnet10.prototxt
+model-engine-file=../../../../samples/models/Primary_Detector/resnet10.caffemodel_b1_gpu0_int8.engine
 labelfile-path=../../../../samples/models/Primary_Detector/labels.txt
 int8-calib-file=../../../../samples/models/Primary_Detector/cal_trt.bin
+force-implicit-batch-dim=1
 batch-size=1
 network-mode=1
 num-detected-classes=4
@@ -73,8 +74,10 @@ process-mode=1
 model-color-format=0
 gie-unique-id=1
 output-blob-names=conv2d_bbox;conv2d_cov/Sigmoid
+#scaling-filter=0
+#scaling-compute-hw=0
 
 [class-attrs-all]
-threshold=0.2
+pre-cluster-threshold=0.2
 eps=0.2
 group-threshold=1
