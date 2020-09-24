@@ -43,7 +43,7 @@ We currently provide the following sample applications:
 * [deepstream-test4](apps/deepstream-test4) -- msgbroker for sending analytics results to the cloud
 * [deepstream-imagedata-multistream](apps/deepstream-imagedata-multistream) -- multi-stream pipeline with access to image buffers
 * [deepstream-ssd-parser](apps/deepstream-ssd-parser) -- SSD model inference via Triton server with output parsing in Python
-* [deepstream-test1-usbcam](apps/deepstream-test1-usbcam) -- deepstream-test1 pipelien with USB camera input
+* [deepstream-test1-usbcam](apps/deepstream-test1-usbcam) -- deepstream-test1 pipeline with USB camera input
 * [deepstream-test1-rtsp-out](apps/deepstream-test1-rtsp-out) -- deepstream-test1 pipeline with RTSP output
 
 Detailed application information is provided in each application's subdirectory under [apps](apps).  
