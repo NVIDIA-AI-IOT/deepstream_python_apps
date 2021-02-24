@@ -1,5 +1,5 @@
 ################################################################################
-# Copyright (c) 2019-2020, NVIDIA CORPORATION. All rights reserved.
+# Copyright (c) 2019-2021, NVIDIA CORPORATION. All rights reserved.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a
 # copy of this software and associated documentation files (the "Software"),
@@ -21,12 +21,14 @@
 ################################################################################
 
 Prequisites:
-- DeepStreamSDK 5.0
+- DeepStreamSDK 5.1
 - Python 3.6
 - Gst-python
 
 To run the test app:
-  $ python3 deepstream_test_2.py <h264_elementary_stream>
+  $ python3 deepstream_test_2.py <h264_elementary_stream> <0/1>
+
+To get the past-frame tracking meta use 1, otherwise 0, this argument is optional.
 
 This document shall describe about the sample deepstream-test2 application.
 
@@ -50,6 +52,13 @@ For reference, here are the config files used for this sample :
     dstest2_sgie3_config.txt
 5. The tracker (referred to as nvtracker in this sample) uses
     dstest2_tracker_config.txt
+
+To get the past-frame-tracking meta, the following changes have to be added to
+the dstest2_tracker_config.txt. 
+
+1. ll-lib-file=/opt/nvidia/deepstream/deepstream/lib/libnvds_nvdcf.so
+2. ll-config-file=tracker_config.yml
+3. enable-past-frame=1
 
 In this sample, we first create one instance of "nvinfer", referred as the pgie.
 This is our 4 class detector and it detects for "Vehicle , RoadSign, TwoWheeler,

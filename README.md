@@ -2,7 +2,7 @@
 
 This repository contains Python bindings and sample applications for the [DeepStream SDK](https://developer.nvidia.com/deepstream-sdk).  
 
-SDK version supported: 5.0  
+SDK version supported: 5.1  
 
 Download the latest release package complete with bindings and sample applications from the [release section](../../releases).  
 
@@ -45,6 +45,17 @@ We currently provide the following sample applications:
 * [deepstream-ssd-parser](apps/deepstream-ssd-parser) -- SSD model inference via Triton server with output parsing in Python
 * [deepstream-test1-usbcam](apps/deepstream-test1-usbcam) -- deepstream-test1 pipeline with USB camera input
 * [deepstream-test1-rtsp-out](apps/deepstream-test1-rtsp-out) -- deepstream-test1 pipeline with RTSP output
+* [deepstream-opticalflow](apps/deepstream-opticalflow) -- optical flow and visualization pipeline with flow vectors returned in NumPy array
+* [deepstream-segmentation](apps/deepstream-segmentation) -- segmentation and visualization pipeline with segmentation mask returned in NumPy array  
+* [deepstream-nvdsanalytics](apps/deepstream-nvdsanalytics) -- multistream pipeline with analytics plugin  
+
+Of these applications, the following have been updated or added in this release:
+* deepstream-test2: added option to enable output of past frame tracking data
+* deepstream-test4: callback functions are registered only once to avoid race condition
+* deepstream-imagedata-multistream: the probe function now modifies images in-place in addition to saving copies of them  
+* deepstream-opticalflow: new sample application to demonstrate optical flow functionality
+* deepstream-segmentation: new sample application to demonstrate segmentation functionality
+* deepstream-nvdsnalaytics: new sample application to demonstrate analytics functionality
 
 Detailed application information is provided in each application's subdirectory under [apps](apps).  
 

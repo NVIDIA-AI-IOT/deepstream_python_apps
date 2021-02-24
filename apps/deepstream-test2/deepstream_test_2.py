@@ -39,6 +39,7 @@ PGIE_CLASS_ID_VEHICLE = 0
 PGIE_CLASS_ID_BICYCLE = 1
 PGIE_CLASS_ID_PERSON = 2
 PGIE_CLASS_ID_ROADSIGN = 3
+past_tracking_meta=[0]
 
 def osd_sink_pad_buffer_probe(pad,info,u_data):
     frame_number=0
@@ -120,15 +121,60 @@ def osd_sink_pad_buffer_probe(pad,info,u_data):
             l_frame=l_frame.next
         except StopIteration:
             break
+    #past traking meta data
+    if(past_tracking_meta[0]==1):
+        l_user=batch_meta.batch_user_meta_list
+        while l_user is not None:
+            try:
+                # Note that l_user.data needs a cast to pyds.NvDsUserMeta
+                # The casting is done by pyds.NvDsUserMeta.cast()
+                # The casting also keeps ownership of the underlying memory
+                # in the C code, so the Python garbage collector will leave
+                # it alone
+                user_meta=pyds.NvDsUserMeta.cast(l_user.data)
+            except StopIteration:
+                break
+            if(user_meta and user_meta.base_meta.meta_type==pyds.NvDsMetaType.NVDS_TRACKER_PAST_FRAME_META):
+                try:
+                    # Note that user_meta.user_meta_data needs a cast to pyds.NvDsPastFrameObjBatch
+                    # The casting is done by pyds.NvDsPastFrameObjBatch.cast()
+                    # The casting also keeps ownership of the underlying memory
+                    # in the C code, so the Python garbage collector will leave
+                    # it alone
+                    pPastFrameObjBatch = pyds.NvDsPastFrameObjBatch.cast(user_meta.user_meta_data)
+                except StopIteration:
+                    break
+                for trackobj in pyds.NvDsPastFrameObjBatch.list(pPastFrameObjBatch):
+                    print("streamId=",trackobj.streamID)
+                    print("surfaceStreamID=",trackobj.surfaceStreamID)
+                    for pastframeobj in pyds.NvDsPastFrameObjStream.list(trackobj):
+                        print("numobj=",pastframeobj.numObj)
+                        print("uniqueId=",pastframeobj.uniqueId)
+                        print("classId=",pastframeobj.classId)
+                        print("objLabel=",pastframeobj.objLabel)
+                        for objlist in pyds.NvDsPastFrameObjList.list(pastframeobj):
+                            print('frameNum:', objlist.frameNum)
+                            print('tBbox.left:', objlist.tBbox.left)
+                            print('tBbox.width:', objlist.tBbox.width)
+                            print('tBbox.top:', objlist.tBbox.top)
+                            print('tBbox.right:', objlist.tBbox.height)
+                            print('confidence:', objlist.confidence)
+                            print('age:', objlist.age)
+            try:
+                l_user=l_user.next
+            except StopIteration:
+                break
     return Gst.PadProbeReturn.OK	
 
 def main(args):
     # Check input arguments
-    if len(args) != 2:
-        sys.stderr.write("usage: %s <media file or uri>\n" % args[0])
+    if(len(args)<2):
+        sys.stderr.write("usage: %s <h264_elementary_stream> [0/1]\n" % args[0])
         sys.exit(1)
 
     # Standard GStreamer initialization
+    if(len(args)==3):
+        past_tracking_meta[0]=int(args[2])
     GObject.threads_init()
     Gst.init(None)
 
@@ -243,6 +289,9 @@ def main(args):
         if key == 'enable-batch-process' :
             tracker_enable_batch_process = config.getint('tracker', key)
             tracker.set_property('enable_batch_process', tracker_enable_batch_process)
+        if key == 'enable-past-frame' :
+            tracker_enable_past_frame = config.getint('tracker', key)
+            tracker.set_property('enable_past_frame', tracker_enable_past_frame)
 
     print("Adding elements to Pipeline \n")
     pipeline.add(source)

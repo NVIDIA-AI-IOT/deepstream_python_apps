@@ -1,5 +1,5 @@
 ################################################################################
-# Copyright (c) 2019-2020, NVIDIA CORPORATION. All rights reserved.
+# Copyright (c) 2019-2021, NVIDIA CORPORATION. All rights reserved.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a
 # copy of this software and associated documentation files (the "Software"),
@@ -25,7 +25,7 @@ DeepStream SDK Python Bindings
 ================================================================================
 Setup pre-requisites:
 - Ubuntu 18.04
-- NVIDIA DeepStream SDK 5.0 Developer Preview
+- NVIDIA DeepStream SDK 5.1
 - Python 3.6
 - Gst-python
 
@@ -55,12 +55,15 @@ The DeepStream Python package includes:
    deepstream-ssd-parser
    deepstream-test1-rtsp-out
    deepstream-test1-usbcam
+   deepstream-opticalflow
+   deepstream-segmentation
+   deepstream-nvdsanalytics
 
 --------------------------------------------------------------------------------
 Installing Pre-requisites:
 --------------------------------------------------------------------------------
 
-DeepStream SDK 5.0 Developer Preview
+DeepStream SDK 5.1 Developer Preview
 --------------------
 Download and install from https://developer.nvidia.com/deepstream-download
 
@@ -78,12 +81,12 @@ $ sudo apt install python3-gi python3-dev python3-gst-1.0 -y
 --------------------------------------------------------------------------------
 Running the samples
 --------------------------------------------------------------------------------
-The apps are configured to work from inside the DeepStream SDK 5.0 installation.
+The apps are configured to work from inside the DeepStream SDK 5.1 installation.
 
-Clone the deepstream_python_apps repo under <DeepStream 5.0 ROOT>/sources:
+Clone the deepstream_python_apps repo under <DeepStream 5.1 ROOT>/sources:
 $ git clone https://github.com/NVIDIA-AI-IOT/deepstream_python_apps
 This will create the following directory:
-<DeepStream 5.0 ROOT>/sources/deepstream_python_apps
+<DeepStream 5.1 ROOT>/sources/deepstream_python_apps
 
 Follow README in each app's directory to run the app.
 
@@ -99,7 +102,7 @@ The general steps are:
    Release Notes at https://developer.nvidia.com/deepstream-sdk for more info.
    Note that the deepstream-ssd-parser app requires the Triton docker on x86_64.
 2. Run the docker with Python Bindings mapped using the following option:
-   -v <path to this python bindings directory>:/opt/nvidia/deepstream/deepstream-5.0/sources/python
+   -v <path to this python bindings directory>:/opt/nvidia/deepstream/deepstream/sources/python
 3. Inside the container, install packages required by all samples:
    $ sudo apt update
    $ sudo apt install python3-gi python3-dev python3-gst-1.0 -y

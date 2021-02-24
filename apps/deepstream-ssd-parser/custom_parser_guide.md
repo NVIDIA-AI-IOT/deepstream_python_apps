@@ -83,15 +83,15 @@ Sample code is available for SSD parser neural network.
 
 **3 - Tensor meta structure and bindings API**
 
-* pyds.NvDsInferTensorMeta.cast(data): This function casts the data into the pyds.NvDsInferTensorMeta object, This metadata is added as NvDsUserMeta to the frame_user_meta_list of the corresponding frame_meta or object_user_meta_list of the corresponding object with the meta_type set to NVDSINFER_TENSOR_OUTPUT_META.
+* pyds.NvDsInferTensorMeta.cast(data): This function casts the data into the pyds.NvDsInferTensorMeta object, this metadata is added as NvDsUserMeta to the frame_user_meta_list of the corresponding frame_meta or object_user_meta_list of the corresponding object with the meta_type set to NVDSINFER_TENSOR_OUTPUT_META.
 
-This object has the following methods and members
+This object has the following methods and members:
 
 * gpu_id: GPU device ID on which the device buffers have been allocated.
 
-* num_output_layers: num_output_layers 
+* num_output_layers: Number of output layers.
 
-* out_buf_ptrs_dev: Array of objects to the output device buffers for the frame / object..
+* out_buf_ptrs_dev: Array of objects to the output device buffers for the frame / object.
 
 * out_buf_ptrs_host: Array of objects to the output host buffers for the frame / object.
 
@@ -105,23 +105,23 @@ This object has the following methods and members
 
 * priv_data: Private data used for the meta producer’s internal memory management.
 
-* unique_id: Unique ID of the gst-nvinfer instance which attached this meta   
+* unique_id: Unique ID of the gst-nvinfer instance which attached this meta.
 
 * pyds.NvDsInferObjectDetectionInfo: Holds information about one parsed object from detector’s output.
 
-  This object has the following methods and members
+  This object has the following methods and members:
 
 * classId: ID of the class to which the object belongs.
 
 * detectionConfidence: Object detection confidence. Should be a float value in the range [0,1].
 
-* height: Height of the bounding box shape for the object
+* height: Height of the bounding box shape for the object.
 
 * left: Horizontal offset of the bounding box shape for the object.
 
 * top: Vertical offset of the bounding box shape for the object.
 
-* width: Width of the bounding box shape for the object
+* width: Width of the bounding box shape for the object.
 
 **  **
 
@@ -133,53 +133,53 @@ Below is a general explanation of the deepstream-ssd-parser sample application. 
 
 **4.1.1 - main**
 
-* This function takes a path to a file media or uri
+* This function takes a path to a file media or uri.
 
-* Gstreamer initialization is performed
+* Gstreamer initialization is performed.
 
-* Several  elements a created in order to make a pipeline
+* Several  elements a created in order to make a pipeline.
 
 * These elements are added to the pipeline and linked together.
 
-* Probe functions are linked to the pipeline in order to interact with the data
+* Probe functions are linked to the pipeline in order to interact with the data:
 
     * **pgie_src_pad_buffer_probe**
 
     * **osd_sink_pad_buffer_probe**
 
-* The pipeline is set to its PLAYING mode
+* The pipeline is set to its PLAYING mode.
 
-* The main loop is run
+* The main loop is run.
 
-* The pipeline is set to its NULL mode
+* The pipeline is set to its NULL mode.
 
 **4.1.2 - pgie_src_pad_buffer_probe**
 
-* Initialize an empty dictionary with the class id as key and the number of occurrences as value
+* Initialize an empty dictionary with the class id as key and the number of occurrences as value.
 
-* For each element in the image, the number of occurrences of the element class is incremented
+* For each element in the image, the number of occurrences of the element class is incremented.
 
 * A string containing the number of cars and persons is formatted.
 
-* Some display style is added to this string before displaying
+* Some display style is added to this string before displaying.
 
-* The string is added on the frame
+* The string is added on the frame.
 
 **4.1.3 - osd_sink_pad_buffer_probe**
 
-* The gst buffer is retrieved from the info argument
+* The gst buffer is retrieved from the info argument.
 
-* The batch meta is retrieved from the gst buffer
+* The batch meta is retrieved from the gst buffer.
 
-* A detection param is created. It contains the number of class and their accuracy threshold
+* A detection param is created. It contains the number of class and their accuracy threshold.
 
 * A box size param is created, it contains the image dimension and the minimum dimension of a bounding box. This will be used to remove bounding boxes that are too small. This neural network works only with floating-point coordinates between 0 and 1. Since the minimum dimension is given in pixels, the image dimension is needed to scale up the floating-point coordinates. And then compare them to the minimum dimension.
 
 * A nms (Non-maximal suppression) param is created. This param contains:
 
-  top_k: the maximum number of boxes to keep
+  top_k: the maximum number of boxes to keep.
 
-  iou_threshold: intersection over union threshold used to discard bounding boxes that are too similar
+  iou_threshold: intersection over union threshold used to discard bounding boxes that are too similar.
 
 * The labels are retrieved from a file in the same directory called labels.txt, this path can be specified in the config file. The labels must be one per line, and the ordering corresponds to class ID ordering.
 
@@ -187,7 +187,7 @@ Below is a general explanation of the deepstream-ssd-parser sample application. 
 
 * tensor meta is then used to retrieve layer information and store them in a list (layers_info).
 
-* Then a frame_object_list is obtained by calling  **nvds_infer_parse_custom_tf_ssd** with 
+* Then a frame_object_list is obtained by calling  **nvds_infer_parse_custom_tf_ssd** with:
 
     * layers_info
 
@@ -201,17 +201,17 @@ Below is a general explanation of the deepstream-ssd-parser sample application. 
 
 **4.1.4 - add_obj_meta_to_frame**
 
-* An obj_meta is created and filled with
+* An obj_meta is created and filled with:
 
     * dimension and position information.
 
-    * detection confidence
+    * detection confidence.
 
-    * label name
+    * label name.
 
-    * class id
+    * class id.
 
-    * text to be displayed on the box around the object
+    * text to be displayed on the box around the object.
 
 * This obj_meta is added to the frame.
 
@@ -247,7 +247,7 @@ Below is a general explanation of the deepstream-ssd-parser sample application. 
 
 * Each list in per_class_object_list, is sorted by confidence.
 
-* Then non_maximum_suppression is applied to keep only selected indices
+* Then non_maximum_suppression is applied to keep only selected indices.
 
 * The objects related to these indices are stored in clustered_b_boxes.
 

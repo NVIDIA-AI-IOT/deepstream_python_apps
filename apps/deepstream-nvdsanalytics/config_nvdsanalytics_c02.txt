@@ -1,0 +1,98 @@
+################################################################################
+# Copyright (c) 2021, NVIDIA CORPORATION. All rights reserved.
+#
+# Permission is hereby granted, free of charge, to any person obtaining a
+# copy of this software and associated documentation files (the "Software"),
+# to deal in the Software without restriction, including without limitation
+# the rights to use, copy, modify, merge, publish, distribute, sublicense,
+# and/or sell copies of the Software, and to permit persons to whom the
+# Software is furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
+# THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+# FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+# DEALINGS IN THE SOFTWARE.
+################################################################################
+
+# The values in the config file are overridden by values set through GObject
+# properties.
+
+[property]
+#Width height used for configuration to which below configs are configured
+enable=1
+config-width=1920
+config-height=1080
+
+## Per stream configuration
+[roi-filtering-stream-0]
+#enable or disable following feature
+enable=1
+#ROI to filter select objects, and remove from meta data
+#roi-RF=769;798;1046;772;1204;884;800;951
+roi-C02=673;355;1198;365;1293;708;498;731;
+#roi-RF2=769;798;1046;772;1204;884;800;951
+#remove objects in the ROI
+inverse-roi=0
+class-id=-1
+
+
+
+## Per stream configuration
+[roi-filtering-stream-2]
+#enable or disable following feature
+enable=1
+#ROI to filter select objects, and remove from meta data
+roi-RF4=769;798;1046;772;1204;884;800;951
+#remove objects in the ROI
+inverse-roi=1
+class-id=0
+
+
+
+[overcrowding-stream-1]
+enable=0
+roi-OC=673;355;1198;365;1293;708;498;731;
+#time threshold after which OC event will be triggered
+time-threshold=2000
+#no of objects that will trigger OC
+object-threshold=2
+class-id=-1
+
+[line-crossing-stream-1]
+enable=1
+#Label;direction;lc
+#line-crossing-Entry=772;799;819;946;623;952;1061;926
+line-crossing-Entry=936;464;954;183;646;419;1231;420
+#line-crossing-Exit=0;0;0;0;0;0;0;0;0
+class-id=0
+
+[direction-detection-stream-0]
+enable=1
+#Label;direction;
+#direction-TowardsExit=200;500;200;1000
+#direction-South=400;500;400;1050
+direction-South=250;206;118;306;
+direction-North=379;313;455;218;
+#This will overwrite prev North config.
+#direction-East=600;500;600;1050
+class-id=0
+
+
+[direction-detection-stream-1]
+enable=1
+#Label;direction;
+#direction-TowardsExit=200;500;200;1000
+#direction-South=400;500;400;1050
+direction-South=250;206;118;306;
+direction-North=379;313;455;218;
+#This will overwrite prev North config.
+#direction-East=600;500;600;1050
+class-id=0
+
+

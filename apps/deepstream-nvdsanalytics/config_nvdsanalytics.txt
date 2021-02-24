@@ -1,0 +1,108 @@
+################################################################################
+# Copyright (c) 2021, NVIDIA CORPORATION. All rights reserved.
+#
+# Permission is hereby granted, free of charge, to any person obtaining a
+# copy of this software and associated documentation files (the "Software"),
+# to deal in the Software without restriction, including without limitation
+# the rights to use, copy, modify, merge, publish, distribute, sublicense,
+# and/or sell copies of the Software, and to permit persons to whom the
+# Software is furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
+# THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+# FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+# DEALINGS IN THE SOFTWARE.
+################################################################################
+
+# The values in the config file are overridden by values set through GObject
+# properties.
+
+[property]
+enable=1
+#Width height used for configuration to which below configs are configured
+config-width=1920
+config-height=1080
+#osd-mode 0: Dont display any lines, rois and text
+#         1: Display only lines, rois and static text i.e. labels
+#         2: Display all info from 1 plus information about counts
+osd-mode=2
+#Set OSD font size that has to be displayed
+display-font-size=12
+
+## Per stream configuration
+[roi-filtering-stream-0]
+#enable or disable following feature
+enable=1
+#ROI to filter select objects, and remove from meta data
+roi-RF=295;643;579;634;642;913;56;828
+#remove objects in the ROI
+inverse-roi=0
+class-id=-1
+
+## Per stream configuration
+[roi-filtering-stream-2]
+#enable or disable following feature
+enable=1
+#ROI to filter select objects, and remove from meta data
+roi-RF=295;643;579;634;642;913;56;828
+#remove objects in the ROI
+inverse-roi=1
+class-id=0
+
+[overcrowding-stream-1]
+enable=1
+roi-OC=295;643;579;634;642;913;56;828
+#no of objects that will trigger OC
+object-threshold=2
+class-id=-1
+
+[line-crossing-stream-0]
+enable=1
+#Label;direction;lc
+#line-crossing-Entry=1072;911;1143;1058;944;1020;1297;1020;
+line-crossing-Exit=789;672;1084;900;851;773;1203;732
+class-id=0
+#extended when 0- only counts crossing on the configured Line
+#              1- assumes extended Line crossing counts all the crossing
+extended=0
+#LC modes supported:
+#loose   : counts all crossing without strong adherence to direction
+#balanced: Strict direction adherence expected compared to mode=loose
+#strict  : Strict direction adherence expected compared to mode=balanced
+mode=loose
+
+[line-crossing-stream-1]
+enable=1
+#Label;direction;lc
+#line-crossing-Entry=1072;911;1143;1058;944;1020;1297;1020;
+line-crossing-Exit=789;672;1084;900;851;773;1203;732
+class-id=0
+#extended when 0- only counts crossing on the configured Line
+#              1- assumes extended Line crossing counts all the crossing
+extended=0
+#LC modes supported:
+#loose   : counts all crossing without strong adherence to direction
+#balanced: Strict direction adherence expected compared to mode=loose
+#strict  : Strict direction adherence expected compared to mode=balanced
+mode=loose
+
+[direction-detection-stream-0]
+enable=1
+#Label;direction;
+direction-South=284;840;360;662;
+direction-North=1106;622;1312;701;
+class-id=0
+
+[direction-detection-stream-1]
+enable=1
+#Label;direction;
+direction-South=284;840;360;662;
+direction-North=1106;622;1312;701;
+class-id=0
+

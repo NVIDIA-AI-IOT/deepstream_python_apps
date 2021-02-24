@@ -303,8 +303,8 @@ def osd_sink_pad_buffer_probe(pad,info,u_data):
                     # Setting callbacks in the event msg meta. The bindings layer
                     # will wrap these callables in C functions. Currently only one
                     # set of callbacks is supported.
-                    pyds.set_user_copyfunc(user_event_meta, meta_copy_func)
-                    pyds.set_user_releasefunc(user_event_meta, meta_free_func)
+                    pyds.user_copyfunc(user_event_meta, meta_copy_func)
+                    pyds.user_releasefunc(user_event_meta, meta_free_func)
                     pyds.nvds_add_user_meta_to_frame(frame_meta, user_event_meta)
                 else:
                     print("Error in attaching event meta to buffer\n")
@@ -327,6 +327,10 @@ def osd_sink_pad_buffer_probe(pad,info,u_data):
 def main(args):
     GObject.threads_init()
     Gst.init(None)
+
+    #registering callbacks
+    pyds.register_user_copyfunc(meta_copy_func)
+    pyds.register_user_releasefunc(meta_free_func)
 
     print("Creating Pipeline \n ")
 

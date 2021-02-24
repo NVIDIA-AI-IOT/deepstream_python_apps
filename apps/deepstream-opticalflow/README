@@ -1,0 +1,73 @@
+################################################################################
+# Copyright (c) 2021, NVIDIA CORPORATION. All rights reserved.
+#
+# Permission is hereby granted, free of charge, to any person obtaining a
+# copy of this software and associated documentation files (the "Software"),
+# to deal in the Software without restriction, including without limitation
+# the rights to use, copy, modify, merge, publish, distribute, sublicense,
+# and/or sell copies of the Software, and to permit persons to whom the
+# Software is furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
+# THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+# FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+# DEALINGS IN THE SOFTWARE.
+################################################################################
+
+Prerequisites:
+- DeepStreamSDK 5.1
+- Python 3
+- Gst-python
+- NumPy package
+- OpenCV package
+
+To install required packages:
+$ sudo apt update
+$ sudo apt install python3 python3-opencv python3-numpy python3-gst-1.0  -y
+
+To run:
+  $ python3 deepstream-opticalflow.py <uri1> [uri2] ... [uriN] <output_folder>
+e.g.
+  $ python3 deepstream-opticalflow.py file:///opt/nvidia/deepstream/deepstream-5.1/samples/streams/sample_720p.mp4 output
+
+
+This document shall describe about the sample deepstream-nvof-app application.
+
+Optical Flow (nvof gstreamer plugin):
+NVIDIA GPUs, starting with the Nvidia GPU Turing generation and Jetson Xavier generation,
+contain a hardware accelerator for computing optical flow. Optical flow vectors are
+useful in various use cases such as object detection and tracking, video frame rate
+up-conversion, depth estimation, stitching, and so on.
+The gst-nvof plugin collects a pair of NV12 images and passes it to the low-level
+optical flow library. The low-level library returns a map of flow vectors between
+the two frames as its output. The map of flow vectors is encapsulated in an
+NvOpticalFlowMeta structure and is added as a user meta for each frame in the batch
+using nvds_add_user_meta_to_frame() function.
+
+Optical Flow Visualization (nvofvisual gstreamer plugin):
+The Gst-nvofvisual plugin is useful for visualizing motion vector data.
+The visualization method is simmilar to the OpenCV reference source code in:
+https://github.com/opencv/opencv/blob/master/samples/gpu/optical_flow.cpp
+The plugin solves the optical flow problem by computing the magnitude and direction of
+optical flow from a two-channel array of flow vectors.
+It then visualizes the angle (direction) of flow by hue and the distance (magnitude) of
+flow by value of Hue Saturation Value (HSV) color representation.
+The strength of HSV is always set to a maximum of 255 for optimal visibility.
+
+This sample creates instance of "nvof" & "nvofvisual" gstreamer elements.
+
+1) nvof element generates the MV (motion vector) data and attaches as
+   user-meta data.
+
+2) nvofvisual element is used for visualizing the MV data using pre-defined
+   color wheel matrix.
+
+3) It then obtains the flow vectors and demonstrates visualization of these 
+   flow vectors using OpenCV. The obtained image is different from the visualization 
+   plugin output in color, in order to demonstrate the difference.

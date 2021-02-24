@@ -1,5 +1,5 @@
 ################################################################################
-# Copyright (c) 2020-2021, NVIDIA CORPORATION. All rights reserved.
+# Copyright (c) 2019-2021, NVIDIA CORPORATION. All rights reserved.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a
 # copy of this software and associated documentation files (the "Software"),
@@ -24,49 +24,37 @@ Prerequisites:
 - DeepStreamSDK 5.1
 - Python 3.6
 - Gst-python
-- NumPy package
-- OpenCV package
-
-To install required packages:
-$ sudo apt update
-$ sudo apt install python3-numpy python3-opencv -y
 
 To run:
-  $ python3 deepstream_imagedata-multistream.py <uri1> [uri2] ... [uriN] <FOLDER NAME TO SAVE FRAMES>
+  $ python3 deepstream_nvdsanalytics.py <uri1> [uri2] ... [uriN]
 e.g.
-  $ python3 deepstream_imagedata-multistream.py file:///home/ubuntu/video1.mp4 file:///home/ubuntu/video2.mp4 frames
-  $ python3 deepstream_imagedata-multistream.py rtsp://127.0.0.1/video1 rtsp://127.0.0.1/video2 frames
+  $ python3 deepstream_nvdsanalytics.py file:///home/ubuntu/video1.mp4 file:///home/ubuntu/video2.mp4
+  $ python3 deepstream_nvdsanalytics.py rtsp://127.0.0.1/video1 rtsp://127.0.0.1/video2
 
-This document describes the sample deepstream-imagedata-multistream application.
+This document describes the sample deepstream-nvdsanalytics application.
 
 This sample builds on top of the deepstream-test3 sample to demonstrate how to:
 
-* Access imagedata in a multistream source
-* Modify the images in-place. Changes made to the buffer will reflect in the downstream but  
-  color format, resolution and numpy transpose operations are not permitted.  
-* Make a copy of the image, modify it and save to a file. These changes are made on the copy  
-  of the image and will not be seen downstream.
-* Extract the stream metadata, imagedata, which contains useful information about the
-  frames in the batched buffer.
-* Annotating detected objects within certain confidence interval
-* Use OpenCV to draw bboxes on the image and save it to file.
 * Use multiple sources in the pipeline.
 * Use a uridecodebin so that any type of input (e.g. RTSP/File), any GStreamer
   supported container format, and any codec can be used as input.
 * Configure the stream-muxer to generate a batch of frames and infer on the
   batch for better resource utilization.
-
-NOTE:
-- For x86, only CUDA unified memory is supported.
-- Only RGBA color format is supported for access from Python. Color conversion
-  is added in the pipeline for this reason.
+* Configure the tracker (referred to as nvtracker in this sample) uses
+  config file dsnvanalytics_tracker_config.txt
+* Configure the nvdsanalytics plugin (referred to as nvanalytics in this sample)
+  uses config file config_nvdsanalytics.txt 
+* Extract the stream metadata, which contains useful information about the
+  objects and frames in the batched buffer.
 
 This sample accepts one or more H.264/H.265 video streams as input. It creates
 a source bin for each input and connects the bins to an instance of the
 "nvstreammux" element, which forms the batch of frames. The batch of
 frames is fed to "nvinfer" for batched inferencing. The batched buffer is
-composited into a 2D tile array using "nvmultistreamtiler." The rest of the
-pipeline is similar to the deepstream-test3 and deepstream-imagedata sample.
+used as input for "nvtracker" which adds object tracking, which is then fed into
+"nvdsanalytics" element which runs analytics algorithms on these objects.
+This output is then composited into a 2D tile array using "nvmultistreamtiler."
+The rest of the pipeline is similar to the deepstream-test3 sample.
 
 The "width" and "height" properties must be set on the stream-muxer to set the
 output resolution. If the input frame resolution is different from
@@ -85,4 +73,3 @@ to -1 to make the stream-muxer wait infinitely.
 The "nvmultistreamtiler" composite streams based on their stream-ids in
 row-major order (starting from stream 0, left to right across the top row, then
 across the next row, etc.).
-

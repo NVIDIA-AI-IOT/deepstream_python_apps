@@ -35,7 +35,7 @@ infer_config {
   }
 
   custom_lib {
-    path: "/opt/nvidia/deepstream/deepstream-5.0/lib/libnvds_infercustomparser.so"
+    path: "/opt/nvidia/deepstream/deepstream/lib/libnvds_infercustomparser.so"
   }
 }
 input_control {
