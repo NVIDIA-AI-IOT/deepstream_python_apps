@@ -1,0 +1,66 @@
+################################################################################
+# Copyright (c) 2021, NVIDIA CORPORATION. All rights reserved.
+#
+# Permission is hereby granted, free of charge, to any person obtaining a
+# copy of this software and associated documentation files (the "Software"),
+# to deal in the Software without restriction, including without limitation
+# the rights to use, copy, modify, merge, publish, distribute, sublicense,
+# and/or sell copies of the Software, and to permit persons to whom the
+# Software is furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
+# THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+# FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+# DEALINGS IN THE SOFTWARE.
+################################################################################
+
+Prequisites:
+- DeepStreamSDK 5.1
+- Python 3.6
+- Gst-python
+
+To run the test app:
+  $ python3 deepstream-test-rt-src-add-del.py <uri>
+e.g.
+  $ python3 deepstream_rt_src_add_del.py \
+  file:///opt/nvidia/deepstream/deepstream-5.1/samples/streams/sample_720p.mp4
+
+This application demonstrates how to:
+* Add and delete sources at runtime.
+* Use a uridecodebin so that any type of input (e.g. RTSP/File), any GStreamer
+  supported container format, and any codec can be used as input.
+* Configure the stream-muxer to generate a batch of frames and infer on the
+  batch for better resource utilization.
+* Configure the tracker (referred to as nvtracker in this sample) using
+  config file dstest_tracker_config.txt
+
+Refer to the deepstream-nvdsanalytics sample documentation for a description
+of stream-muxer configuration, tracker configuration, and multi-stream tiling.
+
+The sample generates the following pipeline for single source <uri>
+
+uridecodebin -> nvstreammux -> nvinfer -> nvtracker -> nvtiler -> nvvideoconvert
+ -> nvdsosd -> displaysink
+
+For reference, here are the config files used for this sample:
+1. Primary inference engine: dstest_pgie_config.txt
+2. First secondary inference engine: dstest_sgie1_config.txt
+3. Second secondary inference engine: dstest_sgie2_config.txt
+4. Third secondary inference engine: dstest_sgie3_config.txt
+
+At runtime, after a timeout, a source will be added periodically. All the components 
+are reconfigured during addition/deletion. After reaching of `MAX_NUM_SOURCES`, 
+a random source is deleted periodically until a single source is present in the
+pipeline. The app exits when End of Stream is reached for the final source or if
+the last source is deleted.
+
+
+
+
+

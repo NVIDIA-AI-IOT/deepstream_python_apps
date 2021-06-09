@@ -43,19 +43,15 @@ We currently provide the following sample applications:
 * [deepstream-test4](apps/deepstream-test4) -- msgbroker for sending analytics results to the cloud
 * [deepstream-imagedata-multistream](apps/deepstream-imagedata-multistream) -- multi-stream pipeline with access to image buffers
 * [deepstream-ssd-parser](apps/deepstream-ssd-parser) -- SSD model inference via Triton server with output parsing in Python
-* [deepstream-test1-usbcam](apps/deepstream-test1-usbcam) -- deepstream-test1 pipeline with USB camera input
+* [deepstream-test1-usbcam](apps/deepstream-test1-usbcam) -- deepstream-test1 pipelien with USB camera input
 * [deepstream-test1-rtsp-out](apps/deepstream-test1-rtsp-out) -- deepstream-test1 pipeline with RTSP output
 * [deepstream-opticalflow](apps/deepstream-opticalflow) -- optical flow and visualization pipeline with flow vectors returned in NumPy array
 * [deepstream-segmentation](apps/deepstream-segmentation) -- segmentation and visualization pipeline with segmentation mask returned in NumPy array  
 * [deepstream-nvdsanalytics](apps/deepstream-nvdsanalytics) -- multistream pipeline with analytics plugin  
+* [runtime_source_add_delete](apps/runtime_source_add_delete) -- add/delete source streams at runtime  
 
 Of these applications, the following have been updated or added in this release:
-* deepstream-test2: added option to enable output of past frame tracking data
-* deepstream-test4: callback functions are registered only once to avoid race condition
-* deepstream-imagedata-multistream: the probe function now modifies images in-place in addition to saving copies of them  
-* deepstream-opticalflow: new sample application to demonstrate optical flow functionality
-* deepstream-segmentation: new sample application to demonstrate segmentation functionality
-* deepstream-nvdsnalaytics: new sample application to demonstrate analytics functionality
+* runtime_source_add_delete -- add/delete source streams at runtime  
 
 Detailed application information is provided in each application's subdirectory under [apps](apps).  
 

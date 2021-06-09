@@ -34,7 +34,7 @@ For x86_64 and Jetson Docker:
      be sure to prepare the detector models.
   2. Run the docker with this Python Bindings directory mapped
   3. Install required Python packages inside the container:
-     $ apt install
+     $ apt update
      $ apt install python3-gi python3-dev python3-gst-1.0 python3-numpy -y
 
 For Jetson without Docker:

@@ -183,10 +183,7 @@ def cb_newpad(decodebin, decoder_src_pad,data):
 def decodebin_child_added(child_proxy,Object,name,user_data):
     print("Decodebin child added:", name, "\n")
     if(name.find("decodebin") != -1):
-        Object.connect("child-added",decodebin_child_added,user_data)   
-    if(is_aarch64() and name.find("nvv4l2decoder") != -1):
-        print("Seting bufapi_version\n")
-        Object.set_property("bufapi-version",True)
+        Object.connect("child-added",decodebin_child_added,user_data)
 
 def create_source_bin(index,uri):
     print("Creating source bin")

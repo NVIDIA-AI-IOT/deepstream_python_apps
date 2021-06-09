@@ -88,7 +88,7 @@ def ofvisual_queue_src_pad_buffer_probe(pad, info, u_data):
             # The casting also keeps ownership of the underlying memory
             # in the C code, so the Python garbage collector will leave
             # it alone.
-            frame_meta = pyds.glist_get_nvds_frame_meta(l_frame.data)
+            frame_meta = pyds.NvDsFrameMeta.cast(l_frame.data)
         except StopIteration:
             break
 
@@ -200,7 +200,7 @@ def create_source_bin(index, uri):
 def main(args):
     # Check input arguments
     if len(args) < 2:
-        sys.stderr.write("usage: %s <uri1> [uri2] ... [uriN]\n" % args[0])
+        sys.stderr.write("usage: %s <uri1> [uri2] ... [uriN] <output_folder>\n" % args[0])
         sys.exit(1)
 
     number_sources = len(args) - 2

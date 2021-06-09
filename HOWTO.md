@@ -58,7 +58,7 @@ See [sample applications](apps/) main functions for pipeline construction exampl
 <a name="metadata_access"></a>
 ## MetaData Access
 
-DeepStream MetaData contains inference results and other information used in analytics. The MetaData is attached to the Gst Buffer received by each pipeline component. The metadata format is described in detail in the [SDK MetaData documentation](https://docs.nvidia.com/metropolis/deepstream/plugin-manual/index.html#page/DeepStream_Plugin_Manual%2Fdeepstream_plugin_metadata.03.1.html) and [API Guide](https://docs.nvidia.com/metropolis/deepstream/python-api/index.html).  
+DeepStream MetaData contains inference results and other information used in analytics. The MetaData is attached to the Gst Buffer received by each pipeline component. The metadata format is described in detail in the [SDK MetaData documentation](https://docs.nvidia.com/metropolis/deepstream/dev-guide/text/DS_plugin_metadata.html) and [API Guide](https://docs.nvidia.com/metropolis/deepstream/python-api/index.html).  
 
 The SDK MetaData library is developed in C/C++. Python bindings provide access to the MetaData from Python applications. The bindings are provided in a compiled module, available for x86_64 and Jetson platforms. This module, pyds.so, is available as part of the DeepStream SDK installation under <DeepStream Root>/lib directory.  
 
