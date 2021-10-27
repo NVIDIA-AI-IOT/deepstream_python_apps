@@ -1,3 +1,20 @@
+################################################################################
+# SPDX-FileCopyrightText: Copyright (c) 2020-2021 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+################################################################################
+
 This guide shows how to use custom deep learning models and parse their inference output in a Python application. Custom model support is provided by the Triton Inference Server plugin included in the DeepStream SDK. The raw inference output can be parsed in a Python application via access to the NvDsInferTensorMeta structure. Sample code is provided in the deepstream-ssd-parser Python application.
 
 **1 - Inference via Triton**

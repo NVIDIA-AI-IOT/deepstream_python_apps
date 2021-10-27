@@ -1,0 +1,80 @@
+# SPDX-FileCopyrightText: Copyright (c) 2018-2021 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Following properties are mandatory when engine files are not specified:
+#   int8-calib-file(Only in INT8)
+#   Caffemodel mandatory properties: model-file, proto-file, output-blob-names
+#   UFF: uff-file, input-dims, uff-input-blob-name, output-blob-names
+#   ONNX: onnx-file
+#
+# Mandatory properties for detectors:
+#   num-detected-classes
+#
+# Optional properties for detectors:
+#   cluster-mode(Default=Group Rectangles), interval(Primary mode only, Default=0)
+#   custom-lib-path,
+#   parse-bbox-func-name
+#
+# Mandatory properties for classifiers:
+#   classifier-threshold, is-classifier
+#
+# Optional properties for classifiers:
+#   classifier-async-mode(Secondary mode only, Default=false)
+#
+# Optional properties in secondary mode:
+#   operate-on-gie-id(Default=0), operate-on-class-ids(Defaults to all classes),
+#   input-object-min-width, input-object-min-height, input-object-max-width,
+#   input-object-max-height
+#
+# Following properties are always recommended:
+#   batch-size(Default=1)
+#
+# Other optional properties:
+#   net-scale-factor(Default=1), network-mode(Default=0 i.e FP32),
+#   model-color-format(Default=0 i.e. RGB) model-engine-file, labelfile-path,
+#   mean-file, gie-unique-id(Default=0), offsets, process-mode (Default=1 i.e. primary),
+#   custom-lib-path, network-mode(Default=0 i.e FP32)
+#
+# The values in the config file are overridden by values set through GObject
+# properties.
+
+[property]
+gpu-id=0
+net-scale-factor=1
+model-file=../../../../samples/models/Secondary_CarColor/resnet18.caffemodel
+proto-file=../../../../samples/models/Secondary_CarColor/resnet18.prototxt
+model-engine-file=../../../../samples/models/Secondary_CarColor/resnet18.caffemodel_b16_gpu0_int8.engine
+mean-file=../../../../samples/models/Secondary_CarColor/mean.ppm
+labelfile-path=../../../../samples/models/Secondary_CarColor/labels.txt
+int8-calib-file=../../../../samples/models/Secondary_CarColor/cal_trt.bin
+force-implicit-batch-dim=1
+batch-size=16
+# 0=FP32 and 1=INT8 mode
+network-mode=1
+input-object-min-width=64
+input-object-min-height=64
+process-mode=2
+model-color-format=1
+gpu-id=0
+gie-unique-id=2
+operate-on-gie-id=1
+operate-on-class-ids=0
+is-classifier=1
+output-blob-names=predictions/Softmax
+classifier-async-mode=1
+classifier-threshold=0.51
+process-mode=2
+#scaling-filter=0
+#scaling-compute-hw=0

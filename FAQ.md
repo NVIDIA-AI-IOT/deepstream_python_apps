@@ -1,5 +1,6 @@
 # Frequently Asked Questions and Troubleshooting Guide
 
+* [Git clone fails due to Gstreamer repo access error](#faq9)
 * [Application fails to work with mp4 stream](#faq0)  
 * [Ctrl-C does not stop the app during engine file generation](#faq1)  
 * [Application fails to create gst elements](#faq2)  
@@ -8,7 +9,21 @@
 * [Error on setting string field](#faq5)  
 * [Pipeline unable to perform at real time](#faq6)  
 * [Triton container problems with multi-GPU setup](#faq7)
-* [ModuleNotFoundError: No module named 'pyds'] (#faq8)
+* [ModuleNotFoundError: No module named 'pyds'](#faq8)
+
+<a name="faq9"></a>
+### Git clone fails due to Gstreamer repo access error
+If the following error is encountered while cloning:
+```
+fatal: unable to access 'https://gitlab.freedesktop.org/gstreamer/common.git/': server certificate verification failed. CAfile: /etc/ssl/certs/ca-certificates.crt CRLfile: none
+fatal: clone of 'https://gitlab.freedesktop.org/gstreamer/common.git' into submodule path '/opt/nvidia/deepstream/deepstream/sources/ds_python/3rdparty/gst-python/common' failed
+```
+
+Temporarily disable git SSL verification by:
+```
+export GIT_SSL_NO_VERIFY=true 
+```
+before cloning the repo. Unset the variable after cloning.
 
 <a name="faq0"></a>
 ### Application fails to work with mp4 stream
@@ -106,9 +121,9 @@ e.g.: `--gpus device=0`
   
 <a name="faq8"></a>  
 ### ModuleNotFoundError: No module named 'pyds'
-The pyds extension is installed under /opt/nvidia/deepstream/deepstream/lib
-The sample applications all include this path via the is_aarch_64 module.
-A setup.py is also provided to install this extension into standard path.
-Currently this needs to be run manually:
-   $ cd /opt/nvidia/deepstream/deepstream/lib
-   $ python3 setup.py install
+The pyds wheel installs the pyds.so library where all the pip packages are stored. Make sure the wheel installation succeeds and the pyds.so is present in the correct path (which should be /home/<user>/.local/lib/python<python-version>/site-packages/pyds.so)
+
+Command to install the pyds wheel is:
+```bash
+   $ pip3 install ./pyds-1.1.0-py3-none*.whl
+```

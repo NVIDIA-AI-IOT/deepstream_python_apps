@@ -1,0 +1,10 @@
+bindanalyticsmeta.cpp
+bindgstnvdsmeta.cpp
+bindmeta360.cpp
+bindnvbufsurface.cpp
+bindnvdsinfer.cpp
+bindnvdsmeta.cpp
+bindnvosd.cpp
+bindopticalflow.cpp
+bindschema.cpp
+bindtrackermeta.cpp

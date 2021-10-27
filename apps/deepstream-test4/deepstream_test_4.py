@@ -1,163 +1,161 @@
 #!/usr/bin/env python3
 
 ################################################################################
-# Copyright (c) 2019, NVIDIA CORPORATION. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2019-2021 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
 #
-# Permission is hereby granted, free of charge, to any person obtaining a
-# copy of this software and associated documentation files (the "Software"),
-# to deal in the Software without restriction, including without limitation
-# the rights to use, copy, modify, merge, publish, distribute, sublicense,
-# and/or sell copies of the Software, and to permit persons to whom the
-# Software is furnished to do so, subject to the following conditions:
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
 #
-# The above copyright notice and this permission notice shall be included in
-# all copies or substantial portions of the Software.
+# http://www.apache.org/licenses/LICENSE-2.0
 #
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
-# THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-# FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
-# DEALINGS IN THE SOFTWARE.
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 ################################################################################
 
 import sys
+
 sys.path.append('../')
 import gi
+
 gi.require_version('Gst', '1.0')
 from gi.repository import GObject, Gst
-from gi.repository import GLib
 import sys
-import platform
 from optparse import OptionParser
 from common.is_aarch_64 import is_aarch64
 from common.bus_call import bus_call
-from common.utils import long_to_int
+from common.utils import long_to_uint64
 import pyds
 
-MAX_DISPLAY_LEN=64
-MAX_TIME_STAMP_LEN=32
+MAX_DISPLAY_LEN = 64
+MAX_TIME_STAMP_LEN = 32
 PGIE_CLASS_ID_VEHICLE = 0
 PGIE_CLASS_ID_BICYCLE = 1
 PGIE_CLASS_ID_PERSON = 2
 PGIE_CLASS_ID_ROADSIGN = 3
-MUXER_OUTPUT_WIDTH=1920
-MUXER_OUTPUT_HEIGHT=1080
-MUXER_BATCH_TIMEOUT_USEC=4000000
+MUXER_OUTPUT_WIDTH = 1920
+MUXER_OUTPUT_HEIGHT = 1080
+MUXER_BATCH_TIMEOUT_USEC = 4000000
 input_file = None
 schema_type = 0
-frame_number = 0
 proto_lib = None
-conn_str="localhost;2181;testTopic"
+conn_str = "localhost;2181;testTopic"
 cfg_file = None
 topic = None
 no_display = False
 
-PGIE_CONFIG_FILE="dstest4_pgie_config.txt"
-MSCONV_CONFIG_FILE="dstest4_msgconv_config.txt"
+PGIE_CONFIG_FILE = "dstest4_pgie_config.txt"
+MSCONV_CONFIG_FILE = "dstest4_msgconv_config.txt"
 
+pgie_classes_str = ["Vehicle", "TwoWheeler", "Person", "Roadsign"]
 
-pgie_classes_str=["Vehicle", "TwoWheeler", "Person","Roadsign"]
 
 # Callback function for deep-copying an NvDsEventMsgMeta struct
-def meta_copy_func(data,user_data):
+def meta_copy_func(data, user_data):
     # Cast data to pyds.NvDsUserMeta
-    user_meta=pyds.NvDsUserMeta.cast(data)
-    src_meta_data=user_meta.user_meta_data
+    user_meta = pyds.NvDsUserMeta.cast(data)
+    src_meta_data = user_meta.user_meta_data
     # Cast src_meta_data to pyds.NvDsEventMsgMeta
-    srcmeta=pyds.NvDsEventMsgMeta.cast(src_meta_data)
+    srcmeta = pyds.NvDsEventMsgMeta.cast(src_meta_data)
     # Duplicate the memory contents of srcmeta to dstmeta
     # First use pyds.get_ptr() to get the C address of srcmeta, then
     # use pyds.memdup() to allocate dstmeta and copy srcmeta into it.
     # pyds.memdup returns C address of the allocated duplicate.
-    dstmeta_ptr=pyds.memdup(pyds.get_ptr(srcmeta), sys.getsizeof(pyds.NvDsEventMsgMeta))
+    dstmeta_ptr = pyds.memdup(pyds.get_ptr(srcmeta),
+                              sys.getsizeof(pyds.NvDsEventMsgMeta))
     # Cast the duplicated memory to pyds.NvDsEventMsgMeta
-    dstmeta=pyds.NvDsEventMsgMeta.cast(dstmeta_ptr)
+    dstmeta = pyds.NvDsEventMsgMeta.cast(dstmeta_ptr)
 
     # Duplicate contents of ts field. Note that reading srcmeat.ts
     # returns its C address. This allows to memory operations to be
     # performed on it.
-    dstmeta.ts=pyds.memdup(srcmeta.ts, MAX_TIME_STAMP_LEN+1)
+    dstmeta.ts = pyds.memdup(srcmeta.ts, MAX_TIME_STAMP_LEN + 1)
 
-    # Copy the sensorStr. This field is a string property.
-    # The getter (read) returns its C address. The setter (write)
-    # takes string as input, allocates a string buffer and copies
-    # the input string into it.
-    # pyds.get_string() takes C address of a string and returns
-    # the reference to a string object and the assignment inside the binder copies content.
-    dstmeta.sensorStr=pyds.get_string(srcmeta.sensorStr)
+    # Copy the sensorStr. This field is a string property. The getter (read)
+    # returns its C address. The setter (write) takes string as input,
+    # allocates a string buffer and copies the input string into it.
+    # pyds.get_string() takes C address of a string and returns the reference
+    # to a string object and the assignment inside the binder copies content.
+    dstmeta.sensorStr = pyds.get_string(srcmeta.sensorStr)
 
-    if(srcmeta.objSignature.size>0):
-        dstmeta.objSignature.signature=pyds.memdup(srcmeta.objSignature.signature,srcMeta.objSignature.size)
-        dstmeta.objSignature.size = srcmeta.objSignature.size;
+    if srcmeta.objSignature.size > 0:
+        dstmeta.objSignature.signature = pyds.memdup(
+            srcmeta.objSignature.signature, srcmeta.objSignature.size)
+        dstmeta.objSignature.size = srcmeta.objSignature.size
 
-    if(srcmeta.extMsgSize>0):
-        if(srcmeta.objType==pyds.NvDsObjectType.NVDS_OBJECT_TYPE_VEHICLE):
-            srcobj = pyds.NvDsVehicleObject.cast(srcmeta.extMsg);
-            obj = pyds.alloc_nvds_vehicle_object();
-            obj.type=pyds.get_string(srcobj.type)
-            obj.make=pyds.get_string(srcobj.make)
-            obj.model=pyds.get_string(srcobj.model)
-            obj.color=pyds.get_string(srcobj.color)
+    if srcmeta.extMsgSize > 0:
+        if srcmeta.objType == pyds.NvDsObjectType.NVDS_OBJECT_TYPE_VEHICLE:
+            srcobj = pyds.NvDsVehicleObject.cast(srcmeta.extMsg)
+            obj = pyds.alloc_nvds_vehicle_object()
+            obj.type = pyds.get_string(srcobj.type)
+            obj.make = pyds.get_string(srcobj.make)
+            obj.model = pyds.get_string(srcobj.model)
+            obj.color = pyds.get_string(srcobj.color)
             obj.license = pyds.get_string(srcobj.license)
             obj.region = pyds.get_string(srcobj.region)
-            dstmeta.extMsg = obj;
+            dstmeta.extMsg = obj
             dstmeta.extMsgSize = sys.getsizeof(pyds.NvDsVehicleObject)
-        if(srcmeta.objType==pyds.NvDsObjectType.NVDS_OBJECT_TYPE_PERSON):
-            srcobj = pyds.NvDsPersonObject.cast(srcmeta.extMsg);
+        if srcmeta.objType == pyds.NvDsObjectType.NVDS_OBJECT_TYPE_PERSON:
+            srcobj = pyds.NvDsPersonObject.cast(srcmeta.extMsg)
             obj = pyds.alloc_nvds_person_object()
             obj.age = srcobj.age
-            obj.gender = pyds.get_string(srcobj.gender);
+            obj.gender = pyds.get_string(srcobj.gender)
             obj.cap = pyds.get_string(srcobj.cap)
             obj.hair = pyds.get_string(srcobj.hair)
-            obj.apparel = pyds.get_string(srcobj.apparel);
-            dstmeta.extMsg = obj;
-            dstmeta.extMsgSize = sys.getsizeof(pyds.NvDsVehicleObject);
+            obj.apparel = pyds.get_string(srcobj.apparel)
+            dstmeta.extMsg = obj
+            dstmeta.extMsgSize = sys.getsizeof(pyds.NvDsVehicleObject)
 
     return dstmeta
 
+
 # Callback function for freeing an NvDsEventMsgMeta instance
-def meta_free_func(data,user_data):
-    user_meta=pyds.NvDsUserMeta.cast(data)
-    srcmeta=pyds.NvDsEventMsgMeta.cast(user_meta.user_meta_data)
+def meta_free_func(data, user_data):
+    user_meta = pyds.NvDsUserMeta.cast(data)
+    srcmeta = pyds.NvDsEventMsgMeta.cast(user_meta.user_meta_data)
 
     # pyds.free_buffer takes C address of a buffer and frees the memory
     # It's a NOP if the address is NULL
     pyds.free_buffer(srcmeta.ts)
     pyds.free_buffer(srcmeta.sensorStr)
 
-    if(srcmeta.objSignature.size > 0):
-        pyds.free_buffer(srcmeta.objSignature.signature);
+    if srcmeta.objSignature.size > 0:
+        pyds.free_buffer(srcmeta.objSignature.signature)
         srcmeta.objSignature.size = 0
 
-    if(srcmeta.extMsgSize > 0):
-        if(srcmeta.objType == pyds.NvDsObjectType.NVDS_OBJECT_TYPE_VEHICLE):
-            obj =pyds.NvDsVehicleObject.cast(srcmeta.extMsg)
-            pyds.free_buffer(obj.type);
-            pyds.free_buffer(obj.color);
-            pyds.free_buffer(obj.make);
-            pyds.free_buffer(obj.model);
-            pyds.free_buffer(obj.license);
-            pyds.free_buffer(obj.region);
-        if(srcmeta.objType == pyds.NvDsObjectType.NVDS_OBJECT_TYPE_PERSON):
-            obj = pyds.NvDsPersonObject.cast(srcmeta.extMsg);
-            pyds.free_buffer(obj.gender);
-            pyds.free_buffer(obj.cap);
-            pyds.free_buffer(obj.hair);
-            pyds.free_buffer(obj.apparel);
-        pyds.free_gbuffer(srcmeta.extMsg);
-        srcmeta.extMsgSize = 0;
+    if srcmeta.extMsgSize > 0:
+        if srcmeta.objType == pyds.NvDsObjectType.NVDS_OBJECT_TYPE_VEHICLE:
+            obj = pyds.NvDsVehicleObject.cast(srcmeta.extMsg)
+            pyds.free_buffer(obj.type)
+            pyds.free_buffer(obj.color)
+            pyds.free_buffer(obj.make)
+            pyds.free_buffer(obj.model)
+            pyds.free_buffer(obj.license)
+            pyds.free_buffer(obj.region)
+        if srcmeta.objType == pyds.NvDsObjectType.NVDS_OBJECT_TYPE_PERSON:
+            obj = pyds.NvDsPersonObject.cast(srcmeta.extMsg)
+            pyds.free_buffer(obj.gender)
+            pyds.free_buffer(obj.cap)
+            pyds.free_buffer(obj.hair)
+            pyds.free_buffer(obj.apparel)
+        pyds.free_gbuffer(srcmeta.extMsg)
+        srcmeta.extMsgSize = 0
+
 
 def generate_vehicle_meta(data):
-    obj = pyds.NvDsVehicleObject.cast(data);
-    obj.type ="sedan"
-    obj.color="blue"
-    obj.make ="Bugatti"
+    obj = pyds.NvDsVehicleObject.cast(data)
+    obj.type = "sedan"
+    obj.color = "blue"
+    obj.make = "Bugatti"
     obj.model = "M"
-    obj.license ="XX1234"
-    obj.region ="CA"
+    obj.license = "XX1234"
+    obj.region = "CA"
     return obj
+
 
 def generate_person_meta(data):
     obj = pyds.NvDsPersonObject.cast(data)
@@ -165,11 +163,12 @@ def generate_person_meta(data):
     obj.cap = "none"
     obj.hair = "black"
     obj.gender = "male"
-    obj.apparel= "formal"
+    obj.apparel = "formal"
     return obj
 
+
 def generate_event_msg_meta(data, class_id):
-    meta =pyds.NvDsEventMsgMeta.cast(data)
+    meta = pyds.NvDsEventMsgMeta.cast(data)
     meta.sensorId = 0
     meta.placeId = 0
     meta.moduleId = 0
@@ -181,23 +180,24 @@ def generate_event_msg_meta(data, class_id):
     # Any custom object as per requirement can be generated and attached
     # like NvDsVehicleObject / NvDsPersonObject. Then that object should
     # be handled in payload generator library (nvmsgconv.cpp) accordingly.
-    if(class_id==PGIE_CLASS_ID_VEHICLE):
+    if class_id == PGIE_CLASS_ID_VEHICLE:
         meta.type = pyds.NvDsEventType.NVDS_EVENT_MOVING
         meta.objType = pyds.NvDsObjectType.NVDS_OBJECT_TYPE_VEHICLE
         meta.objClassId = PGIE_CLASS_ID_VEHICLE
         obj = pyds.alloc_nvds_vehicle_object()
         obj = generate_vehicle_meta(obj)
         meta.extMsg = obj
-        meta.extMsgSize = sys.getsizeof(pyds.NvDsVehicleObject);
-    if(class_id == PGIE_CLASS_ID_PERSON):
-        meta.type =pyds.NvDsEventType.NVDS_EVENT_ENTRY
-        meta.objType = pyds.NvDsObjectType.NVDS_OBJECT_TYPE_PERSON;
+        meta.extMsgSize = sys.getsizeof(pyds.NvDsVehicleObject)
+    if class_id == PGIE_CLASS_ID_PERSON:
+        meta.type = pyds.NvDsEventType.NVDS_EVENT_ENTRY
+        meta.objType = pyds.NvDsObjectType.NVDS_OBJECT_TYPE_PERSON
         meta.objClassId = PGIE_CLASS_ID_PERSON
         obj = pyds.alloc_nvds_person_object()
-        obj=generate_person_meta(obj)
+        obj = generate_person_meta(obj)
         meta.extMsg = obj
         meta.extMsgSize = sys.getsizeof(pyds.NvDsPersonObject)
     return meta
+
 
 # osd_sink_pad_buffer_probe  will extract metadata received on OSD sink pad
 # and update params for drawing rectangle, object information etc.
@@ -206,16 +206,15 @@ def generate_event_msg_meta(data, class_id):
 #    (info.get_buffer()) from traversing the pipeline until user return.
 # b) loops inside probe() callback could be costly in python.
 #    So users shall optimize according to their use-case.
-def osd_sink_pad_buffer_probe(pad,info,u_data):
-    frame_number=0
-    #Intiallizing object counter with 0.
+def osd_sink_pad_buffer_probe(pad, info, u_data):
+    frame_number = 0
+    # Intiallizing object counter with 0.
     obj_counter = {
-        PGIE_CLASS_ID_VEHICLE:0,
-        PGIE_CLASS_ID_PERSON:0,
-        PGIE_CLASS_ID_BICYCLE:0,
-        PGIE_CLASS_ID_ROADSIGN:0
+        PGIE_CLASS_ID_VEHICLE: 0,
+        PGIE_CLASS_ID_PERSON: 0,
+        PGIE_CLASS_ID_BICYCLE: 0,
+        PGIE_CLASS_ID_ROADSIGN: 0
     }
-    is_first_object=True
     gst_buffer = info.get_buffer()
     if not gst_buffer:
         print("Unable to get GstBuffer ")
@@ -238,26 +237,26 @@ def osd_sink_pad_buffer_probe(pad,info,u_data):
             frame_meta = pyds.NvDsFrameMeta.cast(l_frame.data)
         except StopIteration:
             continue
-        is_first_object = True;
+        is_first_object = True
 
-        '''
-        print("Frame Number is ", frame_meta.frame_num)
-        print("Source id is ", frame_meta.source_id)
-        print("Batch id is ", frame_meta.batch_id)
-        print("Source Frame Width ", frame_meta.source_frame_width)
-        print("Source Frame Height ", frame_meta.source_frame_height)
-        print("Num object meta ", frame_meta.num_obj_meta)
-        '''
-        frame_number=frame_meta.frame_num
-        l_obj=frame_meta.obj_meta_list
+        # Short example of attribute access for frame_meta:
+        # print("Frame Number is ", frame_meta.frame_num)
+        # print("Source id is ", frame_meta.source_id)
+        # print("Batch id is ", frame_meta.batch_id)
+        # print("Source Frame Width ", frame_meta.source_frame_width)
+        # print("Source Frame Height ", frame_meta.source_frame_height)
+        # print("Num object meta ", frame_meta.num_obj_meta)
+
+        frame_number = frame_meta.frame_num
+        l_obj = frame_meta.obj_meta_list
         while l_obj is not None:
             try:
-                obj_meta=pyds.NvDsObjectMeta.cast(l_obj.data)
+                obj_meta = pyds.NvDsObjectMeta.cast(l_obj.data)
             except StopIteration:
                 continue
 
             # Update the object text display
-            txt_params=obj_meta.text_params
+            txt_params = obj_meta.text_params
 
             # Set display_text. Any existing display_text string will be
             # freed by the bindings module.
@@ -269,66 +268,69 @@ def osd_sink_pad_buffer_probe(pad,info,u_data):
             txt_params.font_params.font_name = "Serif"
             txt_params.font_params.font_size = 10
             # set(red, green, blue, alpha); set to White
-            txt_params.font_params.font_color.set(1.0, 1.0, 1.0, 1.0);
+            txt_params.font_params.font_color.set(1.0, 1.0, 1.0, 1.0)
 
             # Text background color
             txt_params.set_bg_clr = 1
             # set(red, green, blue, alpha); set to Black
-            txt_params.text_bg_clr.set(0.0, 0.0, 0.0, 1.0);
+            txt_params.text_bg_clr.set(0.0, 0.0, 0.0, 1.0)
 
             # Ideally NVDS_EVENT_MSG_META should be attached to buffer by the
             # component implementing detection / recognition logic.
             # Here it demonstrates how to use / attach that meta data.
-            if(is_first_object and not (frame_number%30)):
+            if is_first_object and (frame_number % 30) == 0:
                 # Frequency of messages to be send will be based on use case.
                 # Here message is being sent for first object every 30 frames.
 
-                # Allocating an NvDsEventMsgMeta instance and getting reference
-                # to it. The underlying memory is not manged by Python so that
-                # downstream plugins can access it. Otherwise the garbage collector
-                # will free it when this probe exits.
-                msg_meta=pyds.alloc_nvds_event_msg_meta()
-                msg_meta.bbox.top =  obj_meta.rect_params.top
-                msg_meta.bbox.left =  obj_meta.rect_params.left
+                # Allocating an NvDsEventMsgMeta instance and getting
+                # reference to it. The underlying memory is not manged by
+                # Python so that downstream plugins can access it. Otherwise
+                # the garbage collector will free it when this probe exits.
+                msg_meta = pyds.alloc_nvds_event_msg_meta()
+                msg_meta.bbox.top = obj_meta.rect_params.top
+                msg_meta.bbox.left = obj_meta.rect_params.left
                 msg_meta.bbox.width = obj_meta.rect_params.width
                 msg_meta.bbox.height = obj_meta.rect_params.height
                 msg_meta.frameId = frame_number
-                msg_meta.trackingId = long_to_int(obj_meta.object_id)
+                msg_meta.trackingId = long_to_uint64(obj_meta.object_id)
                 msg_meta.confidence = obj_meta.confidence
                 msg_meta = generate_event_msg_meta(msg_meta, obj_meta.class_id)
-                user_event_meta = pyds.nvds_acquire_user_meta_from_pool(batch_meta)
-                if(user_event_meta):
-                    user_event_meta.user_meta_data = msg_meta;
+                user_event_meta = pyds.nvds_acquire_user_meta_from_pool(
+                    batch_meta)
+                if user_event_meta:
+                    user_event_meta.user_meta_data = msg_meta
                     user_event_meta.base_meta.meta_type = pyds.NvDsMetaType.NVDS_EVENT_MSG_META
-                    # Setting callbacks in the event msg meta. The bindings layer
-                    # will wrap these callables in C functions. Currently only one
-                    # set of callbacks is supported.
+                    # Setting callbacks in the event msg meta. The bindings
+                    # layer will wrap these callables in C functions.
+                    # Currently only one set of callbacks is supported.
                     pyds.user_copyfunc(user_event_meta, meta_copy_func)
                     pyds.user_releasefunc(user_event_meta, meta_free_func)
-                    pyds.nvds_add_user_meta_to_frame(frame_meta, user_event_meta)
+                    pyds.nvds_add_user_meta_to_frame(frame_meta,
+                                                     user_event_meta)
                 else:
                     print("Error in attaching event meta to buffer\n")
 
                 is_first_object = False
             try:
-                l_obj=l_obj.next
+                l_obj = l_obj.next
             except StopIteration:
                 break
         try:
-            l_frame=l_frame.next
+            l_frame = l_frame.next
         except StopIteration:
             break
 
-    print("Frame Number =",frame_number,"Vehicle Count =",obj_counter[PGIE_CLASS_ID_VEHICLE],"Person Count =",obj_counter[PGIE_CLASS_ID_PERSON])
+    print("Frame Number =", frame_number, "Vehicle Count =",
+          obj_counter[PGIE_CLASS_ID_VEHICLE], "Person Count =",
+          obj_counter[PGIE_CLASS_ID_PERSON])
     return Gst.PadProbeReturn.OK
-
 
 
 def main(args):
     GObject.threads_init()
     Gst.init(None)
 
-    #registering callbacks
+    # registering callbacks
     pyds.register_user_copyfunc(meta_copy_func)
     pyds.register_user_releasefunc(meta_free_func)
 
@@ -370,48 +372,49 @@ def main(args):
     if not nvosd:
         sys.stderr.write(" Unable to create nvosd \n")
 
-    msgconv=Gst.ElementFactory.make("nvmsgconv", "nvmsg-converter")
+    msgconv = Gst.ElementFactory.make("nvmsgconv", "nvmsg-converter")
     if not msgconv:
         sys.stderr.write(" Unable to create msgconv \n")
 
-    msgbroker=Gst.ElementFactory.make("nvmsgbroker", "nvmsg-broker")
+    msgbroker = Gst.ElementFactory.make("nvmsgbroker", "nvmsg-broker")
     if not msgbroker:
         sys.stderr.write(" Unable to create msgbroker \n")
 
-    tee=Gst.ElementFactory.make("tee", "nvsink-tee")
+    tee = Gst.ElementFactory.make("tee", "nvsink-tee")
     if not tee:
         sys.stderr.write(" Unable to create tee \n")
 
-    queue1=Gst.ElementFactory.make("queue", "nvtee-que1")
+    queue1 = Gst.ElementFactory.make("queue", "nvtee-que1")
     if not queue1:
         sys.stderr.write(" Unable to create queue1 \n")
 
-    queue2=Gst.ElementFactory.make("queue", "nvtee-que2")
+    queue2 = Gst.ElementFactory.make("queue", "nvtee-que2")
     if not queue2:
         sys.stderr.write(" Unable to create queue2 \n")
 
-    if (no_display) :
+    if no_display:
         print("Creating FakeSink \n")
         sink = Gst.ElementFactory.make("fakesink", "fakesink")
         if not sink:
             sys.stderr.write(" Unable to create fakesink \n")
     else:
         if is_aarch64():
-            transform = Gst.ElementFactory.make("nvegltransform", "nvegl-transform")
+            transform = Gst.ElementFactory.make("nvegltransform",
+                                                "nvegl-transform")
 
         print("Creating EGLSink \n")
         sink = Gst.ElementFactory.make("nveglglessink", "nvvideo-renderer")
         if not sink:
             sys.stderr.write(" Unable to create egl sink \n")
 
-    print("Playing file %s " %input_file)
+    print("Playing file %s " % input_file)
     source.set_property('location', input_file)
     streammux.set_property('width', 1920)
     streammux.set_property('height', 1080)
     streammux.set_property('batch-size', 1)
     streammux.set_property('batched-push-timeout', 4000000)
     pgie.set_property('config-file-path', PGIE_CONFIG_FILE)
-    msgconv.set_property('config',MSCONV_CONFIG_FILE)
+    msgconv.set_property('config', MSCONV_CONFIG_FILE)
     msgconv.set_property('payload-type', schema_type)
     msgbroker.set_property('proto-lib', proto_lib)
     msgbroker.set_property('conn-str', conn_str)
@@ -461,20 +464,20 @@ def main(args):
         transform.link(sink)
     else:
         queue2.link(sink)
-    sink_pad=queue1.get_static_pad("sink")
-    tee_msg_pad=tee.get_request_pad('src_%u')
-    tee_render_pad=tee.get_request_pad("src_%u")
+    sink_pad = queue1.get_static_pad("sink")
+    tee_msg_pad = tee.get_request_pad('src_%u')
+    tee_render_pad = tee.get_request_pad("src_%u")
     if not tee_msg_pad or not tee_render_pad:
         sys.stderr.write("Unable to get request pads\n")
     tee_msg_pad.link(sink_pad)
-    sink_pad=queue2.get_static_pad("sink")
+    sink_pad = queue2.get_static_pad("sink")
     tee_render_pad.link(sink_pad)
 
-    # create an event loop and feed gstreamer bus mesages to it
+    # create an event loop and feed gstreamer bus messages to it
     loop = GObject.MainLoop()
     bus = pipeline.get_bus()
     bus.add_signal_watch()
-    bus.connect ("message", bus_call, loop)
+    bus.connect("message", bus_call, loop)
 
     osdsinkpad = nvosd.get_static_pad("sink")
     if not osdsinkpad:
@@ -494,23 +497,30 @@ def main(args):
     pyds.unset_callback_funcs()
     pipeline.set_state(Gst.State.NULL)
 
+
 # Parse and validate input arguments
 def parse_args():
     parser = OptionParser()
     parser.add_option("-c", "--cfg-file", dest="cfg_file",
-                  help="Set the adaptor config file. Optional if connection string has relevant  details.", metavar="FILE")
+                      help="Set the adaptor config file. Optional if "
+                           "connection string has relevant  details.",
+                      metavar="FILE")
     parser.add_option("-i", "--input-file", dest="input_file",
-                  help="Set the input H264 file", metavar="FILE")
+                      help="Set the input H264 file", metavar="FILE")
     parser.add_option("-p", "--proto-lib", dest="proto_lib",
-                  help="Absolute path of adaptor library", metavar="PATH")
+                      help="Absolute path of adaptor library", metavar="PATH")
     parser.add_option("", "--conn-str", dest="conn_str",
-                  help="Connection string of backend server. Optional if it is part of config file.", metavar="STR")
+                      help="Connection string of backend server. Optional if "
+                           "it is part of config file.", metavar="STR")
     parser.add_option("-s", "--schema-type", dest="schema_type", default="0",
-                  help="Type of message schema (0=Full, 1=minimal), default=0", metavar="<0|1>")
+                      help="Type of message schema (0=Full, 1=minimal), "
+                           "default=0", metavar="<0|1>")
     parser.add_option("-t", "--topic", dest="topic",
-                  help="Name of message topic. Optional if it is part of connection string or config file.", metavar="TOPIC")
-    parser.add_option("", "--no-display", action="store_true", dest="no_display", default=False,
-                  help="Disable display")
+                      help="Name of message topic. Optional if it is part of "
+                           "connection string or config file.", metavar="TOPIC")
+    parser.add_option("", "--no-display", action="store_true",
+                      dest="no_display", default=False,
+                      help="Disable display")
 
     (options, args) = parser.parse_args()
 
@@ -528,21 +538,17 @@ def parse_args():
     topic = options.topic
     no_display = options.no_display
 
-    if proto_lib is None or input_file is None:
-        print("Usage: python3 deepstream_test_4.py -i <H264 filename> -p <Proto adaptor library> --conn-str=<Connection string>")
+    if not (proto_lib and input_file):
+        print("Usage: python3 deepstream_test_4.py -i <H264 filename> -p "
+              "<Proto adaptor library> --conn-str=<Connection string>")
         return 1
 
-    if (options.schema_type == "0"):
-        schema_type = 0
-    else:
-        schema_type = 1
+    schema_type = 0 if options.schema_type == "0" else 1
 
-    return 0
 
 if __name__ == '__main__':
     ret = parse_args()
-    #If argumer parsing fail, return failure (non-zero)
+    # If argument parsing fails, returns failure (non-zero)
     if ret == 1:
         sys.exit(1)
     sys.exit(main(sys.argv))
-

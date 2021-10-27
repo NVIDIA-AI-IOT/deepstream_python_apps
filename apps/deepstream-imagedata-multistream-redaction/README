@@ -1,0 +1,104 @@
+################################################################################
+# SPDX-FileCopyrightText: Copyright (c) 2021 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+################################################################################
+
+Prerequisites:
+- DeepStreamSDK 6.0
+- Python 3.6
+- Gst-python
+- NumPy package
+- OpenCV package
+- GstRtspServer
+
+To install required packages:
+  $ sudo apt update
+  $ sudo apt install python3-numpy python3-opencv -y
+
+Installing GstRtspServer and instrospection typelib
+===================================================
+  $ sudo apt update
+  $ sudo apt-get install libgstrtspserver-1.0-0 gstreamer1.0-rtsp
+For gst-rtsp-server (and other GStreamer stuff) to be accessible in
+Python through gi.require_version(), it needs to be built with
+gobject-introspection enabled (libgstrtspserver-1.0-0 is already).
+Yet, we need to install the introspection typelib package:
+  $ sudo apt-get install libgirepository1.0-dev
+  $ sudo apt-get install gobject-introspection gir1.2-gst-rtsp-server-1.0
+
+Download Peoplenet model:
+  $ cd /opt/nvidia/deepstream/deepstream-6.0/samples/configs/tao_pretrained_models
+  $ mkdir -p ../../models/tao_pretrained_models/peoplenet && wget https://api.ngc.nvidia.com/v2/models/nvidia/tao/peoplenet/versions/pruned_v2.1/files/resnet34_peoplenet_pruned.etlt \
+    -O ../../models/tao_pretrained_models/peoplenet/resnet34_peoplenet_pruned.etlt
+
+To run:
+  $ python3 deepstream_imagedata-multistream_redaction.py -i <uri1> [uri2] ... [uriN] -c {H264,H265} -b BITRATE
+For command line argument details:  
+  $ python3 deepstream_imagedata-multistream_redaction.py -h 
+e.g.
+  $ python3 deepstream_imagedata-multistream_redaction.py file:///home/ubuntu/video1.mp4 file:///home/ubuntu/video2.mp4 -c H264
+
+This document describes the sample deepstream-imagedata-multistream-redaction application.
+
+This sample builds on top of the deepstream-imagedata-multistream sample to demonstrate how to:
+
+* Demonstrates the use-case of face redaction and storing the detected objects (faces) in
+  cropped images to an "out_crops" dir in the present working directory
+* Access imagedata in a multistream source
+* Modify the images in-place. Changes made to the buffer will reflect in the downstream but  
+  color format, resolution and numpy transpose operations are not permitted.  
+* Make a copy of the image, modify it and save to a file. These changes are made on the copy  
+  of the image and will not be seen downstream.
+* Extract the stream metadata, imagedata, which contains useful information about the
+  frames in the batched buffer.
+* Annotating detected objects regardless of confidence level
+* Use OpenCV to crop the image around a detected object (face class) and save it to file.
+* Use multiple sources in the pipeline.
+* Use a uridecodebin so that any type of input (e.g. RTSP/File), any GStreamer
+  supported container format, and any codec can be used as input.
+* Configure the stream-muxer to generate a batch of frames and infer on the
+  batch for better resource utilization.
+* Stream output to rtsp
+
+NOTE:
+- For x86, only CUDA unified memory is supported.
+- Only RGBA color format is supported for access from Python. Color conversion
+  is added in the pipeline for this reason.
+
+This sample accepts one or more H.264/H.265 video streams as input. It creates
+a source bin for each input and connects the bins to an instance of the
+"nvstreammux" element, which forms the batch of frames. The batch of
+frames is fed to "nvinfer" for batched inferencing. The batched buffer is
+composited into a 2D tile array using "nvmultistreamtiler." The rest of the
+pipeline is similar to the deepstream-test3 and deepstream-imagedata sample.
+
+The "width" and "height" properties must be set on the stream-muxer to set the
+output resolution. If the input frame resolution is different from
+stream-muxer's "width" and "height", the input frame will be scaled to muxer's
+output resolution.
+
+The stream-muxer waits for a user-defined timeout before forming the batch. The
+timeout is set using the "batched-push-timeout" property. If the complete batch
+is formed before the timeout is reached, the batch is pushed to the downstream
+element. If the timeout is reached before the complete batch can be formed
+(which can happen in case of rtsp sources), the batch is formed from the
+available input buffers and pushed. Ideally, the timeout of the stream-muxer
+should be set based on the framerate of the fastest source. It can also be set
+to -1 to make the stream-muxer wait infinitely.
+
+The "nvmultistreamtiler" composite streams based on their stream-ids in
+row-major order (starting from stream 0, left to right across the top row, then
+across the next row, etc.).
+

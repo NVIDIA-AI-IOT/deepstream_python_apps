@@ -1,0 +1,6 @@
+[submodule "3rdparty/pybind11"]
+	path = 3rdparty/pybind11
+	url = https://github.com/pybind/pybind11.git
+[submodule "3rdparty/gst-python"]
+	path = 3rdparty/gst-python
+	url = https://github.com/GStreamer/gst-python.git
