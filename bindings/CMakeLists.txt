@@ -54,7 +54,7 @@ set(PIP_WHEEL pyds-1.1.0-py3-none-${PIP_PLATFORM}.whl)
 
 # Describing pyds build
 project(pyds DESCRIPTION "Python bindings for Deepstream")
-add_compile_options(-Wall -Wextra -pedantic -o3)
+add_compile_options(-Wall -Wextra -pedantic -O3)
 
 include_directories(
         include/
