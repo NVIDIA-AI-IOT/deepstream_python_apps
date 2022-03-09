@@ -2,7 +2,7 @@
 
 This repository contains Python bindings and sample applications for the [DeepStream SDK](https://developer.nvidia.com/deepstream-sdk).  
 
-SDK version supported: 6.0
+SDK version supported: 6.0.1
 
 <b>NEW: The bindings sources along with build instructions are now available under [bindings](bindings)!  </b>
 

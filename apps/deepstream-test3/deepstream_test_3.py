@@ -140,6 +140,10 @@ def decodebin_child_added(child_proxy,Object,name,user_data):
     if(name.find("decodebin") != -1):
         Object.connect("child-added",decodebin_child_added,user_data)
 
+    if "source" in name:
+        Object.set_property("drop-on-latency", True)
+
+
 def create_source_bin(index,uri):
     print("Creating source bin")
 

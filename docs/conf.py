@@ -36,9 +36,9 @@ sys.path.insert(0, os.path.abspath('.'))
 import pyds
 
 project = 'Deepstream'
-copyright = '2019-2021, NVIDIA.'
+copyright = '2019-2022, NVIDIA.'
 author = 'NVIDIA'
-version = 'Deepstream Version: 6.0 GA'
+version = 'Deepstream Version: 6.0.1'
 release = version
 
 

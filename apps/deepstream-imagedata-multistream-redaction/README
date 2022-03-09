@@ -16,7 +16,7 @@
 ################################################################################
 
 Prerequisites:
-- DeepStreamSDK 6.0
+- DeepStreamSDK 6.0.1
 - Python 3.6
 - Gst-python
 - NumPy package
@@ -39,7 +39,7 @@ Yet, we need to install the introspection typelib package:
   $ sudo apt-get install gobject-introspection gir1.2-gst-rtsp-server-1.0
 
 Download Peoplenet model:
-  $ cd /opt/nvidia/deepstream/deepstream-6.0/samples/configs/tao_pretrained_models
+  $ cd /opt/nvidia/deepstream/deepstream/samples/configs/tao_pretrained_models
   $ mkdir -p ../../models/tao_pretrained_models/peoplenet && wget https://api.ngc.nvidia.com/v2/models/nvidia/tao/peoplenet/versions/pruned_v2.1/files/resnet34_peoplenet_pruned.etlt \
     -O ../../models/tao_pretrained_models/peoplenet/resnet34_peoplenet_pruned.etlt
 

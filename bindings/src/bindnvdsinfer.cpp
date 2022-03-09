@@ -199,6 +199,7 @@ namespace pydeepstream {
         py::class_<NvDsInferTensorMeta>(m, "NvDsInferTensorMeta",
                                         pydsdoc::NvInferDoc::NvDsInferTensorMetaDoc::descr)
                 .def(py::init<>())
+                .def_readonly("network_info", &NvDsInferTensorMeta::network_info)
                 .def_readonly("unique_id", &NvDsInferTensorMeta::unique_id)
                 .def_readonly("num_output_layers",
                               &NvDsInferTensorMeta::num_output_layers)

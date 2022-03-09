@@ -16,7 +16,7 @@ This guide provides resources for DeepStream application development in Python.
 ## Prerequisites
 
 * Ubuntu 18.04
-* [DeepStream SDK 6.0](https://developer.nvidia.com/deepstream-download) or later
+* [DeepStream SDK 6.0.1](https://developer.nvidia.com/deepstream-download) or later
 * Python 3.6+
 * [Gst Python](https://gstreamer.freedesktop.org/modules/gst-python.html) v1.14.5
 
@@ -45,11 +45,11 @@ Note: Compiling bindings now also generates a pip installable python wheel for t
 <a name="run_samples"></a>
 ## Running Sample Applications
 
-Clone the deepstream_python_apps repo under <DeepStream 6.0 ROOT>/sources:
+Clone the deepstream_python_apps repo under <DeepStream 6.0.1 ROOT>/sources:
 git clone https://github.com/NVIDIA-AI-IOT/deepstream_python_apps
 
 This will create the following directory:  
-```<DeepStream 6.0 ROOT>/sources/deepstream_python_apps```  
+```<DeepStream 6.0.1 ROOT>/sources/deepstream_python_apps```  
 
 The Python apps are under the "apps" directory.  
 Go into each app directory and follow instructions in the README.  
@@ -211,5 +211,5 @@ This function populates the input buffer with a timestamp generated according to
 <a name="imagedata_access"></a>
 ## Image Data Access
 
-Decoded images are accessible as NumPy arrays via the `get_nvds_buf_surface` function. This function is documented in the [API Guide](https://docs.nvidia.com/metropolis/deepstream/6.0/python-api/index.html).
+Decoded images are accessible as NumPy arrays via the `get_nvds_buf_surface` function. This function is documented in the [API Guide](https://docs.nvidia.com/metropolis/deepstream/6.0.1/python-api/index.html).
 Please see the [deepstream-imagedata-multistream](apps/deepstream-imagedata-multistream) sample application for an example of image data usage.

@@ -27,6 +27,14 @@ apt install python3-gi python3-dev python3-gst-1.0 python-gi-dev git python-dev 
 git submodule update --init
 ```
 ### 2.3 Installing Gst-python
+
+Following commands ensure we add the new certificates that gst-python git server now uses:
+```
+sudo apt-get install -y apt-transport-https ca-certificates -y
+sudo update-ca-certificates
+```
+
+Build and install gst-python:
 ```
 cd 3rdparty/gst-python/
 ./autogen.sh
@@ -38,7 +46,7 @@ Go to https://developer.nvidia.com/deepstream-sdk, download and install Deepstre
 
 ## 3 - Building the bindings
 
-### 3.1 Quick build (x86-ubuntu-18.04 | python 3.6 | Deepstream 6.0)
+### 3.1 Quick build (x86-ubuntu-18.04 | python 3.6 | Deepstream 6.0.1)
 ```
 cd deepstream_python_apps/bindings
 mkdir build
@@ -47,7 +55,7 @@ cmake ..
 make
 ```
 
-### 3.1.1 Quick build (x86-ubuntu-20.04 | python 3.8 | Deepstream 6.0)
+### 3.1.1 Quick build (x86-ubuntu-20.04 | python 3.8 | Deepstream 6.0.1)
 
 ```
 cd deepstream_python_apps/bindings
@@ -70,7 +78,7 @@ cmake [-D<var>=<value> [-D<var>=<value> [-D<var>=<value> ... ]]]
 
 | Var | Default value | Purpose | Available values
 |-----|:-------------:|---------|:----------------:
-| DS_VERSION | 6.0 | Used to determine default deepstream library path | should match to the deepstream version installed on your computer
+| DS_VERSION | 6.0.1 | Used to determine default deepstream library path | should match to the deepstream version installed on your computer
 | PYTHON_MAJOR_VERSION | 3 | Used to set the python version used for the bindings | 3
 | PYTHON_MINOR_VERSION | 6 | Used to set the python version used for the bindings | 6, 8
 | PIP_PLATFORM | linux_x86_64 | Used to select the target architecture to compile the bindings | linux_x86_64, linux_aarch64
@@ -107,21 +115,21 @@ sudo apt-get install qemu binfmt-support qemu-user-static
 docker run --rm --privileged dockerhub.nvidia.com/multiarch/qemu-user-static --reset -p yes
 
 # Verify qemu installation
-docker run --rm -t nvcr.io/nvidia/deepstream-l4t:6.0-base uname -m
+docker run --rm -t docker pull nvcr.io/nvidia/deepstream:6.0.1-samples uname -m
 #aarch64
 ```
 
-#### 3.3.2 Download the JetPack SDK 4.6
+#### 3.3.2 Download the JetPack SDK 4.6.1
 1. Download and install the [NVIDIA SDK manager](https://developer.nvidia.com/nvidia-sdk-manager)
 2. Launch the SDK Manager and login with your NVIDIA developer account.
-3. Select the platform and target OS (example: Jetson AGX Xavier, `Linux Jetpack 4.6`) and click Continue.
+3. Select the platform and target OS (example: Jetson AGX Xavier, `Linux Jetpack 4.6.1`) and click Continue.
 4. Under `Download & Install Options` change the download folder and select `Download now, Install later`. Agree to the license terms and click Continue.
 5. Go to the download folder, and run:
 
 ```bash
 # path/to/deepstream_python_apps is the path where you downloaded the deepstream_python_apps repository
 mkdir -p path/to/deepstream_python_apps/bindings/docker/jetpack_files
-mv nvidia/sdkm_downloads/* path/to/deepstream_python_apps/bindings/docker/jetpack_files
+mv ~/Downloads/nvidia/sdkm_downloads/* path/to/deepstream_python_apps/bindings/docker/jetpack_files
 ```
 
 #### 3.3.3 Generate the cross-compile build container
@@ -130,7 +138,7 @@ Below command generates the build container
 
 ```bash
 # Make sure you are in deepstream_python_apps/bindings directory
-docker build --tag=deepstream-6.0-ubuntu18.04-python-l4t -f qemu_docker/ubuntu-cross-aarch64.Dockerfile .
+docker build --tag=deepstream-6.0.1-ubuntu18.04-python-l4t -f qemu_docker/ubuntu-cross-aarch64.Dockerfile .
 ```
 
 #### 3.3.4 Launch the cross-compile build container
@@ -140,7 +148,7 @@ docker build --tag=deepstream-6.0-ubuntu18.04-python-l4t -f qemu_docker/ubuntu-c
 mkdir export_pyds
 
 # Make sure the tag matches the one from Generate step above
-docker run -it -v $PWD/export_pyds:/export_pyds deepstream-6.0-ubuntu18.04-python-l4t bash
+docker run -it -v $PWD/export_pyds:/export_pyds deepstream-6.0.1-ubuntu18.04-python-l4t bash
 ```
 
 #### 3.3.5 Build DeepStreamSDK python bindings
@@ -178,6 +186,7 @@ Build output is generated in the created export_pyds directory (deepstream_pytho
 
 ### 4.1 Installing the pip wheel
 ```
+apt install libgirepository1.0-dev
 pip3 install ./pyds-1.1.0-py3-none*.whl
 ```
 
