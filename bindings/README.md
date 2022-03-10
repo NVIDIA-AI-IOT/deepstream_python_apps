@@ -115,7 +115,7 @@ sudo apt-get install qemu binfmt-support qemu-user-static
 docker run --rm --privileged dockerhub.nvidia.com/multiarch/qemu-user-static --reset -p yes
 
 # Verify qemu installation
-docker run --rm -t docker pull nvcr.io/nvidia/deepstream:6.0.1-samples uname -m
+docker run --rm -t  nvcr.io/nvidia/deepstream:6.0.1-samples uname -m
 #aarch64
 ```
 
@@ -186,8 +186,8 @@ Build output is generated in the created export_pyds directory (deepstream_pytho
 
 ### 4.1 Installing the pip wheel
 ```
-apt install libgirepository1.0-dev
-pip3 install ./pyds-1.1.0-py3-none*.whl
+apt install libgirepository1.0-dev libcairo2-dev
+pip3 install ./pyds-1.1.1-py3-none*.whl
 ```
 
 #### 4.1.1 pip wheel troubleshooting
