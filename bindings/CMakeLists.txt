@@ -22,9 +22,9 @@ function(check_variable_set variable_name default_value)
         endif()
 endfunction()
 
-check_variable_set(DS_VERSION 6.0)
+check_variable_set(DS_VERSION 6.1)
 check_variable_set(PYTHON_MAJOR_VERSION 3)
-check_variable_set(PYTHON_MINOR_VERSION 6)
+check_variable_set(PYTHON_MINOR_VERSION 8)
 check_variable_set(PIP_PLATFORM linux_x86_64)
 check_variable_set(DS_PATH "/opt/nvidia/deepstream/deepstream-${DS_VERSION}")
 
@@ -50,7 +50,7 @@ set(CMAKE_SHARED_LINKER_FLAGS "-Wl,--no-undefined")
 
 # Setting python build versions
 set(PYTHON_VERSION ${PYTHON_MAJOR_VERSION}.${PYTHON_MINOR_VERSION})
-set(PIP_WHEEL pyds-1.1.1-py3-none-${PIP_PLATFORM}.whl)
+set(PIP_WHEEL pyds-1.1.2-py3-none-${PIP_PLATFORM}.whl)
 
 # Describing pyds build
 project(pyds DESCRIPTION "Python bindings for Deepstream")

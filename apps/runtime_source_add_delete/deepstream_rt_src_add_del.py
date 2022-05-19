@@ -22,7 +22,7 @@ sys.path.append('../')
 import gi
 import configparser
 gi.require_version('Gst', '1.0')
-from gi.repository import GObject, Gst
+from gi.repository import Gst, GLib
 from gi.repository import GLib
 from ctypes import *
 import time
@@ -275,7 +275,7 @@ def add_sources(data):
 
     #If reached the maximum number of sources, delete sources every 10 seconds
     if (g_num_sources == MAX_NUM_SOURCES):
-        GObject.timeout_add_seconds(10, delete_sources, g_source_bin_list)
+        GLib.timeout_add_seconds(10, delete_sources, g_source_bin_list)
         return False
     
     return True
@@ -329,7 +329,6 @@ def main(args):
     num_sources=len(args)-1
 
     # Standard GStreamer initialization
-    GObject.threads_init()
     Gst.init(None)
 
     # Create gstreamer elements */
@@ -521,7 +520,7 @@ def main(args):
     sink.set_property("qos",0)
 
     # create an event loop and feed gstreamer bus mesages to it
-    loop = GObject.MainLoop()
+    loop = GLib.MainLoop()
     bus = pipeline.get_bus()
     bus.add_signal_watch()
     bus.connect ("message", bus_call, loop)
@@ -538,7 +537,7 @@ def main(args):
     # start play back and listed to events		
     pipeline.set_state(Gst.State.PLAYING)
 
-    GObject.timeout_add_seconds(10, add_sources, g_source_bin_list)
+    GLib.timeout_add_seconds(10, add_sources, g_source_bin_list)
 
     try:
         loop.run()

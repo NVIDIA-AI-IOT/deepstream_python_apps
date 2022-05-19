@@ -15,10 +15,10 @@ This guide provides resources for DeepStream application development in Python.
 <a name="prereqs"></a>
 ## Prerequisites
 
-* Ubuntu 18.04
-* [DeepStream SDK 6.0.1](https://developer.nvidia.com/deepstream-download) or later
-* Python 3.6+
-* [Gst Python](https://gstreamer.freedesktop.org/modules/gst-python.html) v1.14.5
+* Ubuntu 20.04
+* [DeepStream SDK 6.1](https://developer.nvidia.com/deepstream-download) or later
+* Python 3.8
+* [Gst Python](https://gstreamer.freedesktop.org/modules/gst-python.html) v1.16.2
 
 Gst python should be already installed on Jetson.  
 If missing, install with the following steps:
@@ -28,7 +28,7 @@ If missing, install with the following steps:
    $ export GST_CFLAGS="-pthread -I/usr/include/gstreamer-1.0 -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include"
    $ git clone https://github.com/GStreamer/gst-python.git
    $ cd gst-python
-   $ git checkout 1a8f48a
+   $ git checkout 5343aeb
    $ ./autogen.sh PYTHON=python3
    $ ./configure PYTHON=python3
    $ make
@@ -45,11 +45,11 @@ Note: Compiling bindings now also generates a pip installable python wheel for t
 <a name="run_samples"></a>
 ## Running Sample Applications
 
-Clone the deepstream_python_apps repo under <DeepStream 6.0.1 ROOT>/sources:
+Clone the deepstream_python_apps repo under <DeepStream 6.1 ROOT>/sources:
 git clone https://github.com/NVIDIA-AI-IOT/deepstream_python_apps
 
 This will create the following directory:  
-```<DeepStream 6.0.1 ROOT>/sources/deepstream_python_apps```  
+```<DeepStream 6.1 ROOT>/sources/deepstream_python_apps```
 
 The Python apps are under the "apps" directory.  
 Go into each app directory and follow instructions in the README.  

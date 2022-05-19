@@ -1,0 +1,71 @@
+################################################################################
+# SPDX-FileCopyrightText: Copyright (c) 2019-2022 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+################################################################################
+
+infer_config {
+  unique_id: 1
+  gpu_ids: [0]
+  max_batch_size: 1
+  backend {
+    triton {
+      model_name: "peoplenet"
+      version: -1
+      model_repo {
+        root: "/opt/nvidia/deepstream/deepstream/samples/triton_model_repo"
+        strict_model_config: true
+      }
+    }
+  }
+
+  preprocess {
+    network_format: MEDIA_FORMAT_NONE
+    tensor_order: TENSOR_ORDER_LINEAR
+    tensor_name: "input_1"
+    maintain_aspect_ratio: 0
+    frame_scaling_hw: FRAME_SCALING_HW_DEFAULT
+    frame_scaling_filter: 1
+    normalize {
+      scale_factor: 0.0039215697906911373
+      channel_offsets: [0, 0, 0]
+    }
+  }
+
+  postprocess {
+    labelfile_path: "/opt/nvidia/deepstream/deepstream/samples/models/tao_pretrained_models/peopleNet/V2.5/labels.txt"
+    detection {
+      num_detected_classes: 3
+      per_class_params {
+        key: 0
+        value { pre_threshold: 0.4 }
+      }
+      nms {
+        confidence_threshold:0.2
+        topk:20
+        iou_threshold:0.5
+      }
+    }
+  }
+
+  extra {
+    copy_input_to_host_buffers: false
+    output_buffer_pool_size: 2
+  }
+}
+input_control {
+  process_mode: PROCESS_MODE_FULL_FRAME
+  operate_on_gie_id: -1
+  interval: 0
+}

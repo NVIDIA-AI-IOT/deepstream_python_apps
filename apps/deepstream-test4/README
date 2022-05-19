@@ -16,8 +16,8 @@
 ################################################################################
 
 Prerequisites:
-- DeepStreamSDK 6.0.1
-- Python 3.6
+- DeepStreamSDK 6.1
+- Python 3.8
 - Gst-python
 
 #Deepstream msgbroker supports sending messages to Azure(mqtt) IOThub, kafka and AMQP broker(rabbitmq)

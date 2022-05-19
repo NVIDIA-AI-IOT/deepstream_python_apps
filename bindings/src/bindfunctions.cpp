@@ -521,6 +521,7 @@ namespace pydeepstream {
                  std::function<utils::COPYFUNC_SIG> const &func) {
                   utils::set_copyfunc(meta, func);
               },
+	      py::call_guard<py::gil_scoped_release>(),
               "meta"_a,
               "func"_a,
               pydsdoc::methodsDoc::user_copyfunc);
@@ -544,6 +545,7 @@ namespace pydeepstream {
                  std::function<utils::RELEASEFUNC_SIG> const &func) {
                   utils::set_freefunc(meta, func);
               },
+	      py::call_guard<py::gil_scoped_release>(),
               "meta"_a,
               "func"_a,
               pydsdoc::methodsDoc::user_releasefunc);
@@ -559,7 +561,9 @@ namespace pydeepstream {
         m.def("unset_callback_funcs",
               []() {
             utils::release_all_func();
-        });
+        },
+              py::call_guard<py::gil_scoped_release>()
+	);
 
         m.def("alloc_char_buffer",
               [](size_t size) {

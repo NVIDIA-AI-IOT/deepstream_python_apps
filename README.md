@@ -2,9 +2,11 @@
 
 This repository contains Python bindings and sample applications for the [DeepStream SDK](https://developer.nvidia.com/deepstream-sdk).  
 
-SDK version supported: 6.0.1
+SDK version supported: 6.1
 
-<b>NEW: The bindings sources along with build instructions are now available under [bindings](bindings)!  </b>
+<b>The bindings sources along with build instructions are now available under [bindings](bindings)!  </b>
+
+<b>This release comes with Operating System upgrades (from Ubuntu 18.04 to Ubuntu 20.04) for DeepStreamSDK 6.1 support. This translates to upgrade in Python version to 3.8 and [gst-python](3rdparty/gst-python/) version has also been upgraded to 1.16.2 !</b>
 
 Download the latest release package complete with bindings and sample applications from the [release section](../../releases).  
 
@@ -41,7 +43,7 @@ To run the sample applications or write your own, please consult the [HOW-TO Gui
 We currently provide the following sample applications:
 * [deepstream-test1](apps/deepstream-test1) -- 4-class object detection pipeline
 * [deepstream-test2](apps/deepstream-test2) -- 4-class object detection, tracking and attribute classification pipeline
-* [deepstream-test3](apps/deepstream-test3) -- multi-stream pipeline performing 4-class object detection
+* <b>UPDATE</b> [deepstream-test3](apps/deepstream-test3) -- multi-stream pipeline performing 4-class object detection - now also supports triton inference server, no-display mode, file-loop and silent mode
 * [deepstream-test4](apps/deepstream-test4) -- msgbroker for sending analytics results to the cloud
 * [deepstream-imagedata-multistream](apps/deepstream-imagedata-multistream) -- multi-stream pipeline with access to image buffers
 * [deepstream-ssd-parser](apps/deepstream-ssd-parser) -- SSD model inference via Triton server with output parsing in Python
@@ -53,6 +55,7 @@ We currently provide the following sample applications:
 * [runtime_source_add_delete](apps/runtime_source_add_delete) -- add/delete source streams at runtime
 * [deepstream-imagedata-multistream-redaction](apps/deepstream-imagedata-multistream-redaction) -- multi-stream pipeline with face detection and redaction
 * [deepstream-rtsp-in-rtsp-out](apps/deepstream-rtsp-in-rtsp-out) -- multi-stream pipeline with RTSP input/output
+* <b>NEW</b> [deepstream-preprocess-test](apps/deepstream-preprocess-test) -- multi-stream pipeline using nvdspreprocess plugin with custom ROIs
 
 
 Detailed application information is provided in each application's subdirectory under [apps](apps).  

@@ -51,17 +51,17 @@ Go to https://developer.nvidia.com/deepstream-sdk, download and install Deepstre
 cd deepstream_python_apps/bindings
 mkdir build
 cd build
-cmake ..
+cmake .. -DPYTHON_MAJOR_VERSION=3 -DPYTHON_MINOR_VERSION=6
 make
 ```
 
-### 3.1.1 Quick build (x86-ubuntu-20.04 | python 3.8 | Deepstream 6.0.1)
+### 3.1.1 Quick build (x86-ubuntu-20.04 | python 3.8 | Deepstream 6.1)
 
 ```
 cd deepstream_python_apps/bindings
 mkdir build
 cd build
-cmake ..  -DPYTHON_MAJOR_VERSION=3 -DPYTHON_MINOR_VERSION=8
+cmake ..
 make
 ```
 
@@ -78,9 +78,9 @@ cmake [-D<var>=<value> [-D<var>=<value> [-D<var>=<value> ... ]]]
 
 | Var | Default value | Purpose | Available values
 |-----|:-------------:|---------|:----------------:
-| DS_VERSION | 6.0.1 | Used to determine default deepstream library path | should match to the deepstream version installed on your computer
+| DS_VERSION | 6.1 | Used to determine default deepstream library path | should match to the deepstream version installed on your computer
 | PYTHON_MAJOR_VERSION | 3 | Used to set the python version used for the bindings | 3
-| PYTHON_MINOR_VERSION | 6 | Used to set the python version used for the bindings | 6, 8
+| PYTHON_MINOR_VERSION | 8 | Used to set the python version used for the bindings | 6, 8
 | PIP_PLATFORM | linux_x86_64 | Used to select the target architecture to compile the bindings | linux_x86_64, linux_aarch64
 | DS_PATH | /opt/nvidia/deepstream/deepstream-${DS_VERSION} | Path where deepstream libraries are available | Should match the existing deepstream library folder
 
@@ -92,8 +92,8 @@ Following commands can be used to build the bindings natively on Jetson devices
 cd deepstream_python_apps/bindings
 mkdir build
 cd build
-cmake ..  -DPYTHON_MAJOR_VERSION=3 -DPYTHON_MINOR_VERSION=6 \
-    -DPIP_PLATFORM=linux_aarch64 -DDS_PATH=/opt/nvidia/deepstream/deepstream-6.0/
+cmake ..  -DPYTHON_MAJOR_VERSION=3 -DPYTHON_MINOR_VERSION=8 \
+    -DPIP_PLATFORM=linux_aarch64 -DDS_PATH=/opt/nvidia/deepstream/deepstream/
 make
 ```
 
@@ -115,14 +115,14 @@ sudo apt-get install qemu binfmt-support qemu-user-static
 docker run --rm --privileged dockerhub.nvidia.com/multiarch/qemu-user-static --reset -p yes
 
 # Verify qemu installation
-docker run --rm -t  nvcr.io/nvidia/deepstream:6.0.1-samples uname -m
+docker run --rm -t  nvcr.io/nvidia/deepstream-l4t:6.1-samples uname -m
 #aarch64
 ```
 
-#### 3.3.2 Download the JetPack SDK 4.6.1
+#### 3.3.2 Download the JetPack SDK 5.0
 1. Download and install the [NVIDIA SDK manager](https://developer.nvidia.com/nvidia-sdk-manager)
 2. Launch the SDK Manager and login with your NVIDIA developer account.
-3. Select the platform and target OS (example: Jetson AGX Xavier, `Linux Jetpack 4.6.1`) and click Continue.
+3. Select the platform and target OS (example: Jetson AGX Xavier, `Linux Jetpack 5.0`) and click Continue.
 4. Under `Download & Install Options` change the download folder and select `Download now, Install later`. Agree to the license terms and click Continue.
 5. Go to the download folder, and run:
 
@@ -138,7 +138,7 @@ Below command generates the build container
 
 ```bash
 # Make sure you are in deepstream_python_apps/bindings directory
-docker build --tag=deepstream-6.0.1-ubuntu18.04-python-l4t -f qemu_docker/ubuntu-cross-aarch64.Dockerfile .
+docker build --tag=deepstream-6.1-ubuntu20.04-python-l4t -f qemu_docker/ubuntu-cross-aarch64.Dockerfile .
 ```
 
 #### 3.3.4 Launch the cross-compile build container
@@ -148,7 +148,7 @@ docker build --tag=deepstream-6.0.1-ubuntu18.04-python-l4t -f qemu_docker/ubuntu
 mkdir export_pyds
 
 # Make sure the tag matches the one from Generate step above
-docker run -it -v $PWD/export_pyds:/export_pyds deepstream-6.0.1-ubuntu18.04-python-l4t bash
+docker run -it -v $PWD/export_pyds:/export_pyds deepstream-6.1-ubuntu20.04-python-l4t bash
 ```
 
 #### 3.3.5 Build DeepStreamSDK python bindings
@@ -171,7 +171,7 @@ git submodule update --init
 mkdir build && cd build
 
 # Run cmake with following options
-cmake ..  -DPYTHON_MAJOR_VERSION=3 -DPYTHON_MINOR_VERSION=6 -DPIP_PLATFORM=linux_aarch64 -DDS_PATH=/opt/nvidia/deepstream/deepstream
+cmake ..  -DPYTHON_MAJOR_VERSION=3 -DPYTHON_MINOR_VERSION=8 -DPIP_PLATFORM=linux_aarch64 -DDS_PATH=/opt/nvidia/deepstream/deepstream
 
 # Build pybind wheel and pyds.so
 make -j$(nproc)
@@ -187,7 +187,7 @@ Build output is generated in the created export_pyds directory (deepstream_pytho
 ### 4.1 Installing the pip wheel
 ```
 apt install libgirepository1.0-dev libcairo2-dev
-pip3 install ./pyds-1.1.1-py3-none*.whl
+pip3 install ./pyds-1.1.2-py3-none*.whl
 ```
 
 #### 4.1.1 pip wheel troubleshooting

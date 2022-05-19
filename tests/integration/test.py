@@ -24,7 +24,7 @@ from tests.common.pipeline_fakesink_tracker import PipelineFakesinkTracker
 from tests.common.tracker_utils import get_tracker_properties_from_config
 from tests.common.utils import is_aarch64
 
-VIDEO_PATH1 = "/opt/nvidia/deepstream/deepstream-6.0/samples/streams/sample_720p.h264"
+VIDEO_PATH1 = "/opt/nvidia/deepstream/deepstream/samples/streams/sample_720p.h264"
 STANDARD_PROPERTIES1 = {
     "file-source": {
         "location": VIDEO_PATH1

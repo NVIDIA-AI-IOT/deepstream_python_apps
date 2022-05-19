@@ -74,10 +74,12 @@ namespace pydeepstream::utils {
         meta->base_meta.release_func = get_fn_ptr_from_std_function<freefuncname>(func);
     }
 
-    void release_all_func() {
+    void
+    __attribute__((optimize("O0")))
+    release_all_func() {
 	// these dummy functions are only used for their type to match the appropriate template
-	const auto &dummy_copy_func = std::function<COPYFUNC_SIG>([](gpointer a, gpointer b){ return a;});
-	const auto &dummy_free_func = std::function<RELEASEFUNC_SIG>([](gpointer a, gpointer b){});
+	const auto dummy_copy_func = std::function<COPYFUNC_SIG>();
+	const auto dummy_free_func = std::function<RELEASEFUNC_SIG>();
         // Here the functions must be freed because otherwise the destructor will be stuck with GIL
         // this is related to pybind11 behavior.
         // As far as I understand pybind11 does not expect us to store functions in a static storage
@@ -86,7 +88,6 @@ namespace pydeepstream::utils {
 	free_fn_ptr_from_std_function<copyfuncname>(dummy_copy_func);
         free_fn_ptr_from_std_function<freefuncname>(dummy_free_func);
     }
-
 
 
     void generate_ts_rfc3339(char *buf, int buf_size) {

@@ -24,7 +24,7 @@ import io
 sys.path.append("../")
 import gi
 gi.require_version("Gst", "1.0")
-from gi.repository import GObject, Gst
+from gi.repository import GLib, Gst
 from common.is_aarch_64 import is_aarch64
 from common.bus_call import bus_call
 from ssd_parser import nvds_infer_parse_custom_tf_ssd, DetectionParam, NmsParam, BoxSizeParam
@@ -288,6 +288,8 @@ def pgie_src_pad_buffer_probe(pad, info, u_data):
                 add_obj_meta_to_frame(frame_object, batch_meta, frame_meta, label_names)
 
         try:
+            # indicate inference is performed on the frame
+            frame_meta.bInferDone = True
             l_frame = l_frame.next
         except StopIteration:
             break
@@ -301,7 +303,6 @@ def main(args):
         sys.exit(1)
 
     # Standard GStreamer initialization
-    GObject.threads_init()
     Gst.init(None)
 
     # Create gstreamer elements
@@ -417,7 +418,7 @@ def main(args):
     container.link(sink)
 
     # create an event loop and feed gstreamer bus mesages to it
-    loop = GObject.MainLoop()
+    loop = GLib.MainLoop()
     bus = pipeline.get_bus()
     bus.add_signal_watch()
     bus.connect("message", bus_call, loop)

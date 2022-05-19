@@ -16,8 +16,8 @@
 ################################################################################
 
 Prerequisites:
-- DeepStreamSDK 6.0.1
-- Python 3.6
+- DeepStreamSDK 6.1
+- Python 3.8
 - Gst-python
 - NumPy package
 - OpenCV package
@@ -25,6 +25,9 @@ Prerequisites:
 To install required packages:
 $ sudo apt update
 $ sudo apt install python3-numpy python3-opencv -y
+
+If on Jetson, the libgomp.so.1 must be added to LD_PRELOAD:
+  $ export LD_PRELOAD=/usr/lib/aarch64-linux-gnu/libgomp.so.1
 
 To run:
   $ python3 deepstream_segmentation.py <config_file> <jpeg/mjpeg stream> <FOLDER NAME TO SAVE FRAMES>

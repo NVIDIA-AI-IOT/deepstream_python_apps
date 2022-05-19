@@ -29,7 +29,7 @@ import numpy as np
 import gi
 
 gi.require_version('Gst', '1.0')
-from gi.repository import GObject, Gst
+from gi.repository import GLib, Gst
 
 from common.is_aarch_64 import is_aarch64
 from common.bus_call import bus_call
@@ -208,7 +208,6 @@ def main(args):
 
     os.mkdir(folder_name)
     # Standard GStreamer initialization
-    GObject.threads_init()
     Gst.init(None)
 
     # Create gstreamer elements */
@@ -344,7 +343,7 @@ def main(args):
     container.link(sink)
 
     # create an event loop and feed gstreamer bus mesages to it
-    loop = GObject.MainLoop()
+    loop = GLib.MainLoop()
     bus = pipeline.get_bus()
     bus.add_signal_watch()
     bus.connect("message", bus_call, loop)

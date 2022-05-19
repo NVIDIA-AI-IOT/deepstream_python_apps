@@ -22,8 +22,7 @@ sys.path.append('../')
 import gi
 import configparser
 gi.require_version('Gst', '1.0')
-from gi.repository import GObject, Gst
-from gi.repository import GLib
+from gi.repository import GLib, Gst
 from ctypes import *
 import time
 import sys
@@ -31,11 +30,11 @@ import math
 import platform
 from common.is_aarch_64 import is_aarch64
 from common.bus_call import bus_call
-from common.FPS import GETFPS
+from common.FPS import PERF_DATA
 
 import pyds
 
-fps_streams={}
+perf_data = None
 
 MAX_DISPLAY_LEN=64
 PGIE_CLASS_ID_VEHICLE = 0
@@ -139,8 +138,10 @@ def nvanalytics_src_pad_buffer_probe(pad,info,u_data):
                 break
         
         print("Frame Number=", frame_number, "stream id=", frame_meta.pad_index, "Number of Objects=",num_rects,"Vehicle_count=",obj_counter[PGIE_CLASS_ID_VEHICLE],"Person_count=",obj_counter[PGIE_CLASS_ID_PERSON])
-        # Get frame rate through this probe
-        fps_streams["stream{0}".format(frame_meta.pad_index)].get_fps()
+        # Update frame rate through this probe
+        stream_index = "stream{0}".format(frame_meta.pad_index)
+        global perf_data
+        perf_data.update_fps(stream_index)
         try:
             l_frame=l_frame.next
         except StopIteration:
@@ -222,12 +223,11 @@ def main(args):
         sys.stderr.write("usage: %s <uri1> [uri2] ... [uriN]\n" % args[0])
         sys.exit(1)
 
-    for i in range(0,len(args)-1):
-        fps_streams["stream{0}".format(i)]=GETFPS(i)
+    global perf_data
+    perf_data = PERF_DATA(len(args) - 1)
     number_sources=len(args)-1
 
     # Standard GStreamer initialization
-    GObject.threads_init()
     Gst.init(None)
 
     # Create gstreamer elements */
@@ -408,7 +408,7 @@ def main(args):
         queue7.link(sink)
 
     # create an event loop and feed gstreamer bus mesages to it
-    loop = GObject.MainLoop()
+    loop = GLib.MainLoop()
     bus = pipeline.get_bus()
     bus.add_signal_watch()
     bus.connect ("message", bus_call, loop)
@@ -417,6 +417,8 @@ def main(args):
         sys.stderr.write(" Unable to get src pad \n")
     else:
         nvanalytics_src_pad.add_probe(Gst.PadProbeType.BUFFER, nvanalytics_src_pad_buffer_probe, 0)
+        # perf callback function to print fps every 5 sec
+        GLib.timeout_add(5000, perf_data.perf_print_callback)
 
     # List the sources
     print("Now playing...")

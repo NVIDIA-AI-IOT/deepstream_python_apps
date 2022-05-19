@@ -24,7 +24,7 @@ sys.path.append('../')
 import gi
 gi.require_version('Gst', '1.0')
 gi.require_version('GstRtspServer', '1.0')
-from gi.repository import GObject, Gst, GstRtspServer
+from gi.repository import GLib, Gst, GstRtspServer
 from common.is_aarch_64 import is_aarch64
 from common.bus_call import bus_call
 
@@ -122,7 +122,6 @@ def osd_sink_pad_buffer_probe(pad,info,u_data):
 
 def main(args):
     # Standard GStreamer initialization
-    GObject.threads_init()
     Gst.init(None)
 
     # Create gstreamer elements
@@ -192,7 +191,7 @@ def main(args):
     if is_aarch64():
         encoder.set_property('preset-level', 1)
         encoder.set_property('insert-sps-pps', 1)
-        encoder.set_property('bufapi-version', 1)
+        #encoder.set_property('bufapi-version', 1)
     
     # Make the payload-encode video into RTP packets
     if codec == "H264":
@@ -265,7 +264,7 @@ def main(args):
     rtppay.link(sink)
     
     # create an event loop and feed gstreamer bus mesages to it
-    loop = GObject.MainLoop()
+    loop = GLib.MainLoop()
     bus = pipeline.get_bus()
     bus.add_signal_watch()
     bus.connect ("message", bus_call, loop)

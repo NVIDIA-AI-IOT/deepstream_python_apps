@@ -24,7 +24,7 @@ import configparser
 
 import gi
 gi.require_version('Gst', '1.0')
-from gi.repository import GObject, Gst
+from gi.repository import GLib, Gst
 from common.is_aarch_64 import is_aarch64
 from common.bus_call import bus_call
 
@@ -170,7 +170,6 @@ def main(args):
     # Standard GStreamer initialization
     if(len(args)==3):
         past_tracking_meta[0]=int(args[2])
-    GObject.threads_init()
     Gst.init(None)
 
     # Create gstreamer elements
@@ -333,7 +332,7 @@ def main(args):
 
 
     # create and event loop and feed gstreamer bus mesages to it
-    loop = GObject.MainLoop()
+    loop = GLib.MainLoop()
 
     bus = pipeline.get_bus()
     bus.add_signal_watch()

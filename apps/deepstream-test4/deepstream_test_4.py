@@ -23,7 +23,7 @@ sys.path.append('../')
 import gi
 
 gi.require_version('Gst', '1.0')
-from gi.repository import GObject, Gst
+from gi.repository import GLib, Gst
 import sys
 from optparse import OptionParser
 from common.is_aarch_64 import is_aarch64
@@ -327,7 +327,6 @@ def osd_sink_pad_buffer_probe(pad, info, u_data):
 
 
 def main(args):
-    GObject.threads_init()
     Gst.init(None)
 
     # registering callbacks
@@ -474,7 +473,7 @@ def main(args):
     tee_render_pad.link(sink_pad)
 
     # create an event loop and feed gstreamer bus messages to it
-    loop = GObject.MainLoop()
+    loop = GLib.MainLoop()
     bus = pipeline.get_bus()
     bus.add_signal_watch()
     bus.connect("message", bus_call, loop)

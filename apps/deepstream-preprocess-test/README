@@ -1,0 +1,70 @@
+################################################################################
+# SPDX-FileCopyrightText: Copyright (c) 2022 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+################################################################################
+
+Prerequisites:
+- DeepStreamSDK 6.1
+- Python 3.8
+- Gst-python
+
+To run:
+  $ python3 deepstream_preprocess-test.py  -i <uri1> [uri2] ... [uriN]
+e.g.
+  $ python3 deepstream_preprocess-test.py -i file:///home/ubuntu/video1.mp4 file:///home/ubuntu/video2.mp4
+  $ python3 deepstream_preprocess-test.py -i rtsp://127.0.0.1/video1 rtsp://127.0.0.1/video2
+
+This document describes the sample deepstream_preprocess-test application
+
+* Use multiple sources in the pipeline.
+* Use a uridecodebin so that any type of input (e.g. RTSP/File), any GStreamer
+  supported container format, and any codec can be used as input.
+* Configure the stream-muxer to generate a batch of frames and infer on the
+  batch for better resource utilization.
+* Extract the stream metadata, which contains useful information about the
+  frames in the batched buffer.
+* Per group custom preprocessing on ROIs provided
+* Prepares raw tensor for inferencing
+* nvinfer skips preprocessing and infer from input tensor meta
+
+Note : The current config file is configured to run 12 ROI at the most. To increase the ROI count, increase the first dimension to the required number `network-input-shape`=12;3;368;640. In the current config file `config-preprocess.txt`. there are 3 ROIs per source and hence a total of 12 ROI for all four sources. The total ROI from all the sources must not exceed the first dimension specified in `network-input-shape` param
+
+Refer to the deepstream-test3 sample documentation for an example of simple
+multi-stream inference, bounding-box overlay, and rendering.
+
+This sample accepts one or more H.264/H.265 video streams as input. It creates
+a source bin for each input and connects the bins to an instance of the
+"nvstreammux" element, which forms the batch of frames. 
+
+Then, "nvdspreprocess" plugin preprocessed the batched frames and prepares a raw
+tensor for inferencing, which is attached as user meta at batch level. User can
+provide custom preprocessing library having custom per group transformation
+functions and custom tensor preparation function.
+
+Then, "nvinfer" uses the preprocessed raw tensor from meta data for batched
+inferencing. The batched buffer is composited into a 2D tile array using
+"nvmultistreamtiler."
+
+The rest of the pipeline is similar to the deepstream-test3 sample.
+
+NOTE: To reuse engine files generated in previous runs, update the
+model-engine-file parameter in the nvinfer config file to an existing engine file
+
+
+NOTE:
+1. For optimal performance, set nvinfer batch-size in nvinfer config file same as
+   preprocess batch-size (network-input-shape[0]) in nvdspreprocess config file.
+2. Currently preprocessing only for primary gie has been supported.
+3. Modify config_preprocess.txt for as per use case.

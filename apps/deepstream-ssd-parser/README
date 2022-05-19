@@ -16,9 +16,9 @@
 ################################################################################
 
 Prequisites:
-- DeepStreamSDK 6.0.1
+- DeepStreamSDK 6.1
 - NVIDIA Triton Inference Server
-- Python 3.6
+- Python 3.8
 - Gst-python
 - NumPy
 

@@ -24,7 +24,7 @@ import gi
 import math
 
 gi.require_version('Gst', '1.0')
-from gi.repository import GObject, Gst
+from gi.repository import GLib, Gst
 from common.is_aarch_64 import is_aarch64
 from common.bus_call import bus_call
 import cv2
@@ -141,7 +141,6 @@ def main(args):
     config_file = args[1]
     num_sources = len(args) - 3
     # Standard GStreamer initialization
-    GObject.threads_init()
     Gst.init(None)
 
     # Create gstreamer elements
@@ -246,7 +245,7 @@ def main(args):
     else:
         nvsegvisual.link(sink)
     # create an event loop and feed gstreamer bus mesages to it
-    loop = GObject.MainLoop()
+    loop = GLib.MainLoop()
     bus = pipeline.get_bus()
     bus.add_signal_watch()
     bus.connect("message", bus_call, loop)

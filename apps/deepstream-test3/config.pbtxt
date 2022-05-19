@@ -1,5 +1,5 @@
 ################################################################################
-# SPDX-FileCopyrightText: Copyright (c) 2019-2021 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2019-2022 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,20 +15,36 @@
 # limitations under the License.
 ################################################################################
 
-import gi
-import sys
-gi.require_version('Gst', '1.0')
-from gi.repository import Gst
-def bus_call(bus, message, loop):
-    t = message.type
-    if t == Gst.MessageType.EOS:
-        sys.stdout.write("End-of-stream\n")
-        loop.quit()
-    elif t==Gst.MessageType.WARNING:
-        err, debug = message.parse_warning()
-        sys.stderr.write("Warning: %s: %s\n" % (err, debug))
-    elif t == Gst.MessageType.ERROR:
-        err, debug = message.parse_error()
-        sys.stderr.write("Error: %s: %s\n" % (err, debug))
-        loop.quit()
-    return True
+
+name: "peoplenet"
+platform: "tensorrt_plan"
+max_batch_size: 1
+default_model_filename: "resnet34_peoplenet_int8.etlt_b1_gpu0_int8.engine"
+input [
+  {
+    name: "input_1"
+    data_type: TYPE_FP32
+    format: FORMAT_NCHW
+    dims: [ 3, 544, 960 ]
+  }
+]
+output [
+  {
+    name: "output_bbox/BiasAdd"
+    data_type: TYPE_FP32
+    dims: [ 12, 34, 60 ]
+  },
+
+  {
+    name: "output_cov/Sigmoid"
+    data_type: TYPE_FP32
+    dims: [ 3, 34, 60 ]
+  }
+]
+instance_group [
+  {
+    kind: KIND_GPU
+    count: 1
+    gpus: 0
+  }
+]

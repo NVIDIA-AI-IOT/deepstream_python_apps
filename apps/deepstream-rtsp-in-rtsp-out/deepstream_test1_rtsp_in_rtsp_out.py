@@ -18,9 +18,9 @@
 ################################################################################
 import sys
 sys.path.append("../")
-import pyds
 from common.bus_call import bus_call
 from common.is_aarch_64 import is_aarch64
+import pyds
 import platform
 import math
 import time
@@ -28,14 +28,10 @@ from ctypes import *
 import gi
 gi.require_version("Gst", "1.0")
 gi.require_version("GstRtspServer", "1.0")
-from gi.repository import GObject, Gst, GstRtspServer, GLib
+from gi.repository import Gst, GstRtspServer, GLib
 import configparser
 
 import argparse
-
-from common.FPS import GETFPS
-
-fps_streams = {}
 
 MAX_DISPLAY_LEN = 64
 PGIE_CLASS_ID_VEHICLE = 0
@@ -112,8 +108,6 @@ def tiler_src_pad_buffer_probe(pad, info, u_data):
             obj_counter[PGIE_CLASS_ID_PERSON],
         )
 
-        # Get frame rate through this probe
-        fps_streams["stream{0}".format(frame_meta.pad_index)].get_fps()
         try:
             l_frame = l_frame.next
         except StopIteration:
@@ -197,12 +191,9 @@ def create_source_bin(index, uri):
 
 def main(args):
     # Check input arguments
-    for i in range(0, len(args)):
-        fps_streams["stream{0}".format(i)] = GETFPS(i)
     number_sources = len(args)
 
     # Standard GStreamer initialization
-    GObject.threads_init()
     Gst.init(None)
 
     # Create gstreamer elements */
@@ -282,7 +273,7 @@ def main(args):
     if is_aarch64():
         encoder.set_property("preset-level", 1)
         encoder.set_property("insert-sps-pps", 1)
-        encoder.set_property("bufapi-version", 1)
+        #encoder.set_property("bufapi-version", 1)
 
     # Make the payload-encode video into RTP packets
     if codec == "H264":
@@ -357,7 +348,7 @@ def main(args):
     rtppay.link(sink)
 
     # create an event loop and feed gstreamer bus mesages to it
-    loop = GObject.MainLoop()
+    loop = GLib.MainLoop()
     bus = pipeline.get_bus()
     bus.add_signal_watch()
     bus.connect("message", bus_call, loop)

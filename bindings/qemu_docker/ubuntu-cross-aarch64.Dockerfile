@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2021 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2021-2022 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM nvcr.io/nvidia/deepstream-l4t:6.0.1-samples
+FROM nvcr.io/nvidia/deepstream-l4t:6.1-samples
 LABEL maintainer="NVIDIA CORPORATION"
 
 # Set timezone.
@@ -67,17 +67,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libegl1-mesa-dev \
     librabbitmq-dev
 
-RUN cd /usr/local/bin &&\
-    ln -s /usr/bin/python3 python &&\
-    ln -s /usr/bin/pip3 pip
 RUN pip3 install --upgrade pip
 RUN pip3 install setuptools>=41.0.0
 
-COPY docker/jetpack_files/Jetson*Linux_R32*aarch64.tbz2 /bsp_files/
+COPY docker/jetpack_files/Jetson*Linux_R*aarch64.tbz2 /bsp_files/
 
 # Copy libs from BSP
 RUN cd /bsp_files \
-    && tar -jxpf Jetson*Linux_R32*aarch64.tbz2 \
+    && tar -jxpf Jetson*Linux_R*aarch64.tbz2 \
     && cd Linux_for_Tegra/nv_tegra \
     && tar -jxpf nvidia_drivers.tbz2 \
     && cp -aprf usr/lib/aarch64-linux-gnu/tegra/libnvbuf*.so.1.0.0 /opt/nvidia/deepstream/deepstream/lib/ \

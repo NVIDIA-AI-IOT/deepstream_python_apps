@@ -31,6 +31,7 @@
 #include "nvdsmeta_schema.h"
 #include <memory>
 #include <optional>
+#include <mutex>
 #include <pybind11/cast.h>
 #include <pybind11.h>
 #include "../docstrings/pydocumentation.h"
@@ -70,16 +71,38 @@ namespace pydeepstream::utils {
 
         /// Stores the provided std::function statically in the instanciated templated struct
         static void store(const function_type &f) {
-            instance().fn_ = f;
+            const std::lock_guard<std::mutex> lock(instance().mut_);
+            auto &inst = instance();
+            if(!inst.stopped_)
+                inst.fn_ = f;
         }
 
-	static void free_instance(){
-	    instance().fn_ = {};
+	static void
+	__attribute__((optimize("O0")))
+	free_instance(){
+            auto &inst = instance();
+            const std::lock_guard<std::mutex> lock(inst.mut_);
+            auto &opt = inst.fn_;
+            if (opt.has_value()){
+                opt.reset();
+	    }
+            inst.stopped_=true;
 	}
 
         /// Helps defining the actual function pointer needed
         static RetValue invoke(ArgTypes... args) {
-            return instance().fn_.value()(args...);
+            const std::lock_guard<std::mutex> lock(instance().mut_);
+            auto &opt = instance().fn_;
+            // here we check if the function's content is valid before calling it,
+            // as it can be empty if free instance is called. In that case we return
+            // the default value of RetValue type. RetValue must have a default
+            // constructor with no parameters.
+            if (!opt.has_value())
+                return RetValue();
+            auto &fun = opt.value();
+            if (!fun)
+                return RetValue();
+            return fun(args...);
         }
 
         /// Declares the type of pointer returned
@@ -96,6 +119,8 @@ namespace pydeepstream::utils {
 
         /// contains a storage for an std::function.
         function_type fn_;
+	std::mutex mut_;
+	bool stopped_=false;
     };
 
     // Is used to keep track of font names without duplicate
@@ -140,6 +165,7 @@ namespace pydeepstream::utils {
 
     template<const char *UniqueName, typename RetValue, typename... ArgTypes>
     typename function_storage<UniqueName, RetValue, ArgTypes...>::pointer_type
+    __attribute__((optimize("O0")))
     free_fn_ptr_from_std_function(const std::function<RetValue(ArgTypes...)> &f) {
         typedef function_storage<UniqueName, RetValue, ArgTypes...> custom_fun;
         custom_fun::free_instance();
