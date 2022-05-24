@@ -6,7 +6,7 @@ This file describes how to compile and install deepstream python bindings
 
 ## 2 - Prerequisites
 
-The following dependencies needs to be met:
+The following dependencies need to be met:
 
 ### 2.1 Base dependencies
 Ubuntu - 18.04 :
@@ -99,7 +99,7 @@ make
 
 ### 3.3 Cross-Compilation for aarch64 on x86
 
-This section outlines how to enable cross-compiling of the DeepStreamSDK pythong bindings for aarch64 using Docker on x86 host.
+This section outlines how to enable cross-compiling of the DeepStreamSDK python bindings for aarch64 using Docker on x86 host.
 
 NOTE: This will only emulate the CPU, so any calls requiring embedded hardware, such as using CUDA or inference are not supported.
 
@@ -119,10 +119,10 @@ docker run --rm -t  nvcr.io/nvidia/deepstream-l4t:6.1-samples uname -m
 #aarch64
 ```
 
-#### 3.3.2 Download the JetPack SDK 5.0
+#### 3.3.2 Download the JetPack SDK 5.0.1 DP
 1. Download and install the [NVIDIA SDK manager](https://developer.nvidia.com/nvidia-sdk-manager)
 2. Launch the SDK Manager and login with your NVIDIA developer account.
-3. Select the platform and target OS (example: Jetson AGX Xavier, `Linux Jetpack 5.0`) and click Continue.
+3. Select the platform and target OS (example: Jetson AGX Xavier, `Linux Jetpack 5.0.1 DP`) and click Continue.
 4. Under `Download & Install Options` change the download folder and select `Download now, Install later`. Agree to the license terms and click Continue.
 5. Go to the download folder, and run:
 
