@@ -35,10 +35,11 @@ If missing, install with the following steps:
    $ sudo make install
 ```
 
-<a name="compile_bindings"></a>
-## Compiling Python Bindings
+<a name="bindings_usage"></a>
+## Python Bindings Usage
 
-Please follow instructions for compiling the bindings [here](bindings/README.md)
+The prebuilt DeepStreamSDK python bindings for both x86 and Jetson are already available on the [release section](../../releases).
+The readme [here](bindings/README.md) provides instructions to customize the bindings or recompile them, if you need to.
 
 Note: Compiling bindings now also generates a pip installable python wheel for the platform (x86 or aarch64) it is compiled on.
 

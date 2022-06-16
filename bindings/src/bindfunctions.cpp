@@ -322,9 +322,11 @@ namespace pydeepstream {
                   }
 
                   int channels = 4;
-                  auto input_surface = inputnvsurface->surfaceList[batchID];
+                  /* use const reference here so input_surface is not altered
+                     during mapping and syncing for CPU */
+                  const NvBufSurfaceParams &input_surface = inputnvsurface->surfaceList[batchID];
 #ifdef __aarch64__
-                  /* Map the buffer if it has not been mapped already, otherwise sync the
+                  /* Map the buffer if it has not been mapped already, before syncing the
                      mapped buffer to CPU.*/
                   if (nullptr == input_surface.mappedAddr.addr[0]) {
                       int ret = NvBufSurfaceMap(inputnvsurface, batchID, -1,
@@ -333,9 +335,12 @@ namespace pydeepstream {
                           cout << "get_nvds_buf_Surface: Failed to map "
                                   << "buffer to CPU" << endl;
                       }
-                  } else {
-                      NvBufSurfaceSyncForCpu(inputnvsurface, batchID, -1);
                   }
+                  if (NvBufSurfaceSyncForCpu(inputnvsurface, batchID, -1) != 0) {
+                      cout << "get_nvds_buf_Surface: Failed to sync "
+                              << "buffer to CPU " << endl;
+                  }
+
                   int height = input_surface.height;
                   int width = input_surface.width;
                   int pitch = input_surface.pitch;
@@ -745,5 +750,12 @@ namespace pydeepstream {
               },
               "data"_a,
               pydsdoc::methodsDoc::get_segmentation_masks);
+
+        /* Start binding for /sources/includes/gst-nvevent.h */
+        m.def("gst_nvevent_new_stream_reset",
+              [](uint32_t source_id) {
+                  return gst_nvevent_new_stream_reset(source_id);
+              },
+              pydsdoc::methodsDoc::gst_nvevent_new_stream_reset);
     }
 }

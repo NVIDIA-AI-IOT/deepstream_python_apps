@@ -50,7 +50,7 @@ set(CMAKE_SHARED_LINKER_FLAGS "-Wl,--no-undefined")
 
 # Setting python build versions
 set(PYTHON_VERSION ${PYTHON_MAJOR_VERSION}.${PYTHON_MINOR_VERSION})
-set(PIP_WHEEL pyds-1.1.2-py3-none-${PIP_PLATFORM}.whl)
+set(PIP_WHEEL pyds-1.1.3-py3-none-${PIP_PLATFORM}.whl)
 
 # Describing pyds build
 project(pyds DESCRIPTION "Python bindings for Deepstream")
@@ -99,7 +99,7 @@ function(add_ds_lib libname)
         target_link_libraries(pyds ${libname})
 endfunction()
 
-foreach(nvds_lib nvds_osd nvds_meta nvds_infer nvdsgst_meta nvbufsurface nvbufsurftransform)
+foreach(nvds_lib nvds_osd nvds_meta nvds_infer nvdsgst_meta nvbufsurface nvbufsurftransform nvdsgst_helper)
         add_ds_lib(${nvds_lib})
 endforeach()
 

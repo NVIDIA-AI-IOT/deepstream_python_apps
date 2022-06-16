@@ -19,12 +19,25 @@ Prerequisites:
 - DeepStreamSDK 6.1
 - Python 3.8
 - Gst-python
+- GstRtspServer
+
+Installing GstRtspServer and introspection typelib
+===================================================
+$ sudo apt update
+$ sudo apt install python3-gi python3-dev python3-gst-1.0 -y
+$ sudo apt-get install libgstrtspserver-1.0-0 gstreamer1.0-rtsp
+For gst-rtsp-server (and other GStreamer stuff) to be accessible in
+Python through gi.require_version(), it needs to be built with
+gobject-introspection enabled (libgstrtspserver-1.0-0 is already).
+Yet, we need to install the introspection typelib package:
+$ sudo apt-get install libgirepository1.0-dev
+$ sudo apt-get install gobject-introspection gir1.2-gst-rtsp-server-1.0
 
 To run:
-  $ python3 deepstream_preprocess-test.py  -i <uri1> [uri2] ... [uriN]
+  $ python3 deepstream_preprocess_test.py  -i <uri1> [uri2] ... [uriN] [-c {H264,H265}] [-b BITRATE]
 e.g.
-  $ python3 deepstream_preprocess-test.py -i file:///home/ubuntu/video1.mp4 file:///home/ubuntu/video2.mp4
-  $ python3 deepstream_preprocess-test.py -i rtsp://127.0.0.1/video1 rtsp://127.0.0.1/video2
+  $ python3 deepstream_preprocess_test.py -i file:///home/ubuntu/video1.mp4 file:///home/ubuntu/video2.mp4
+  $ python3 deepstream_preprocess_test.py -i rtsp://127.0.0.1/video1 rtsp://127.0.0.1/video2
 
 This document describes the sample deepstream_preprocess-test application
 

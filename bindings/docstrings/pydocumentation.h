@@ -2057,6 +2057,14 @@ namespace pydsdoc
             :arg index: index of buffer in the batch. -1 for all buffers in batch.
             
             :returns: 0 for success, -1 for failure.)pyds";
+
+        constexpr const char* gst_nvevent_new_stream_reset=R"pyds(
+            Creates a "custom reset" event for the specified source.
+
+            This function can be used to reset the source in case RTSP reconnection
+            is required.
+
+            :arg source_id: source id for which this event needs to be generated.)pyds";
 	}
 
 	namespace nvoptical

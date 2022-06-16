@@ -33,6 +33,7 @@
 #include "nvdsmeta_schema.h"
 #include "nvdsinfer.h"
 #include "gstnvdsinfer.h"
+#include "gst-nvevent.h"
 #include <iostream>
 
 #include <mutex>

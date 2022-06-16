@@ -34,7 +34,7 @@
 
 #include <ndarrayobject.h>*/
 
-#define PYDS_VERSION "1.1.2"
+#define PYDS_VERSION "1.1.3"
 
 using namespace std;
 namespace py = pybind11;
