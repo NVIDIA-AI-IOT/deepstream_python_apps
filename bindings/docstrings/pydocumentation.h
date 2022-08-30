@@ -1376,7 +1376,8 @@ namespace pydsdoc
                 Holds information about one layer in the model.
 
                 :ivar dataType: :class:`NvDsInferDataType`, Data type of the layer.
-                :ivar dims: :class:`NvDsInferDims`, Dimensions of the layer.
+                :ivar dims: :class:`NvDsInferDims`, Dimensions of the layer. WARNING: to be deprecated, please change all usage to "inferDims".
+                :ivar inferDims: :class:`NvDsInferDims`, Dimensions of the layer.
                 :ivar bindingIndex: *int*, TensorRT binding index of the layer.
                 :ivar layerName: *str*, Name of the layer.
                 :ivar buffer: Buffer for the layer data.
@@ -1417,7 +1418,8 @@ namespace pydsdoc
             constexpr const char* descr = R"pyds(
                 Holds information about one classified attribute.
                 
-                :ivar atttributeIndex: *int*, Index of the label. This index corresponds to the order of output layers specified in the outputCoverageLayerNames vector during initialization.
+                :ivar atttributeIndex: *int*, Index of the label. This index corresponds to the order of output layers specified in the outputCoverageLayerNames vector during initialization. WARNING: misspelling to be deprecated, please change all usage to "attributeIndex".
+                :ivar attributeIndex: *int*, Index of the label. This index corresponds to the order of output layers specified in the outputCoverageLayerNames vector during initialization.
                 :ivar attributeValue: *int*, Output for the label.
                 :ivar attributeConfidence: *float*, Confidence level for the classified attribute.
                 :ivar attributeLabel: *str*, String label for the attribute. Memory for the string should not be freed.)pyds";
@@ -2058,13 +2060,16 @@ namespace pydsdoc
             
             :returns: 0 for success, -1 for failure.)pyds";
 
-        constexpr const char* gst_nvevent_new_stream_reset=R"pyds(
-            Creates a "custom reset" event for the specified source.
+        constexpr const char* gst_element_send_nvevent_new_stream_reset=R"pyds(
+            Sends a "custom reset" event on the given element for the specified source.
+            This nvevent_new_stream_reset event is propogated downstream.
 
-            This function can be used to reset the source in case RTSP reconnection
-            is required.
+            This function, along with other reset events, can be used to reset the source
+            in case RTSP reconnection is required.
 
-            :arg source_id: source id for which this event needs to be generated.)pyds";
+            :arg gst_element: element for to which the generated event needs to be sent.
+            :arg source_id: source id for which this event needs to be generated
+            :returns: True for success.)pyds";
 	}
 
 	namespace nvoptical

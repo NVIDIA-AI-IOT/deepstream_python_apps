@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM nvcr.io/nvidia/deepstream-l4t:6.1-samples
+FROM nvcr.io/nvidia/deepstream-l4t:6.1.1-samples
 LABEL maintainer="NVIDIA CORPORATION"
 
 # Set timezone.
@@ -74,7 +74,7 @@ COPY docker/jetpack_files/Jetson*Linux_R*aarch64.tbz2 /bsp_files/
 
 # Copy libs from BSP
 RUN cd /bsp_files \
-    && tar -jxpf Jetson*Linux_R*aarch64.tbz2 \
+    && tar -jxpf Jetson*Linux_R35*aarch64.tbz2 \
     && cd Linux_for_Tegra/nv_tegra \
     && tar -jxpf nvidia_drivers.tbz2 \
     && cp -aprf usr/lib/aarch64-linux-gnu/tegra/libnvbuf*.so.1.0.0 /opt/nvidia/deepstream/deepstream/lib/ \

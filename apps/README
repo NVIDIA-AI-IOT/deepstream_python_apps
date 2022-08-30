@@ -20,7 +20,7 @@ DeepStream SDK Python Bindings
 ================================================================================
 Setup pre-requisites:
 - Ubuntu 20.04
-- NVIDIA DeepStream SDK 6.1
+- NVIDIA DeepStream SDK 6.1.1
 - Python 3.8
 - Gst-python
 
@@ -52,7 +52,7 @@ Package Contents
 Installing Pre-requisites:
 --------------------------------------------------------------------------------
 
-DeepStream SDK 6.1
+DeepStream SDK 6.1.1
 --------------------
 Download and install from https://developer.nvidia.com/deepstream-download
 
@@ -70,7 +70,7 @@ $ sudo apt install python3-gi python3-dev python3-gst-1.0 -y
 --------------------------------------------------------------------------------
 Running the samples
 --------------------------------------------------------------------------------
-The apps are configured to work from inside the DeepStream SDK 6.1 installation.
+The apps are configured to work from inside the DeepStream SDK 6.1.1 installation.
 
 Clone the deepstream_python_apps repo under <DeepStream ROOT>/sources:
 $ git clone https://github.com/NVIDIA-AI-IOT/deepstream_python_apps

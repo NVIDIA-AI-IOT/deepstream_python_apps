@@ -1,8 +1,8 @@
 ======================
-gst_nvevent_new_stream_reset
+gst_element_send_nvevent_new_stream_reset
 ======================
 
-.. autofunction:: pyds.gst_nvevent_new_stream_reset
+.. autofunction:: pyds.gst_element_send_nvevent_new_stream_reset
 
 ======================
 get_segmentation_masks

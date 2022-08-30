@@ -16,7 +16,7 @@
 ################################################################################
 
 Prerequisites:
-- DeepStreamSDK 6.1
+- DeepStreamSDK 6.1.1
 - NVIDIA Triton Inference Server (optional)
 - Python 3.8
 - Gst-python
@@ -62,7 +62,7 @@ Also follow these instructions for multi-stream Triton support (optional):
             "
             enable=1
             plugin-type=0
-            model-engine-file=../../models/tao_pretrained_models/peopleNet/V2.5/<.engine file>
+            model-engine-file=../../models/tao_pretrained_models/peopleNet/V2.6/<.engine file>
             batch-size=<max_batch_size>
             config-file=config_infer_primary_peoplenet.txt
             "
@@ -70,10 +70,10 @@ Also follow these instructions for multi-stream Triton support (optional):
          For ex.
             "
             tlt-model-key=tlt_encode
-            tlt-encoded-model=../../models/tao_pretrained_models/peopleNet/V2.5/resnet34_peoplenet_int8.etlt
-            labelfile-path=../../models/tao_pretrained_models/peopleNet/V2.5/labels.txt
-            model-engine-file=../../models/tao_pretrained_models/peopleNet/V2.5/<.engine file>
-            int8-calib-file=../../models/tao_pretrained_models/peopleNet/V2.5/resnet34_peoplenet_int8.txt
+            tlt-encoded-model=../../models/tao_pretrained_models/peopleNet/V2.6/resnet34_peoplenet_int8.etlt
+            labelfile-path=/opt/nvidia/deepstream/deepstream/samples/configs/tao_pretrained_models/labels_peoplenet.txt
+            model-engine-file=../../models/tao_pretrained_models/peopleNet/V2.6/<.engine file>
+            int8-calib-file=../../models/tao_pretrained_models/peopleNet/V2.6/resnet34_peoplenet_int8.txt
             batch-size=16
             "
       d. While inside the dir /opt/nvidia/deepstream/deepstream/samples/configs/tao_pretrained_models/ , run the deepstream-app
@@ -85,7 +85,7 @@ Also follow these instructions for multi-stream Triton support (optional):
       e. Create the following dir if not present:
          sudo mkdir -p /opt/nvidia/deepstream/deepstream/samples/triton_model_repo/peoplenet/1/
 
-      f. Copy engine file from dir /opt/nvidia/deepstream/deepstream/samples/models/tao_pretrained_models/peopleNet/V2.5/
+      f. Copy engine file from dir /opt/nvidia/deepstream/deepstream/samples/models/tao_pretrained_models/peopleNet/V2.6/
          to
          /opt/nvidia/deepstream/deepstream/samples/triton_model_repo/peoplenet/1/
 

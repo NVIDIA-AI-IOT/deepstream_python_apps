@@ -146,7 +146,7 @@ def nvds_infer_parse_custom_tf_ssd(output_layer_info, detection_param, box_size_
 
     if num_detection_layer.buffer:
         num_detection = int(pyds.get_detections(num_detection_layer.buffer, 0))
-        num_detection = clip(num_detection, 0, class_layer.dims.d[0])
+        num_detection = clip(num_detection, 0, class_layer.inferDims.d[0])
 
     x3_layers = score_layer, class_layer, box_layer
     object_list = []

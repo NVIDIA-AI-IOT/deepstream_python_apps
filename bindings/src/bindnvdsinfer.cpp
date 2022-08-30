@@ -99,6 +99,7 @@ namespace pydeepstream {
                 .def(py::init<>())
                 .def_readonly("dataType", &NvDsInferLayerInfo::dataType)
                 .def_readonly("dims", &NvDsInferLayerInfo::inferDims)
+                .def_readonly("inferDims", &NvDsInferLayerInfo::inferDims)
                 .def_readonly("bindingIndex", &NvDsInferLayerInfo::bindingIndex)
                 .def_readonly("layerName", &NvDsInferLayerInfo::layerName)
                 .def_readonly("buffer", &NvDsInferLayerInfo::buffer)
@@ -171,6 +172,8 @@ namespace pydeepstream {
         py::class_<NvDsInferAttribute>(m, "NvDsInferAttribute",
                                        pydsdoc::NvInferDoc::NvDsInferAttributeDoc::descr)
                 .def(py::init<>())
+                .def_readonly("attributeIndex",
+                              &NvDsInferAttribute::attributeIndex)
                 .def_readonly("atttributeIndex",
                               &NvDsInferAttribute::attributeIndex)
                 .def_readonly("attributeValue",

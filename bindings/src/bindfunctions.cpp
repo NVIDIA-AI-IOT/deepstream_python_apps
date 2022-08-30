@@ -752,10 +752,18 @@ namespace pydeepstream {
               pydsdoc::methodsDoc::get_segmentation_masks);
 
         /* Start binding for /sources/includes/gst-nvevent.h */
-        m.def("gst_nvevent_new_stream_reset",
-              [](uint32_t source_id) {
-                  return gst_nvevent_new_stream_reset(source_id);
+        /**
+         * Sends the custom nvevent_new_stream_reset
+         * for the element it is called upon. This event
+         * is propogated downstream. The function returns
+         * True if the event was handled.
+         */
+        m.def("gst_element_send_nvevent_new_stream_reset",
+              [](size_t gst_element, int source_id) {
+                  auto *element = reinterpret_cast<GstElement *>(gst_element);
+                  return gst_element_send_event(element, gst_nvevent_new_stream_reset(source_id));
               },
-              pydsdoc::methodsDoc::gst_nvevent_new_stream_reset);
+              pydsdoc::methodsDoc::gst_element_send_nvevent_new_stream_reset);
+
     }
 }

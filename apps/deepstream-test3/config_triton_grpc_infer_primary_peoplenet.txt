@@ -43,7 +43,7 @@ infer_config {
   }
 
   postprocess {
-    labelfile_path: "/opt/nvidia/deepstream/deepstream/samples/models/tao_pretrained_models/peopleNet/V2.5/labels.txt"
+    labelfile_path: "/opt/nvidia/deepstream/deepstream/samples/configs/tao_pretrained_models/labels_peoplenet.txt"
     detection {
       num_detected_classes: 3
       per_class_params {

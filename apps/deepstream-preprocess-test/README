@@ -16,7 +16,7 @@
 ################################################################################
 
 Prerequisites:
-- DeepStreamSDK 6.1
+- DeepStreamSDK 6.1.1
 - Python 3.8
 - Gst-python
 - GstRtspServer

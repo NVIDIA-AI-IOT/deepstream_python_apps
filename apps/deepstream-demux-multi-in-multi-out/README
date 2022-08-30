@@ -1,5 +1,5 @@
 ################################################################################
-# SPDX-FileCopyrightText: Copyright (c) 2020-2021 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2022 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,35 +21,31 @@ Prerequisites:
 - Gst-python
 
 To run:
-  $ python3 deepstream_nvdsanalytics.py <uri1> [uri2] ... [uriN]
+  $ python3 deepstream_demux_multi_in_multi_out.py -i <uri1> [uri2] ... [uriN]
 e.g.
-  $ python3 deepstream_nvdsanalytics.py file:///home/ubuntu/video1.mp4 file:///home/ubuntu/video2.mp4
-  $ python3 deepstream_nvdsanalytics.py rtsp://127.0.0.1/video1 rtsp://127.0.0.1/video2
+  $ python3 deepstream_demux_multi_in_multi_out.py -i file:///home/ubuntu/video1.mp4 file:///home/ubuntu/video2.mp4
+  $ python3 deepstream_demux_multi_in_multi_out.py -i rtsp://127.0.0.1/video1 rtsp://127.0.0.1/video2
 
-This document describes the sample deepstream-nvdsanalytics application.
+This document describes the sample deepstream_demux_multi_in_multi_out application.
 
 This sample builds on top of the deepstream-test3 sample to demonstrate how to:
 
-* Use multiple sources in the pipeline.
-* Use a uridecodebin so that any type of input (e.g. RTSP/File), any GStreamer
-  supported container format, and any codec can be used as input.
-* Configure the stream-muxer to generate a batch of frames and infer on the
-  batch for better resource utilization.
-* Configure the tracker (referred to as nvtracker in this sample) uses
-  config file dsnvanalytics_tracker_config.txt
-* Configure the nvdsanalytics plugin (referred to as nvanalytics in this sample)
-  uses config file config_nvdsanalytics.txt 
-* Extract the stream metadata, which contains useful information about the
-  objects and frames in the batched buffer.
+* Uses multiple sources in the pipeline.
+* The pipeline uses `nvstreamdemux` to split batches and output separate buffer/streams. 
+* `nvstreamdemux` helps when separate output is required for each input stream.
+
+Refer to the deepstream-test1 sample documentation for an example of simple
+single-stream inference, bounding-box overlay, and rendering.
+
+Nvstreamdemux reference - https://docs.nvidia.com/metropolis/deepstream/dev-guide/text/DS_plugin_gst-nvstreamdemux.html
 
 This sample accepts one or more H.264/H.265 video streams as input. It creates
 a source bin for each input and connects the bins to an instance of the
 "nvstreammux" element, which forms the batch of frames. The batch of
-frames is fed to "nvinfer" for batched inferencing. The batched buffer is
-used as input for "nvtracker" which adds object tracking, which is then fed into
-"nvdsanalytics" element which runs analytics algorithms on these objects.
-This output is then composited into a 2D tile array using "nvmultistreamtiler."
-The rest of the pipeline is similar to the deepstream-test3 sample.
+frames is fed to "nvinfer" for batched inferencing. "nvstreamdemux" demuxes batched frames into individual buffers. 
+It creates a separate Gst Buffer for each frame in the batch. For each input separate branch is created with the following elements in series
+`nvstreamdemux -> queue -> nvvidconv -> nvosd -> nveglglessink`
+So for two inputs, 2 separate output windows are created, likewise for N input N outputs are created.
 
 The "width" and "height" properties must be set on the stream-muxer to set the
 output resolution. If the input frame resolution is different from
@@ -65,6 +61,3 @@ available input buffers and pushed. Ideally, the timeout of the stream-muxer
 should be set based on the framerate of the fastest source. It can also be set
 to -1 to make the stream-muxer wait infinitely.
 
-The "nvmultistreamtiler" composite streams based on their stream-ids in
-row-major order (starting from stream 0, left to right across the top row, then
-across the next row, etc.).
