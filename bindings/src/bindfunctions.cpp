@@ -419,6 +419,34 @@ namespace pydeepstream {
               py::return_value_policy::reference,
               pydsdoc::methodsDoc::get_nvds_buf_surface);
 
+
+        /**
+         * Unmap the previously mapped buffer if it has been mapped.
+         * It's needed to prevent memory leaks.
+         * See https://forums.developer.nvidia.com/t/memory-leak-on-xavier-nx/234438 for details.
+         */
+        m.def("unmap_nvds_buf_surface",
+              [](size_t gst_buffer, int batch_id) {
+                  auto *buffer = reinterpret_cast<GstBuffer *>(gst_buffer);
+                  GstMapInfo map_info;
+                  gst_buffer_map(buffer, &map_info, GST_MAP_READ);
+                  auto *nvsurface = reinterpret_cast<NvBufSurface *>(map_info.data);
+                  gst_buffer_unmap(buffer, &map_info);
+
+                  // Unmap the buffer if it has been mapped
+                  if (nullptr != nvsurface->surfaceList[batch_id].mappedAddr.addr[0]) {
+                      int ret = NvBufSurfaceUnMap(nvsurface, batch_id, -1);
+                      if (ret < 0) {
+                          throw std::runtime_error(
+                              "unmap_nvds_buf_surface: Failed to unmap buffer");
+                      }
+                  }
+              },
+              "gst_buffer"_a,
+              "batch_id"_a,
+              pydsdoc::methodsDoc::unmap_nvds_buf_surface
+        );
+
         //FIXME: Find a better way of doing this
         /**
         * Type casting to @NvDsBatchMeta

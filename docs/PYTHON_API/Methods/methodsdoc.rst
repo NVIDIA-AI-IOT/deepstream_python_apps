@@ -23,6 +23,12 @@ get_nvds_buf_surface
 .. autofunction:: pyds.get_nvds_buf_surface
 
 ==============
+unmap_nvds_buf_surface
+==============
+
+.. autofunction:: pyds.unmap_nvds_buf_surface
+
+==============
 nvds_acquire_meta_lock
 ==============
 

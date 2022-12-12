@@ -1541,6 +1541,12 @@ namespace pydsdoc
             :arg gst_buffer: address of the Gstbuffer which contains `NvBufSurface`
             :arg batchID: batch_id of the frame to be processed. This indicates the frame's index within `NvBufSurface`)pyds";
 
+        constexpr const char* unmap_nvds_buf_surface=R"pyds(
+            Unmap the previously mapped buffer. Do nothing if buffer has not been mapped.
+
+            :arg gst_buffer: address of the GstBuffer which contains `NvBufSurface`
+            :arg batch_id: batch_id of the frame to be unmap. This indicates the frame's index within `NvBufSurface`)pyds";
+
         constexpr const char* nvds_acquire_meta_lock=R"pyds(
             Acquire the lock before updating metadata.
 
