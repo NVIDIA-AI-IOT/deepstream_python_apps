@@ -2,11 +2,15 @@
 
 This repository contains Python bindings and sample applications for the [DeepStream SDK](https://developer.nvidia.com/deepstream-sdk).  
 
-SDK version supported: 6.1.1
+<b>NOTE: This branch is for NVAIE 3.0 support only.<b> 
 
-<b>The bindings sources along with build instructions are now available under [bindings](bindings)!  </b>
+<b>Support<b>  
+SDK version:    6.2  
+OS version:     Ubuntu 20.04  
+Python version: 3.8  
+Gst-Python version: [1.16.2](3rdparty/gst-python/)
 
-<b>This release comes with Operating System upgrades (from Ubuntu 18.04 to Ubuntu 20.04) for DeepStreamSDK 6.1.1 support. This translates to upgrade in Python version to 3.8 and [gst-python](3rdparty/gst-python/) version has also been upgraded to 1.16.2 !</b>
+<b>The bindings sources along with build instructions are now available under [bindings](bindings)! We now include a [guide](bindings/BINDINGSGUIDE.md) for adding bindings and another [guide](bindings/CUSTOMUSERMETAGUIDE.md) for advanced use-cases such as writing bindings for custom data structures.</b>
 
 Download the latest release package complete with bindings and sample applications from the [release section](../../releases).  
 
@@ -56,7 +60,8 @@ We currently provide the following sample applications:
 * [deepstream-imagedata-multistream-redaction](apps/deepstream-imagedata-multistream-redaction) -- multi-stream pipeline with face detection and redaction
 * [deepstream-rtsp-in-rtsp-out](apps/deepstream-rtsp-in-rtsp-out) -- multi-stream pipeline with RTSP input/output
 * [deepstream-preprocess-test](apps/deepstream-preprocess-test) -- multi-stream pipeline using nvdspreprocess plugin with custom ROIs
-* <b>NEW</b> [deepstream-demux-multi-in-multi-out](apps/deepstream-demux-multi-in-multi-out) -- multi-stream pipeline using nvstreamdemux plugin to generated separate buffer outputs
+* [deepstream-demux-multi-in-multi-out](apps/deepstream-demux-multi-in-multi-out) -- multi-stream pipeline using nvstreamdemux plugin to generated separate buffer outputs
+* <b>NEW</b> [deepstream-imagedata-multistream-cupy](apps/deepstream-imagedata-multistream-cupy) -- access imagedata buffer from GPU in a multistream source as CuPy array - x86 only
 
 
 Detailed application information is provided in each application's subdirectory under [apps](apps).  

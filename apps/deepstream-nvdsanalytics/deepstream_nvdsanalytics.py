@@ -311,16 +311,16 @@ def main(args):
     nvosd.set_property('process-mode',OSD_PROCESS_MODE)
     nvosd.set_property('display-text',OSD_DISPLAY_TEXT)
 
-    if(is_aarch64()):
-        print("Creating transform \n ")
-        transform=Gst.ElementFactory.make("nvegltransform", "nvegl-transform")
-        if not transform:
-            sys.stderr.write(" Unable to create transform \n")
-
-    print("Creating EGLSink \n")
-    sink = Gst.ElementFactory.make("nveglglessink", "nvvideo-renderer")
-    if not sink:
-        sys.stderr.write(" Unable to create egl sink \n")
+    if is_aarch64():
+        print("Creating nv3dsink \n")
+        sink = Gst.ElementFactory.make("nv3dsink", "nv3d-sink")
+        if not sink:
+            sys.stderr.write(" Unable to create nv3dsink \n")
+    else:
+        print("Creating EGLSink \n")
+        sink = Gst.ElementFactory.make("nveglglessink", "nvvideo-renderer")
+        if not sink:
+            sys.stderr.write(" Unable to create egl sink \n")
 
     if is_live:
         print("Atleast one of the sources is live")
@@ -378,9 +378,6 @@ def main(args):
     pipeline.add(tiler)
     pipeline.add(nvvidconv)
     pipeline.add(nvosd)
-
-    if is_aarch64():
-        pipeline.add(transform)
     pipeline.add(sink)
 
     # We link elements in the following order:
@@ -399,13 +396,8 @@ def main(args):
     queue5.link(nvvidconv)
     nvvidconv.link(queue6)
     queue6.link(nvosd)
-    if is_aarch64():
-        nvosd.link(queue7)
-        queue7.link(transform)
-        transform.link(sink)
-    else:
-        nvosd.link(queue7)
-        queue7.link(sink)
+    nvosd.link(queue7)
+    queue7.link(sink)
 
     # create an event loop and feed gstreamer bus mesages to it
     loop = GLib.MainLoop()

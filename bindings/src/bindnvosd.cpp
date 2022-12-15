@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: Copyright (c) 2021 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+ * SPDX-FileCopyrightText: Copyright (c) 2021-2022 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -33,7 +33,7 @@ namespace pydeepstream {
                        pydsdoc::NvOSD::NvOSD_Mode::MODE_CPU)
                 .value("MODE_GPU", MODE_GPU,
                        pydsdoc::NvOSD::NvOSD_Mode::MODE_GPU)
-                .value("MODE_HW", MODE_HW, pydsdoc::NvOSD::NvOSD_Mode::MODE_HW)
+                .value("MODE_NONE", MODE_NONE, pydsdoc::NvOSD::NvOSD_Mode::MODE_NONE)
                 .export_values();
 
 
@@ -412,6 +412,36 @@ namespace pydeepstream {
                      py::return_value_policy::reference,
                      pydsdoc::NvOSD::NvOSD_FrameCircleParams::cast);
 
+         py::class_<NvOSD_MaskParams>(m, "NvOSD_MaskParams",
+                                     pydsdoc::NvOSD::NvOSD_MaskParams::descr)
+                .def(py::init<>())
+                .def_readwrite("data", &NvOSD_MaskParams::data)
+                .def_readwrite("size", &NvOSD_MaskParams::size)
+                .def_readwrite("threshold", &NvOSD_MaskParams::threshold)
+                .def_readwrite("width", &NvOSD_MaskParams::width)
+                .def_readwrite("height", &NvOSD_MaskParams::height)
+
+                .def("get_mask_array", 
+                     [](NvOSD_MaskParams &self) -> py::array {
+                         auto dtype = py::dtype(py::format_descriptor<float>::format());
+                         return py::array(dtype, {self.size / sizeof(float)}, {sizeof(float)}, self.data, py::cast(self.data));
+                    },
+                     py::return_value_policy::reference,
+                     pydsdoc::NvOSD::NvOSD_MaskParams::get_mask_array)
+                    
+                .def("cast",
+                     [](void *data) {
+                         return (NvOSD_MaskParams *) data;
+                     },
+                     py::return_value_policy::reference,
+                     pydsdoc::NvOSD::NvOSD_MaskParams::cast)
+
+                .def("cast",
+                     [](size_t data) {
+                         return (NvOSD_MaskParams *) data;
+                     },
+                     py::return_value_policy::reference,
+                     pydsdoc::NvOSD::NvOSD_MaskParams::cast);
     }
 
 }

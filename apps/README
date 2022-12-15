@@ -20,7 +20,7 @@ DeepStream SDK Python Bindings
 ================================================================================
 Setup pre-requisites:
 - Ubuntu 20.04
-- NVIDIA DeepStream SDK 6.1.1
+- NVIDIA DeepStream SDK 6.2
 - Python 3.8
 - Gst-python
 
@@ -47,12 +47,15 @@ Package Contents
    deepstream-nvdsanalytics
    deepstream-preprocess-test
    runtime_source_add_delete
+   deepstream-demux-multi-in-multi-out
+   deepstream-imagedata-multistream-cupy
+
 
 --------------------------------------------------------------------------------
 Installing Pre-requisites:
 --------------------------------------------------------------------------------
 
-DeepStream SDK 6.1.1
+DeepStream SDK 6.2
 --------------------
 Download and install from https://developer.nvidia.com/deepstream-download
 
@@ -70,7 +73,7 @@ $ sudo apt install python3-gi python3-dev python3-gst-1.0 -y
 --------------------------------------------------------------------------------
 Running the samples
 --------------------------------------------------------------------------------
-The apps are configured to work from inside the DeepStream SDK 6.1.1 installation.
+The apps are configured to work from inside the DeepStream SDK 6.2 installation.
 
 Clone the deepstream_python_apps repo under <DeepStream ROOT>/sources:
 $ git clone https://github.com/NVIDIA-AI-IOT/deepstream_python_apps
@@ -109,4 +112,4 @@ Notes:
 --------------------------------------------------------------------------------
 As with DeepStream SDK, if the application runs into errors, cannot create gst elements, 
 try again after removing gstreamer cache
-   rm ${HOME}/.cache/gstreamer-1.0/*
+   rm ${HOME}/.cache/gstreamer-1.0/* 

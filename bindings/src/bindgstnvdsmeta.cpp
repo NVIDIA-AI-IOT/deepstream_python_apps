@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: Copyright (c) 2021 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+ * SPDX-FileCopyrightText: Copyright (c) 2021-2022 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -33,26 +33,26 @@ namespace pydeepstream {
          * User can add it's own metadata type NVDS_RESERVED_GST_META onwards.
          */
         py::enum_<GstNvDsMetaType>(m, "GstNvDsMetaType",
-                                   pydsdoc::nvmeta::GstNvDsMetaTypeDoc::descr)
+                                   pydsdoc::gstnvdsmetadoc::GstNvDsMetaTypeDoc::descr)
                 .value("NVDS_GST_INVALID_META", NVDS_GST_INVALID_META,
-                       pydsdoc::nvmeta::GstNvDsMetaTypeDoc::NVDS_GST_INVALID_META)
+                       pydsdoc::gstnvdsmetadoc::GstNvDsMetaTypeDoc::NVDS_GST_INVALID_META)
                         /* contains information of formed batch */
                 .value("NVDS_BATCH_GST_META", NVDS_BATCH_GST_META,
-                       pydsdoc::nvmeta::GstNvDsMetaTypeDoc::NVDS_BATCH_GST_META)
+                       pydsdoc::gstnvdsmetadoc::GstNvDsMetaTypeDoc::NVDS_BATCH_GST_META)
                 .value("NVDS_DECODER_GST_META", NVDS_DECODER_GST_META,
-                       pydsdoc::nvmeta::GstNvDsMetaTypeDoc::NVDS_DECODER_GST_META)
+                       pydsdoc::gstnvdsmetadoc::GstNvDsMetaTypeDoc::NVDS_DECODER_GST_META)
                         /* contains information of dewarped surfaces */
                 .value("NVDS_DEWARPER_GST_META", NVDS_DEWARPER_GST_META,
-                       pydsdoc::nvmeta::GstNvDsMetaTypeDoc::NVDS_DEWARPER_GST_META)
+                       pydsdoc::gstnvdsmetadoc::GstNvDsMetaTypeDoc::NVDS_DEWARPER_GST_META)
                 .value("NVDS_RESERVED_GST_META", NVDS_RESERVED_GST_META,
-                       pydsdoc::nvmeta::GstNvDsMetaTypeDoc::NVDS_RESERVED_GST_META)
+                       pydsdoc::gstnvdsmetadoc::GstNvDsMetaTypeDoc::NVDS_RESERVED_GST_META)
                         /* User can start adding it's own gst metadata from here onwards */
                 .value("NVDS_GST_META_FORCE32", NVDS_GST_META_FORCE32,
-                       pydsdoc::nvmeta::GstNvDsMetaTypeDoc::NVDS_GST_META_FORCE32)
+                       pydsdoc::gstnvdsmetadoc::GstNvDsMetaTypeDoc::NVDS_GST_META_FORCE32)
                 .export_values();
 
 
-        py::class_<NvDsMeta>(m, "NvDsMeta", pydsdoc::nvmeta::NvDsMetaDoc::descr)
+        py::class_<NvDsMeta>(m, "NvDsMeta", pydsdoc::gstnvdsmetadoc::NvDsMetaDoc::descr)
                 .def(py::init<>())
                 .def_readwrite("meta", &NvDsMeta::meta)
                 .def_readwrite("meta_data", &NvDsMeta::meta_data)
@@ -64,13 +64,13 @@ namespace pydeepstream {
                          return (NvDsMeta *) data;
                      },
                      py::return_value_policy::reference,
-                     pydsdoc::nvmeta::NvDsMetaDoc::cast)
+                     pydsdoc::gstnvdsmetadoc::NvDsMetaDoc::cast)
 
                 .def("cast",
                      [](size_t data) {
                          return (NvDsMeta *) data;
                      },
                      py::return_value_policy::reference,
-                     pydsdoc::nvmeta::NvDsMetaDoc::cast);
+                     pydsdoc::gstnvdsmetadoc::NvDsMetaDoc::cast);
     }
 }

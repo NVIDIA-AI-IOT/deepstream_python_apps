@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 ################################################################################
-# SPDX-FileCopyrightText: Copyright (c) 2019-2021 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2019-2022 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -398,13 +398,15 @@ def main(args):
             sys.stderr.write(" Unable to create fakesink \n")
     else:
         if is_aarch64():
-            transform = Gst.ElementFactory.make("nvegltransform",
-                                                "nvegl-transform")
-
-        print("Creating EGLSink \n")
-        sink = Gst.ElementFactory.make("nveglglessink", "nvvideo-renderer")
-        if not sink:
-            sys.stderr.write(" Unable to create egl sink \n")
+            print("Creating nv3dsink \n")
+            sink = Gst.ElementFactory.make("nv3dsink", "nv3d-sink")
+            if not sink:
+                sys.stderr.write(" Unable to create nv3dsink \n")
+        else:
+            print("Creating EGLSink \n")
+            sink = Gst.ElementFactory.make("nveglglessink", "nvvideo-renderer")
+            if not sink:
+                sys.stderr.write(" Unable to create egl sink \n")
 
     print("Playing file %s " % input_file)
     source.set_property('location', input_file)
@@ -437,8 +439,6 @@ def main(args):
     pipeline.add(msgconv)
     pipeline.add(msgbroker)
     pipeline.add(sink)
-    if is_aarch64() and not no_display:
-        pipeline.add(transform)
 
     print("Linking elements in the Pipeline \n")
     source.link(h264parser)
@@ -458,11 +458,7 @@ def main(args):
     nvosd.link(tee)
     queue1.link(msgconv)
     msgconv.link(msgbroker)
-    if is_aarch64() and not no_display:
-        queue2.link(transform)
-        transform.link(sink)
-    else:
-        queue2.link(sink)
+    queue2.link(sink)
     sink_pad = queue1.get_static_pad("sink")
     tee_msg_pad = tee.get_request_pad('src_%u')
     tee_render_pad = tee.get_request_pad("src_%u")

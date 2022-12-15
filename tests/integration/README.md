@@ -55,7 +55,7 @@ python3.8 -m venv env
 ### step3
 ```
 . env/bin/activate
-pip install pyds-1.1.4-py3-none-*.whl
+pip install pyds-1.1.5-py3-none-*.whl
 pip install pytest
 cd ../../tests/integration
 pytest test.py

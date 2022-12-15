@@ -1,15 +1,42 @@
 # Frequently Asked Questions and Troubleshooting Guide
 
-* [Git clone fails due to Gstreamer repo access error](#faq9)
-* [Application fails to work with mp4 stream](#faq0)  
-* [Ctrl-C does not stop the app during engine file generation](#faq1)  
-* [Application fails to create gst elements](#faq2)  
-* [GStreamer debugging](#faq3)  
-* [Application stuck with no playback](#faq4)  
-* [Error on setting string field](#faq5)  
-* [Pipeline unable to perform at real time](#faq6)  
-* [Triton container problems with multi-GPU setup](#faq7)
-* [ModuleNotFoundError: No module named 'pyds'](#faq8)
+- [Frequently Asked Questions and Troubleshooting Guide](#frequently-asked-questions-and-troubleshooting-guide)
+    - [Using new gst-nvstreammux](#using-new-gst-nvstreammux)
+    - [Git clone fails due to Gstreamer repo access error](#git-clone-fails-due-to-gstreamer-repo-access-error)
+    - [Application fails to work with mp4 stream](#application-fails-to-work-with-mp4-stream)
+    - [Ctrl-C does not stop the app during engine file generation](#ctrl-c-does-not-stop-the-app-during-engine-file-generation)
+    - [Application fails to create gst elements](#application-fails-to-create-gst-elements)
+    - [GStreamer debugging](#gstreamer-debugging)
+    - [Application stuck with no playback](#application-stuck-with-no-playback)
+    - [Error on setting string field](#error-on-setting-string-field)
+    - [Pipeline unable to perform at real time](#pipeline-unable-to-perform-at-real-time)
+    - [Triton container problems with multi-GPU setup](#triton-container-problems-with-multi-gpu-setup)
+    - [ModuleNotFoundError: No module named 'pyds'](#modulenotfounderror-no-module-named-pyds)
+
+<a name="faq10"></a>
+### Using new gst-nvstreammux
+Most DeepStream Python apps are written to use the default nvstreammux and have lines of code written to set nvstreammux properties which are deprecated in the new gst-nvstreammux. See the [DeepStream documentation](https://docs.nvidia.com/metropolis/deepstream/dev-guide/text/DS_plugin_gst-nvstreammux2.html) for more information on the new gst-nvstreammux plugin. To use the new nvstreammux, set the `USE_NEW_NVSTREAMMUX` environment variable before running the app. For example:
+```bash
+   $ export USE_NEW_NVSTREAMMUX="yes"
+   $ python3 deepstream_test_1.py ../../../../samples/streams/sample_720p.h264
+```
+The app itself must be modified not to set deprecated properties when using the new nvstreammux. See [deepstream-test1](./apps/deepstream-test1/deepstream_test_1.py):
+```python
+if os.environ.get('USE_NEW_NVSTREAMMUX') != 'yes': # Only set these properties if not using new gst-nvstreammux
+  streammux.set_property('width', 1920)
+  streammux.set_property('height', 1080)
+  streammux.set_property('batched-push-timeout', 4000000)
+```
+
+Running apps without this modification will result in such an error:
+```
+Traceback (most recent call last):
+  File "deepstream_test_1.py", line 255, in <module>
+    sys.exit(main(sys.argv))
+  File "deepstream_test_1.py", line 194, in main
+    streammux.set_property('width', 1920)
+TypeError: object of type `GstNvStreamMux' does not have property `width'
+```
 
 <a name="faq9"></a>
 ### Git clone fails due to Gstreamer repo access error
@@ -43,9 +70,9 @@ https://docs.python.org/3/library/signal.html
 To work around this:  
 1. Use ctrl-z to bg the process  
 2. Optionally run "jobs" if there are potentially multiple bg processes:  
-    $ jobs  
-    [1]-  Stopped                 python3 deepstream_test_1.py /opt/nvidia/deepstream/deepstream-4.0/samples/streams/sample_720p.h264  (wd: /opt/nvidia/deepstream/deepstream-4.0/sources/apps/python/deepstream-test1)  
-    [2]+  Stopped                 python3 deepstream_test_2.py /opt/nvidia/deepstream/deepstream-4.0/samples/streams/sample_720p.h264  
+    $ jobs
+    [1]-  Stopped                 python3 deepstream_test_1.py /opt/nvidia/deepstream/deepstream/samples/streams/sample_720p.h264  (wd: /opt/nvidia/deepstream/deepstream-4.0/sources/apps/python/deepstream-test1)
+    [2]+  Stopped                 python3 deepstream_test_2.py /opt/nvidia/deepstream/deepstream/samples/streams/sample_720p.h264
 3. Kill the bg job:  
     $ kill %<job number, 1 or 2 from above. e.g. kill %1>  
 
@@ -125,5 +152,5 @@ The pyds wheel installs the pyds.so library where all the pip packages are store
 
 Command to install the pyds wheel is:
 ```bash
-   $ pip3 install ./pyds-1.1.0-py3-none*.whl
+   $ pip3 install ./pyds-1.1.5-py3-none*.whl
 ```

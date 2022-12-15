@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: Copyright (c) 2019-2021 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+ * SPDX-FileCopyrightText: Copyright (c) 2019-2022 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,6 +27,7 @@
 #include "bindopticalflow.hpp"
 #include "bindschema.hpp"
 #include "bindtrackermeta.hpp"
+#include "custom_binding/include/bindcustom.hpp"
 
 #include "pyds.hpp"
 
@@ -34,7 +35,7 @@
 
 #include <ndarrayobject.h>*/
 
-#define PYDS_VERSION "1.1.4"
+#define PYDS_VERSION "1.1.5"
 
 using namespace std;
 namespace py = pybind11;
@@ -62,6 +63,7 @@ namespace pydeepstream {
         bindnvbufsurface(m);
         bindnvdsinfer(m);
         bindopticalflowmeta(m);
+        bindcustom(m);
 
     }   // end PYBIND11_MODULE(pyds, m)
 }

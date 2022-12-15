@@ -175,6 +175,7 @@ def create_source_bin(index,uri):
         # use nvurisrcbin to enable file-loop
         uri_decode_bin=Gst.ElementFactory.make("nvurisrcbin", "uri-decode-bin")
         uri_decode_bin.set_property("file-loop", 1)
+        uri_decode_bin.set_property("cudadec-memtype", 0)
     else:
         uri_decode_bin=Gst.ElementFactory.make("uridecodebin", "uri-decode-bin")
     if not uri_decode_bin:
@@ -252,7 +253,6 @@ def main(args, requested_pgie=None, config=None, disable_probe=False):
     pipeline.add(queue5)
 
     nvdslogger = None
-    transform = None
 
     print("Creating Pgie \n ")
     if requested_pgie != None and (requested_pgie == 'nvinferserver' or requested_pgie == 'nvinferserver-grpc') :
@@ -285,6 +285,13 @@ def main(args, requested_pgie=None, config=None, disable_probe=False):
     nvosd.set_property('process-mode',OSD_PROCESS_MODE)
     nvosd.set_property('display-text',OSD_DISPLAY_TEXT)
 
+    if file_loop:
+        if is_aarch64():
+            # Set nvbuf-memory-type=4 for aarch64 for file-loop (nvurisrcbin case)
+            streammux.set_property('nvbuf-memory-type', 4)
+        else:
+            # Set nvbuf-memory-type=2 for x86 for file-loop (nvurisrcbin case)
+            streammux.set_property('nvbuf-memory-type', 2)
 
     if no_display:
         print("Creating Fakesink \n")
@@ -292,13 +299,16 @@ def main(args, requested_pgie=None, config=None, disable_probe=False):
         sink.set_property('enable-last-sample', 0)
         sink.set_property('sync', 0)
     else:
-        if(is_aarch64()):
-            print("Creating transform \n ")
-            transform=Gst.ElementFactory.make("nvegltransform", "nvegl-transform")
-            if not transform:
-                sys.stderr.write(" Unable to create transform \n")
-        print("Creating EGLSink \n")
-        sink = Gst.ElementFactory.make("nveglglessink", "nvvideo-renderer")
+        if is_aarch64():
+            print("Creating nv3dsink \n")
+            sink = Gst.ElementFactory.make("nv3dsink", "nv3d-sink")
+            if not sink:
+                sys.stderr.write(" Unable to create nv3dsink \n")
+        else:
+            print("Creating EGLSink \n")
+            sink = Gst.ElementFactory.make("nveglglessink", "nvvideo-renderer")
+            if not sink:
+                sys.stderr.write(" Unable to create egl sink \n")
 
     if not sink:
         sys.stderr.write(" Unable to create sink element \n")
@@ -338,8 +348,6 @@ def main(args, requested_pgie=None, config=None, disable_probe=False):
     pipeline.add(tiler)
     pipeline.add(nvvidconv)
     pipeline.add(nvosd)
-    if transform:
-        pipeline.add(transform)
     pipeline.add(sink)
 
     print("Linking elements in the Pipeline \n")
@@ -355,13 +363,8 @@ def main(args, requested_pgie=None, config=None, disable_probe=False):
     queue3.link(nvvidconv)
     nvvidconv.link(queue4)
     queue4.link(nvosd)
-    if transform:
-        nvosd.link(queue5)
-        queue5.link(transform)
-        transform.link(sink)
-    else:
-        nvosd.link(queue5)
-        queue5.link(sink)   
+    nvosd.link(queue5)
+    queue5.link(sink)   
 
     # create an event loop and feed gstreamer bus mesages to it
     loop = GLib.MainLoop()

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 ################################################################################
-# SPDX-FileCopyrightText: Copyright (c) 2019-2021 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2019-2022 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -43,7 +43,6 @@ COLORS = [[128, 128, 64], [0, 0, 128], [0, 128, 128], [128, 0, 0],
           [128, 0, 128], [128, 128, 0], [0, 128, 0], [0, 0, 64],
           [0, 0, 192], [0, 128, 64], [0, 128, 192], [128, 0, 64],
           [128, 0, 192], [128, 128, 128]]
-
 
 def map_mask_as_display_bgr(mask):
     """ Assigning multiple colors as image output using the information
@@ -175,6 +174,11 @@ def main(args):
     if not streammux:
         sys.stderr.write(" Unable to create NvStreamMux \n")
 
+    # Create nvvideoconvert to convert jpegdecoder's I420 to NV12
+    nvvidconv = Gst.ElementFactory.make("nvvideoconvert", "nvvideconvert")
+    if not nvvidconv:
+        sys.stderr.write(" Unable to create nvvideoconvert \n")
+
     # Create segmentation for primary inference
     seg = Gst.ElementFactory.make("nvinfer", "primary-nvinference-engine")
     if not seg:
@@ -186,16 +190,20 @@ def main(args):
         sys.stderr.write("Unable to create nvsegvisual\n")
 
     if is_aarch64():
-        transform = Gst.ElementFactory.make("nvegltransform", "nvegl-transform")
-
-    print("Creating EGLSink \n")
-    sink = Gst.ElementFactory.make("nveglglessink", "nvvideo-renderer")
-    if not sink:
-        sys.stderr.write(" Unable to create egl sink \n")
+        print("Creating nv3dsink \n")
+        sink = Gst.ElementFactory.make("nv3dsink", "nv3d-sink")
+        if not sink:
+            sys.stderr.write(" Unable to create nv3dsink \n")
+    else:
+        print("Creating EGLSink \n")
+        sink = Gst.ElementFactory.make("nveglglessink", "nvvideo-renderer")
+        if not sink:
+            sys.stderr.write(" Unable to create egl sink \n")
 
     print("Playing file %s " % args[2])
     source.set_property('location', args[2])
-    if is_aarch64() and (args[2].endswith("mjpeg") or args[2].endswith("mjpg")):
+    if is_aarch64() and ("mjpeg" in args[2] or "mjpg" in args[2]):
+        print ("setting decoder mjpeg property")
         decoder.set_property('mjpeg', 1)
     streammux.set_property('width', 1920)
     streammux.set_property('height', 1080)
@@ -217,11 +225,10 @@ def main(args):
     pipeline.add(jpegparser)
     pipeline.add(decoder)
     pipeline.add(streammux)
+    pipeline.add(nvvidconv)
     pipeline.add(seg)
     pipeline.add(nvsegvisual)
     pipeline.add(sink)
-    if is_aarch64():
-        pipeline.add(transform)
 
     # we link the elements together
     # file-source -> jpeg-parser -> nvv4l2-decoder ->
@@ -237,13 +244,10 @@ def main(args):
     if not srcpad:
         sys.stderr.write(" Unable to get source pad of decoder \n")
     srcpad.link(sinkpad)
-    streammux.link(seg)
+    streammux.link(nvvidconv)
+    nvvidconv.link(seg)
     seg.link(nvsegvisual)
-    if is_aarch64():
-        nvsegvisual.link(transform)
-        transform.link(sink)
-    else:
-        nvsegvisual.link(sink)
+    nvsegvisual.link(sink)
     # create an event loop and feed gstreamer bus mesages to it
     loop = GLib.MainLoop()
     bus = pipeline.get_bus()

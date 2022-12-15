@@ -23,8 +23,12 @@ enable=1
 target-unique-ids=1
     # 0=NCHW, 1=NHWC, 2=CUSTOM
 network-input-order=0
-
-network-input-order=0
+process-on-frame=1
+    # if enabled maintain the aspect ratio while scaling
+maintain-aspect-ratio=1
+    # if enabled pad symmetrically with maintain-aspect-ratio enabled
+symmetric-padding=1
+    # processing width/height at which image scaled
 processing-width=640
 processing-height=368
 scaling-buf-pool-size=6

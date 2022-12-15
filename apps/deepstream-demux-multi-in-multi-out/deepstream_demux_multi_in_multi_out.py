@@ -347,8 +347,16 @@ def main(args, requested_pgie=None, config=None, disable_probe=False):
     for i in range(number_sources):
         # pipeline nvstreamdemux -> queue -> nvvidconv -> nvosd -> (if Jetson) nvegltransform -> nveglgl
         # Creating EGLsink
-        print("Creating EGLSink \n")
-        sink = make_element("nveglglessink", i)
+        if is_aarch64():
+            print("Creating nv3dsink \n")
+            sink = make_element("nv3dsink", i)
+            if not sink:
+                sys.stderr.write(" Unable to create nv3dsink \n")
+        else:
+            print("Creating EGLSink \n")
+            sink = make_element("nveglglessink", i)
+            if not sink:
+                sys.stderr.write(" Unable to create egl sink \n")
         pipeline.add(sink)
 
         # creating queue
@@ -376,21 +384,11 @@ def main(args, requested_pgie=None, config=None, disable_probe=False):
             sys.stderr.write("Unable to create queue sink pad \n")
         demuxsrcpad.link(queuesinkpad)
 
-        if (is_aarch64()):
-            print("Creating transform \n ")
-            transform = make_element("nvegltransform", i)
-            pipeline.add(transform)
-            if not transform:
-                sys.stderr.write(" Unable to create transform \n")
 
         # connect  queue -> nvvidconv -> nvosd -> nveglgl
         queue.link(nvvideoconvert)
         nvvideoconvert.link(nvdsosd)
-        if (is_aarch64()):
-            nvdsosd.link(transform)
-            transform.link(sink)
-        else:
-            nvdsosd.link(sink)
+        nvdsosd.link(sink)
 
         sink.set_property("qos", 0)
 

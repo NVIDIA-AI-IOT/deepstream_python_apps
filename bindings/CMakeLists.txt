@@ -22,11 +22,10 @@ function(check_variable_set variable_name default_value)
         endif()
 endfunction()
 
-check_variable_set(DS_VERSION 6.1)
 check_variable_set(PYTHON_MAJOR_VERSION 3)
 check_variable_set(PYTHON_MINOR_VERSION 8)
 check_variable_set(PIP_PLATFORM linux_x86_64)
-check_variable_set(DS_PATH "/opt/nvidia/deepstream/deepstream-${DS_VERSION}")
+check_variable_set(DS_PATH "/opt/nvidia/deepstream/deepstream")
 
 
 # Checking values are allowed
@@ -50,7 +49,7 @@ set(CMAKE_SHARED_LINKER_FLAGS "-Wl,--no-undefined")
 
 # Setting python build versions
 set(PYTHON_VERSION ${PYTHON_MAJOR_VERSION}.${PYTHON_MINOR_VERSION})
-set(PIP_WHEEL pyds-1.1.4-py3-none-${PIP_PLATFORM}.whl)
+set(PIP_WHEEL pyds-1.1.5-py3-none-${PIP_PLATFORM}.whl)
 
 # Describing pyds build
 project(pyds DESCRIPTION "Python bindings for Deepstream")
@@ -74,7 +73,7 @@ add_library(pyds SHARED src/pyds.cpp src/utils.cpp src/bindanalyticsmeta.cpp
             src/bindfunctions.cpp src/bindgstnvdsmeta.cpp
             src/bindmeta360.cpp src/bindnvbufsurface.cpp src/bindnvdsinfer.cpp
             src/bindnvdsmeta.cpp src/bindnvosd.cpp src/bindopticalflow.cpp
-            src/bindschema.cpp src/bindtrackermeta.cpp)
+            src/bindschema.cpp src/bindtrackermeta.cpp src/custom_binding/bindcustom.cpp)
 
 set_target_properties(pyds PROPERTIES PREFIX "")
 set_target_properties(pyds PROPERTIES OUTPUT_NAME "pyds")

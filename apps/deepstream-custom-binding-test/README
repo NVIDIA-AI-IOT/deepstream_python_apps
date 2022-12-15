@@ -1,0 +1,45 @@
+################################################################################
+# SPDX-FileCopyrightText: Copyright (c) 2022 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+################################################################################
+
+Prequisites:
+- DeepStreamSDK 6.2
+- Python 3.8
+- Gst-python
+
+To run the test app:
+  $ python3 deepstream_custom_binding_test.py <h264_elementary_stream>
+
+This document shall describe the sample deepstream-custom-binding-test application.
+
+It is meant for simple demonstration of how to use NvDsUserMeta to attach custom
+data structure to the buffer at upstream element's pad using probe function and extract
+the same custom data structure later at a downstream element's pad, also using another
+probe function.
+
+The elements used in the pipeline are as follows:
+FileSrc -> H264Parse -> NvV4l2Decoder -> NvStreammux -> Queue -> Queue -> FakeSink
+
+First probe function attaches custom structure, which is added to the PyDS bindings, to the NvDsUserMeta, which is added to the frame by PyDS using pyds.nvds_add_user_meta_to_frame()
+This first probe is added at the srcpad of NvStreamMux.
+
+For copying integers and strings from python data structure to PyDS bindings,
+the function pyds.copy_custom_struct() is used.
+
+Second probe function reads the values attached as part of this custom structure after
+the buffer reaches sinkpad of FakeSink. The allocated memory is then freed using pyds.release_custom_struct()
+
+

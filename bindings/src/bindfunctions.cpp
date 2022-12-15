@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: Copyright (c) 2021 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+ * SPDX-FileCopyrightText: Copyright (c) 2021-2022 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -304,7 +304,7 @@ namespace pydeepstream {
 
         /**
          * Returns the frame in the numpy format
-         * @param[in] addreess of the buffer
+         * @param[in] address of the buffer
          * @param[in] batch_id
          */
         m.def("get_nvds_buf_surface",
@@ -332,12 +332,12 @@ namespace pydeepstream {
                       int ret = NvBufSurfaceMap(inputnvsurface, batchID, -1,
                                                 NVBUF_MAP_READ_WRITE);
                       if (ret < 0) {
-                          cout << "get_nvds_buf_Surface: Failed to map "
+                          cout << "get_nvds_buf_surface: Failed to map "
                                   << "buffer to CPU" << endl;
                       }
                   }
                   if (NvBufSurfaceSyncForCpu(inputnvsurface, batchID, -1) != 0) {
-                      cout << "get_nvds_buf_Surface: Failed to sync "
+                      cout << "get_nvds_buf_surface: Failed to sync "
                               << "buffer to CPU " << endl;
                   }
 
@@ -387,14 +387,14 @@ namespace pydeepstream {
                   if (inputnvsurface->surfaceList->colorFormat !=
                       NVBUF_COLOR_FORMAT_RGBA) {
                       throw std::runtime_error(
-                              "get_nvds_buf_Surface: Currently we only support RGBA color Format");
+                              "get_nvds_buf_surface_gpu: Currently we only support RGBA color Format");
                   }
 
 #ifdef __aarch64__
                   /* Map the buffer if it has not been mapped already, otherwise sync the
                      mapped buffer to CPU.*/
                   throw std::runtime_error(
-                          "get_nvds_buf_Surface: Currently we only support x86");
+                          "get_nvds_buf_surface_gpu: Currently we only support x86");
 #else
                   int channels = 4;
                   int height = inputnvsurface->surfaceList[batchID].height;
@@ -417,7 +417,39 @@ namespace pydeepstream {
               },
               "gst_buffer"_a, "batchID"_a,
               py::return_value_policy::reference,
-              pydsdoc::methodsDoc::get_nvds_buf_surface);
+              pydsdoc::methodsDoc::get_nvds_buf_surface_gpu);
+
+
+        /**
+         * Unmaps the NvBufSurface of the frame
+         * @param[in] address of the buffer
+         * @param[in] batch_id
+         */
+        m.def("unmap_nvds_buf_surface",
+              [](size_t gst_buffer, int batchID) {
+                  auto *buffer = reinterpret_cast<GstBuffer *>(gst_buffer);
+                  GstMapInfo inmap;
+                  gst_buffer_map(buffer, &inmap, GST_MAP_READ);
+                  auto *inputnvsurface = reinterpret_cast<NvBufSurface *>(inmap.data);
+                  gst_buffer_unmap(buffer, &inmap);
+
+                  /* use const reference here so input_surface is not altered
+                     during mapping and syncing for CPU */
+                  const NvBufSurfaceParams &input_surface = inputnvsurface->surfaceList[batchID];
+                  /* Map the buffer if it has not been mapped already, before syncing the
+                     mapped buffer to CPU.*/
+                  if (nullptr != input_surface.mappedAddr.addr[0]) {
+                      int ret = NvBufSurfaceUnMap(inputnvsurface, batchID, -1);
+                      if (ret < 0) {
+                          cout << "get_nvds_buf_Surface: Failed to unmap "
+                                  << "buffer" << endl;
+                      }
+                  }
+              },
+              "gst_buffer"_a,
+              "batchID"_a,
+              pydsdoc::methodsDoc::unmap_nvds_buf_surface
+        );
 
         //FIXME: Find a better way of doing this
         /**

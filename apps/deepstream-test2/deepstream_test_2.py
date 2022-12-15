@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 ################################################################################
-# SPDX-FileCopyrightText: Copyright (c) 2019-2021 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2019-2022 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -239,12 +239,15 @@ def main(args):
 
     # Finally render the osd output
     if is_aarch64():
-        transform = Gst.ElementFactory.make("nvegltransform", "nvegl-transform")
-
-    print("Creating EGLSink \n")
-    sink = Gst.ElementFactory.make("nveglglessink", "nvvideo-renderer")
-    if not sink:
-        sys.stderr.write(" Unable to create egl sink \n")
+        print("Creating nv3dsink \n")
+        sink = Gst.ElementFactory.make("nv3dsink", "nv3d-sink")
+        if not sink:
+            sys.stderr.write(" Unable to create nv3dsink \n")
+    else:
+        print("Creating EGLSink \n")
+        sink = Gst.ElementFactory.make("nveglglessink", "nvvideo-renderer")
+        if not sink:
+            sys.stderr.write(" Unable to create egl sink \n")
 
     print("Playing file %s " %args[1])
     source.set_property('location', args[1])
@@ -300,8 +303,6 @@ def main(args):
     pipeline.add(nvvidconv)
     pipeline.add(nvosd)
     pipeline.add(sink)
-    if is_aarch64():
-        pipeline.add(transform)
 
     # we link the elements together
     # file-source -> h264-parser -> nvh264-decoder ->
@@ -324,11 +325,7 @@ def main(args):
     sgie2.link(sgie3)
     sgie3.link(nvvidconv)
     nvvidconv.link(nvosd)
-    if is_aarch64():
-        nvosd.link(transform)
-        transform.link(sink)
-    else:
-        nvosd.link(sink)
+    nvosd.link(sink)
 
 
     # create and event loop and feed gstreamer bus mesages to it

@@ -1,5 +1,5 @@
 ################################################################################
-# SPDX-FileCopyrightText: Copyright (c) 2021 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2022 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,10 +19,10 @@
 gpu-id=0
 net-scale-factor=0.0039215697906911373
 tlt-model-key=tlt_encode
-tlt-encoded-model=../../../../samples/models/tao_pretrained_models/peopleNet/V2.5/resnet34_peoplenet_int8.etlt
-labelfile-path=../../../../samples/models/tao_pretrained_models/peopleNet/V2.5/labels.txt
-model-engine-file=../../../../samples/models/tao_pretrained_models/peopleNet/V2.5/resnet34_peoplenet_int8.etlt_b1_gpu0_int8.engine
-int8-calib-file=../../../../samples/models/tao_pretrained_models/peopleNet/V2.5/resnet34_peoplenet_int8.txt
+tlt-encoded-model=../../../../samples/models/tao_pretrained_models/peopleNet/V2.6/resnet34_peoplenet_int8.etlt
+labelfile-path=../../../../samples/configs/tao_pretrained_models/labels_peoplenet.txt
+model-engine-file=../../../../samples/models/tao_pretrained_models/peopleNet/V2.6/resnet34_peoplenet_int8.etlt_b1_gpu0_int8.engine
+int8-calib-file=../../../../samples/models/tao_pretrained_models/peopleNet/V2.6/resnet34_peoplenet_int8.txt
 input-dims=3;544;960;0
 uff-input-blob-name=input_1
 batch-size=1

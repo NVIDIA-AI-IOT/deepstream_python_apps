@@ -1,5 +1,5 @@
 ################################################################################
-# SPDX-FileCopyrightText: Copyright (c) 2020-2021 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2020-2022 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,7 @@
 ################################################################################
 
 Prerequisites:
-- DeepStreamSDK 6.1.1
+- DeepStreamSDK 6.2
 - Python 3.8
 - Gst-python
 - NumPy package
@@ -52,7 +52,7 @@ This sample builds on top of the deepstream-test3 sample to demonstrate how to:
   batch for better resource utilization.
 
 NOTE:
-- For x86, only CUDA unified memory is supported.
+- For x86, only CUDA unified memory is supported. Consequently, vGPU is not supported.
 - Only RGBA color format is supported for access from Python. Color conversion
   is added in the pipeline for this reason.
 
