@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 ################################################################################
-# SPDX-FileCopyrightText: Copyright (c) 2021 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2021-2022 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -393,12 +393,6 @@ def main(args):
     if not nvosd:
         sys.stderr.write(" Unable to create nvosd \n")
 
-    if(is_aarch64()):
-        print("Creating transform \n ")
-        transform=Gst.ElementFactory.make("nvegltransform", "nvegl-transform")
-        if not transform:
-            sys.stderr.write(" Unable to create transform \n")
-
     sgie1 = Gst.ElementFactory.make("nvinfer", "secondary1-nvinference-engine")
     if not sgie1:
         sys.stderr.write(" Unable to make sgie1 \n")
@@ -412,11 +406,16 @@ def main(args):
         sys.stderr.write(" Unable to make sgie3 \n")
 
 
-    print("Creating EGLSink \n")
-    sink = Gst.ElementFactory.make(SINK_ELEMENT, "nvvideo-renderer")
-    if not sink:
-        sys.stderr.write(" Unable to create egl sink \n")
-
+    if is_aarch64():
+        print("Creating nv3dsink \n")
+        sink = Gst.ElementFactory.make("nv3dsink", "nv3d-sink")
+        if not sink:
+            sys.stderr.write(" Unable to create nv3dsink \n")
+    else:
+        print("Creating EGLSink \n")
+        sink = Gst.ElementFactory.make("nveglglessink", "nvvideo-renderer")
+        if not sink:
+            sys.stderr.write(" Unable to create egl sink \n")
     if is_live:
         print("Atleast one of the sources is live")
         streammux.set_property('live-source', 1)
@@ -495,9 +494,6 @@ def main(args):
     pipeline.add(nvosd)
     pipeline.add(sink)
 
-    if is_aarch64():
-        pipeline.add(transform)
-
     # We link elements in the following order:
     # sourcebin -> streammux -> nvinfer -> nvtracker -> nvdsanalytics ->
     # nvtiler -> nvvideoconvert -> nvdsosd -> (if aarch64, transform ->) sink
@@ -510,11 +506,7 @@ def main(args):
     sgie3.link(tiler)
     tiler.link(nvvideoconvert)
     nvvideoconvert.link(nvosd)
-    if is_aarch64():
-        nvosd.link(transform)
-        transform.link(sink)
-    else:
-        nvosd.link(sink)
+    nvosd.link(sink)
 
     sink.set_property("sync", 0)
     sink.set_property("qos",0)

@@ -8,3 +8,4 @@ bindnvosd.cpp
 bindopticalflow.cpp
 bindschema.cpp
 bindtrackermeta.cpp
+custom_binding/bindcustom.cpp

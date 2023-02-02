@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM nvcr.io/nvidia/deepstream-l4t:6.1.1-samples
+FROM nvcr.io/nvidia/deepstream-l4t:6.2-samples
 LABEL maintainer="NVIDIA CORPORATION"
 
 # Set timezone.

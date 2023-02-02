@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 ################################################################################
-# SPDX-FileCopyrightText: Copyright (c) 2019-2021 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2019-2022 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,6 +19,7 @@
 
 import sys
 sys.path.append('../')
+import os
 import gi
 gi.require_version('Gst', '1.0')
 from gi.repository import GLib, Gst
@@ -35,13 +36,6 @@ PGIE_CLASS_ID_ROADSIGN = 3
 
 def osd_sink_pad_buffer_probe(pad,info,u_data):
     frame_number=0
-    #Intiallizing object counter with 0.
-    obj_counter = {
-        PGIE_CLASS_ID_VEHICLE:0,
-        PGIE_CLASS_ID_PERSON:0,
-        PGIE_CLASS_ID_BICYCLE:0,
-        PGIE_CLASS_ID_ROADSIGN:0
-    }
     num_rects=0
 
     gst_buffer = info.get_buffer()
@@ -57,27 +51,32 @@ def osd_sink_pad_buffer_probe(pad,info,u_data):
     while l_frame is not None:
         try:
             # Note that l_frame.data needs a cast to pyds.NvDsFrameMeta
-            # The casting is done by pyds.glist_get_nvds_frame_meta()
+            # The casting is done by pyds.NvDsFrameMeta.cast()
             # The casting also keeps ownership of the underlying memory
             # in the C code, so the Python garbage collector will leave
             # it alone.
-            #frame_meta = pyds.glist_get_nvds_frame_meta(l_frame.data)
             frame_meta = pyds.NvDsFrameMeta.cast(l_frame.data)
         except StopIteration:
             break
 
+        #Intiallizing object counter with 0.
+        obj_counter = {
+            PGIE_CLASS_ID_VEHICLE:0,
+            PGIE_CLASS_ID_PERSON:0,
+            PGIE_CLASS_ID_BICYCLE:0,
+            PGIE_CLASS_ID_ROADSIGN:0
+        }
         frame_number=frame_meta.frame_num
         num_rects = frame_meta.num_obj_meta
         l_obj=frame_meta.obj_meta_list
         while l_obj is not None:
             try:
                 # Casting l_obj.data to pyds.NvDsObjectMeta
-                #obj_meta=pyds.glist_get_nvds_object_meta(l_obj.data)
                 obj_meta=pyds.NvDsObjectMeta.cast(l_obj.data)
             except StopIteration:
                 break
             obj_counter[obj_meta.class_id] += 1
-            obj_meta.rect_params.border_color.set(0.0, 0.0, 1.0, 0.0)
+            obj_meta.rect_params.border_color.set(0.0, 0.0, 1.0, 0.8) #0.8 is alpha (opacity)
             try: 
                 l_obj=l_obj.next
             except StopIteration:
@@ -181,19 +180,24 @@ def main(args):
 
     # Finally render the osd output
     if is_aarch64():
-        transform = Gst.ElementFactory.make("nvegltransform", "nvegl-transform")
-
-    print("Creating EGLSink \n")
-    sink = Gst.ElementFactory.make("nveglglessink", "nvvideo-renderer")
-    if not sink:
-        sys.stderr.write(" Unable to create egl sink \n")
+        print("Creating nv3dsink \n")
+        sink = Gst.ElementFactory.make("nv3dsink", "nv3d-sink")
+        if not sink:
+            sys.stderr.write(" Unable to create nv3dsink \n")
+    else:
+        print("Creating EGLSink \n")
+        sink = Gst.ElementFactory.make("nveglglessink", "nvvideo-renderer")
+        if not sink:
+            sys.stderr.write(" Unable to create egl sink \n")
 
     print("Playing file %s " %args[1])
     source.set_property('location', args[1])
-    streammux.set_property('width', 1920)
-    streammux.set_property('height', 1080)
+    if os.environ.get('USE_NEW_NVSTREAMMUX') != 'yes': # Only set these properties if not using new gst-nvstreammux
+        streammux.set_property('width', 1920)
+        streammux.set_property('height', 1080)
+        streammux.set_property('batched-push-timeout', 4000000)
+    
     streammux.set_property('batch-size', 1)
-    streammux.set_property('batched-push-timeout', 4000000)
     pgie.set_property('config-file-path', "dstest1_pgie_config.txt")
 
     print("Adding elements to Pipeline \n")
@@ -205,8 +209,6 @@ def main(args):
     pipeline.add(nvvidconv)
     pipeline.add(nvosd)
     pipeline.add(sink)
-    if is_aarch64():
-        pipeline.add(transform)
 
     # we link the elements together
     # file-source -> h264-parser -> nvh264-decoder ->
@@ -225,11 +227,7 @@ def main(args):
     streammux.link(pgie)
     pgie.link(nvvidconv)
     nvvidconv.link(nvosd)
-    if is_aarch64():
-        nvosd.link(transform)
-        transform.link(sink)
-    else:
-        nvosd.link(sink)
+    nvosd.link(sink)
 
     # create an event loop and feed gstreamer bus mesages to it
     loop = GLib.MainLoop()

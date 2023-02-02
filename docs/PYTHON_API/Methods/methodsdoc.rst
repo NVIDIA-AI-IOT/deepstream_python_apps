@@ -1,4 +1,10 @@
 ======================
+alloc_custom_struct
+======================
+
+.. autofunction:: pyds.alloc_custom_struct
+
+======================
 gst_element_send_nvevent_new_stream_reset
 ======================
 
@@ -21,6 +27,18 @@ get_nvds_buf_surface
 ==============
 
 .. autofunction:: pyds.get_nvds_buf_surface
+
+==============
+get_nvds_buf_surface_gpu
+==============
+
+.. autofunction:: pyds.get_nvds_buf_surface_gpu
+
+==============
+unmap_nvds_buf_surface
+==============
+
+.. autofunction:: pyds.unmap_nvds_buf_surface
 
 ==============
 nvds_acquire_meta_lock

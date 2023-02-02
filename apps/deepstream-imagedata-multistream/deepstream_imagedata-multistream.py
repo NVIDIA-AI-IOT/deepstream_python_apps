@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 ################################################################################
-# SPDX-FileCopyrightText: Copyright (c) 2020-2021 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2020-2022 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -125,7 +125,9 @@ def tiler_sink_pad_buffer_probe(pad, info, u_data):
                     frame_copy = np.array(n_frame, copy=True, order='C')
                     # convert the array into cv2 default color format
                     frame_copy = cv2.cvtColor(frame_copy, cv2.COLOR_RGBA2BGRA)
-
+                    if is_aarch64(): # If Jetson, since the buffer is mapped to CPU for retrieval, it must also be unmapped 
+                        pyds.unmap_nvds_buf_surface(hash(gst_buffer), frame_meta.batch_id) # The unmap call should be made after operations with the original array are complete.
+                                                                                            #  The original array cannot be accessed after this call.
 
                 save_image = True
 
@@ -209,6 +211,11 @@ def decodebin_child_added(child_proxy, Object, name, user_data):
     print("Decodebin child added:", name, "\n")
     if name.find("decodebin") != -1:
         Object.connect("child-added", decodebin_child_added, user_data)
+
+    if not is_aarch64() and name.find("nvv4l2decoder") != -1:
+        # Use CUDA unified memory in the pipeline so frames
+        # can be easily accessed on CPU in Python.
+        Object.set_property("cudadec-memtype", 2)
 
     if "source" in name:
         source_element = child_proxy.get_by_name("source")
@@ -336,16 +343,16 @@ def main(args):
     nvosd = Gst.ElementFactory.make("nvdsosd", "onscreendisplay")
     if not nvosd:
         sys.stderr.write(" Unable to create nvosd \n")
-    if (is_aarch64()):
-        print("Creating transform \n ")
-        transform = Gst.ElementFactory.make("nvegltransform", "nvegl-transform")
-        if not transform:
-            sys.stderr.write(" Unable to create transform \n")
-
-    print("Creating EGLSink \n")
-    sink = Gst.ElementFactory.make("nveglglessink", "nvvideo-renderer")
-    if not sink:
-        sys.stderr.write(" Unable to create egl sink \n")
+    if is_aarch64():
+        print("Creating nv3dsink \n")
+        sink = Gst.ElementFactory.make("nv3dsink", "nv3d-sink")
+        if not sink:
+            sys.stderr.write(" Unable to create nv3dsink \n")
+    else:
+        print("Creating EGLSink \n")
+        sink = Gst.ElementFactory.make("nveglglessink", "nvvideo-renderer")
+        if not sink:
+            sys.stderr.write(" Unable to create egl sink \n")
 
     if is_live:
         print("Atleast one of the sources is live")
@@ -387,8 +394,6 @@ def main(args):
     pipeline.add(filter1)
     pipeline.add(nvvidconv1)
     pipeline.add(nvosd)
-    if is_aarch64():
-        pipeline.add(transform)
     pipeline.add(sink)
 
     print("Linking elements in the Pipeline \n")
@@ -398,11 +403,7 @@ def main(args):
     filter1.link(tiler)
     tiler.link(nvvidconv)
     nvvidconv.link(nvosd)
-    if is_aarch64():
-        nvosd.link(transform)
-        transform.link(sink)
-    else:
-        nvosd.link(sink)
+    nvosd.link(sink)
 
     # create an event loop and feed gstreamer bus mesages to it
     loop = GLib.MainLoop()

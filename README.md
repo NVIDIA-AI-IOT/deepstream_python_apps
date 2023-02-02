@@ -2,11 +2,11 @@
 
 This repository contains Python bindings and sample applications for the [DeepStream SDK](https://developer.nvidia.com/deepstream-sdk).  
 
-SDK version supported: 6.1.1
+SDK version supported: 6.2
 
-<b>The bindings sources along with build instructions are now available under [bindings](bindings)!  </b>
+<b>The bindings sources along with build instructions are now available under [bindings](bindings)! We now include a [guide](bindings/BINDINGSGUIDE.md) for contributing to bindings and another [guide](bindings/CUSTOMUSERMETAGUIDE.md) for advanced use-cases such as writing bindings for custom data structures.</b>
 
-<b>This release comes with Operating System upgrades (from Ubuntu 18.04 to Ubuntu 20.04) for DeepStreamSDK 6.1.1 support. This translates to upgrade in Python version to 3.8 and [gst-python](3rdparty/gst-python/) version has also been upgraded to 1.16.2 !</b>
+<b>This release only supports Ubuntu 20.04 for DeepStreamSDK 6.2 with Python 3.8 and [gst-python](3rdparty/gst-python/) 1.16.2! Ubuntu 18.04 support is now deprecrated.</b>
 
 Download the latest release package complete with bindings and sample applications from the [release section](../../releases).  
 
@@ -41,13 +41,13 @@ To run the sample applications or write your own, please consult the [HOW-TO Gui
 </p>
 
 We currently provide the following sample applications:
-* [deepstream-test1](apps/deepstream-test1) -- 4-class object detection pipeline
+* <b>UPDATED</b> [deepstream-test1](apps/deepstream-test1) -- 4-class object detection pipeline - now also demonstrates support for new nvstreammux
 * [deepstream-test2](apps/deepstream-test2) -- 4-class object detection, tracking and attribute classification pipeline
 * [deepstream-test3](apps/deepstream-test3) -- multi-stream pipeline performing 4-class object detection - now also supports triton inference server, no-display mode, file-loop and silent mode
 * [deepstream-test4](apps/deepstream-test4) -- msgbroker for sending analytics results to the cloud
 * [deepstream-imagedata-multistream](apps/deepstream-imagedata-multistream) -- multi-stream pipeline with access to image buffers
 * [deepstream-ssd-parser](apps/deepstream-ssd-parser) -- SSD model inference via Triton server with output parsing in Python
-* [deepstream-test1-usbcam](apps/deepstream-test1-usbcam) -- deepstream-test1 pipelien with USB camera input
+* [deepstream-test1-usbcam](apps/deepstream-test1-usbcam) -- deepstream-test1 pipeline with USB camera input
 * [deepstream-test1-rtsp-out](apps/deepstream-test1-rtsp-out) -- deepstream-test1 pipeline with RTSP output
 * [deepstream-opticalflow](apps/deepstream-opticalflow) -- optical flow and visualization pipeline with flow vectors returned in NumPy array
 * [deepstream-segmentation](apps/deepstream-segmentation) -- segmentation and visualization pipeline with segmentation mask returned in NumPy array
@@ -56,7 +56,10 @@ We currently provide the following sample applications:
 * [deepstream-imagedata-multistream-redaction](apps/deepstream-imagedata-multistream-redaction) -- multi-stream pipeline with face detection and redaction
 * [deepstream-rtsp-in-rtsp-out](apps/deepstream-rtsp-in-rtsp-out) -- multi-stream pipeline with RTSP input/output
 * [deepstream-preprocess-test](apps/deepstream-preprocess-test) -- multi-stream pipeline using nvdspreprocess plugin with custom ROIs
-* <b>NEW</b> [deepstream-demux-multi-in-multi-out](apps/deepstream-demux-multi-in-multi-out) -- multi-stream pipeline using nvstreamdemux plugin to generated separate buffer outputs
+* [deepstream-demux-multi-in-multi-out](apps/deepstream-demux-multi-in-multi-out) -- multi-stream pipeline using nvstreamdemux plugin to generated separate buffer outputs
+* [deepstream-imagedata-multistream-cupy](apps/deepstream-imagedata-multistream-cupy) -- access imagedata buffer from GPU in a multistream source as CuPy array - x86 only
+* <b>NEW</b> [deepstream-segmask](apps/deepstream-segmask) -- access and interpret segmentation mask information from NvOSD_MaskParams
+* <b>NEW</b> [deepstream-custom-binding-test](apps/deepstream-custom-binding-test) -- demonstrate usage of NvDsUserMeta for attaching custom data structure - see also the [Custom User Meta Guide](bindings/CUSTOMUSERMETAGUIDE.md)
 
 
 Detailed application information is provided in each application's subdirectory under [apps](apps).  

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 ################################################################################
-# SPDX-FileCopyrightText: Copyright (c) 2021 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2021-2022 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -140,6 +140,9 @@ def tiler_sink_pad_buffer_probe(pad, info, u_data):
                     frame_copy = np.array(n_frame, copy=True, order='C')
                     # convert the array into cv2 default color format
                     frame_copy = cv2.cvtColor(frame_copy, cv2.COLOR_RGBA2BGRA)
+                    if is_aarch64(): # If Jetson, since the buffer is mapped to CPU for retrieval, it must also be unmapped 
+                        pyds.unmap_nvds_buf_surface(hash(gst_buffer), frame_meta.batch_id) # The unmap call should be made after operations with the original array are complete.
+                                                                                            #  The original array cannot be accessed after this call.
 
 
                 save_image = True
@@ -207,7 +210,10 @@ def decodebin_child_added(child_proxy, Object, name, user_data):
     print("Decodebin child added:", name, "\n")
     if name.find("decodebin") != -1:
         Object.connect("child-added", decodebin_child_added, user_data)
-    #if is_aarch64() and name.find("nvv4l2decoder") != -1:
+    if not is_aarch64() and name.find("nvv4l2decoder") != -1:
+        # Use CUDA unified memory in the pipeline so frames
+        # can be easily accessed on CPU in Python.
+        Object.set_property("cudadec-memtype", 2)
     #    print("Seting bufapi_version\n")
     #    Object.set_property("bufapi-version", True)
 
@@ -401,6 +407,7 @@ def main(uri_inputs,codec,bitrate ):
         nvvidconv.set_property("nvbuf-memory-type", mem_type)
         nvvidconv1.set_property("nvbuf-memory-type", mem_type)
         tiler.set_property("nvbuf-memory-type", mem_type)
+        nvvidconv_postosd.set_property("nvbuf-memory-type", mem_type)
 
     print("Adding elements to Pipeline \n")
     pipeline.add(pgie)
