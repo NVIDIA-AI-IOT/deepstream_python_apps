@@ -315,6 +315,12 @@ def osd_sink_pad_buffer_probe(pad, info, u_data):
                 l_obj = l_obj.next
             except StopIteration:
                 break
+
+        # Update frame rate through this probe
+        stream_index = "stream{0}".format(frame_meta.pad_index)
+        global perf_data
+        perf_data.update_fps(stream_index)
+        
         try:
             l_frame = l_frame.next
         except StopIteration:
