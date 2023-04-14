@@ -230,6 +230,7 @@ def add_sources(data):
     global g_num_sources
     global g_source_enabled
     global g_source_bin_list
+    global pipeline
 
     source_id = g_num_sources
 
