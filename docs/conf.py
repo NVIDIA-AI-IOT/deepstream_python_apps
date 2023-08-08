@@ -38,7 +38,7 @@ import pyds
 project = 'Deepstream'
 copyright = '2019-2023, NVIDIA.'
 author = 'NVIDIA'
-version = 'Deepstream Version: 6.2'
+version = 'Deepstream Version: 6.3'
 release = version
 
 

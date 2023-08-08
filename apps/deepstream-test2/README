@@ -16,14 +16,15 @@
 ################################################################################
 
 Prequisites:
-- DeepStreamSDK 6.2
-- Python 3.8
+- DeepStreamSDK 6.3
 - Gst-python
 
 To run the test app:
-  $ python3 deepstream_test_2.py <h264_elementary_stream> <0/1>
+  $ python3 deepstream_test_2.py <h264_elementary_stream>
+  **DEPRECATED** $ python3 deepstream_test_2.py <h264_elementary_stream> <0/1>
 
-To get the past-frame tracking meta use 1, otherwise 0, this argument is optional.
+**NOTE** Past-frame tracking is now always enabled and cannot be disabled. The configuration option, and consequently the application option, is deprecated.
+**DEPRECATED** To get the past-frame tracking meta use 1, otherwise 0, this argument is optional.
 
 This document shall describe about the sample deepstream-test2 application.
 
@@ -48,7 +49,7 @@ For reference, here are the config files used for this sample :
 5. The tracker (referred to as nvtracker in this sample) uses
     dstest2_tracker_config.txt
 
-To get the past-frame-tracking meta, the following changes have to be added to
+**DEPRECRATED** To get the past-frame-tracking meta, the following changes have to be added to
 the dstest2_tracker_config.txt. 
 
 1. ll-lib-file=/opt/nvidia/deepstream/deepstream/lib/libnvds_nvdcf.so

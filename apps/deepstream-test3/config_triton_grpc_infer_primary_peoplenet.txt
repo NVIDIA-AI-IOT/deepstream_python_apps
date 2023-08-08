@@ -25,6 +25,7 @@ infer_config {
       version: -1
       grpc {
         url: "0.0.0.0:8001"
+        enable_cuda_buffer_sharing: true
       }
     }
   }

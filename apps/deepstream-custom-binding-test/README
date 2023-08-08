@@ -16,7 +16,7 @@
 ################################################################################
 
 Prequisites:
-- DeepStreamSDK 6.2
+- DeepStreamSDK 6.3
 - Python 3.8
 - Gst-python
 

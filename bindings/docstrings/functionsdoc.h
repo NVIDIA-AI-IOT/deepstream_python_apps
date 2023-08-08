@@ -596,5 +596,16 @@ namespace pydsdoc
             Allocate an :class:`CustomDataStruct`. 
 
             :returns: Allocated :class:`CustomDataStruct`)pyds";
+
+        constexpr const char* configure_source_for_ntp_sync=R"pyds(
+            Configure the source to generate NTP sync values for RTSP sources.
+
+            These values are used by the DeepStream GStreamer element NvStreamMux to calculate the NTP time of the frames at the source.
+
+            This functionality is dependent on the RTSP sending the RTCP Sender Reports. source.
+
+            This function only works for RTSP sources i.e. GStreamer elements "rtspsrc" or "uridecodebin" with an RTSP uri.
+
+            :arg src_elem: GStreamer source element to be configured.)pyds";
 	}
 }

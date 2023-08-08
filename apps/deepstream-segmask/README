@@ -16,8 +16,7 @@
 ################################################################################
 
 Prerequisites:
-- DeepStreamSDK 6.2
-- Python 3.8
+- DeepStreamSDK 6.3
 - Gst-python
 - NumPy package
 - OpenCV package

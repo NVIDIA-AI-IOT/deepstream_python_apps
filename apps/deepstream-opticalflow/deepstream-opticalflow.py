@@ -62,7 +62,7 @@ def visualize_optical_flowvectors(flow):
     return bgr
 
 
-# tiler_sink_pad_buffer_probe  will extract metadata received on OSD sink pad
+# ofvisual_queue_src_pad_buffer_probe  will extract metadata received on OSD sink pad
 def ofvisual_queue_src_pad_buffer_probe(pad, info, u_data):
     got_visual = False
     frame_number = 0

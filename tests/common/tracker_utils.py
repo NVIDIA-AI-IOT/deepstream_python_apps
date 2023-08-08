@@ -29,9 +29,7 @@ def get_tracker_properties_from_config(config_path):
         'tracker-height': getint_attr,
         'gpu-id': getint_attr,
         'll-lib-file': get_attr,
-        'll-config-file': get_attr,
-        'enable-batch-process': getint_attr,
-        'enable-past-frame': getint_attr
+        'll-config-file': get_attr
     }
     tracker_properties = {}
     for key in config['tracker']:

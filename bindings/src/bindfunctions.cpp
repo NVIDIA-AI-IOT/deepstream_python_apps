@@ -797,5 +797,14 @@ namespace pydeepstream {
               },
               pydsdoc::methodsDoc::gst_element_send_nvevent_new_stream_reset);
 
+        m.def("configure_source_for_ntp_sync",
+            [](size_t src_elem) {
+                  auto *element = reinterpret_cast<GstElement *>(src_elem);
+                  configure_source_for_ntp_sync(element);
+                  return;
+              },
+              "src_elem"_a,
+              pydsdoc::methodsDoc::configure_source_for_ntp_sync);
+
     }
 }

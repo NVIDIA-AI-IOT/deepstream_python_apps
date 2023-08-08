@@ -60,7 +60,6 @@ CONFIG_GROUP_TRACKER_WIDTH = "tracker-width"
 CONFIG_GROUP_TRACKER_HEIGHT = "tracker-height"
 CONFIG_GROUP_TRACKER_LL_CONFIG_FILE = "ll-config-file"
 CONFIG_GROUP_TRACKER_LL_LIB_FILE = "ll-lib-file"
-CONFIG_GROUP_TRACKER_ENABLE_BATCH_PROCESS = "enable-batch-process"
 
 g_num_sources = 0
 g_source_id_list = [0] * MAX_NUM_SOURCES
@@ -230,6 +229,7 @@ def add_sources(data):
     global g_num_sources
     global g_source_enabled
     global g_source_bin_list
+    global pipeline
 
     source_id = g_num_sources
 

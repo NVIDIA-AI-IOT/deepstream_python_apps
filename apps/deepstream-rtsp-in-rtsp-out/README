@@ -16,7 +16,7 @@
 ################################################################################
 
 Prequisites:
-- DeepStreamSDK 6.2
+- DeepStreamSDK 6.3
 - Python 3.8
 - Gst-python
 - GstRtspServer
@@ -76,3 +76,5 @@ This sample app specifically includes following :
     4. Performs post-processing on the generated boxes with NMS (Non-maximum Suppression)
     5. Adds detected objects into the pipeline metadata for downstream processing
     6. Encodes OSD output and shows visual output over RTSP.
+
+The "--rtsp-ts" option configures the RTSP source to attach the timestamp to the frame, as opposed to the streammux. Before using this option, please make sure the RTSP source sends RTCP Sender Reports. See this documentation for more details on how to check: https://docs.nvidia.com/metropolis/deepstream/dev-guide/text/DS_NTP_Timestamp.html.

@@ -1,5 +1,5 @@
 ################################################################################
-# SPDX-FileCopyrightText: Copyright (c) 2022 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2022-2023 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,19 +16,19 @@
 ################################################################################
 
 Prerequisites:
-- DeepStreamSDK 6.2
+- DeepStreamSDK 6.3
 - Python 3.8
 - Gst-python
 - NumPy package
 - OpenCV package
-- CuPy for Cuda 11.2 or later
+- CuPy for Cuda 12.1 or later
 
 ** This application is currently only supported on x86.
 
 To install required packages:
 $ sudo apt update
 $ sudo apt install python3-numpy python3-opencv -y
-$ pip3 install cupy-cuda11x
+$ pip3 install cupy-cuda12x
 
 To run:
   $ python3 deepstream_imagedata-multistream_cupy.py -i <uri1> [uri2] ... [uriN]

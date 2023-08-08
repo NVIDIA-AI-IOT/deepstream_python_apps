@@ -1,3 +1,9 @@
+=============================
+configure_source_for_ntp_sync
+=============================
+
+.. autofunction:: pyds.configure_source_for_ntp_sync
+
 ======================
 alloc_custom_struct
 ======================

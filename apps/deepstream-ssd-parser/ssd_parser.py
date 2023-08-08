@@ -100,14 +100,14 @@ def make_nodi(index, layers, detection_param, box_size_param):
         buff_elm = pyds.get_detections(box_layer.buffer, index * 4 + index2)
         return clip(buff_elm, 0.0, 1.0)
 
-    rect_x1_f = clip_1d_elm(0)
-    rect_y1_f = clip_1d_elm(1)
-    rect_x2_f = clip_1d_elm(2)
-    rect_y2_f = clip_1d_elm(3)
-    res.left = rect_y1_f
-    res.top = rect_x1_f
-    res.width = rect_y2_f - rect_y1_f
-    res.height = rect_x2_f - rect_x1_f
+    rect_y1_f = clip_1d_elm(0)
+    rect_x1_f = clip_1d_elm(1)
+    rect_y2_f = clip_1d_elm(2)
+    rect_x2_f = clip_1d_elm(3)
+    res.left = rect_x1_f
+    res.top = rect_y1_f
+    res.width = rect_x2_f - rect_x1_f
+    res.height = rect_y2_f - rect_y1_f
 
     if not box_size_param.is_percentage_sufficiant(res.height, res.width):
         return None

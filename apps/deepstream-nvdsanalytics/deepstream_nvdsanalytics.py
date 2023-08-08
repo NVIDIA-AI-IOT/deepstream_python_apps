@@ -364,12 +364,6 @@ def main(args):
         if key == 'll-config-file' :
             tracker_ll_config_file = config.get('tracker', key)
             tracker.set_property('ll-config-file', tracker_ll_config_file)
-        if key == 'enable-batch-process' :
-            tracker_enable_batch_process = config.getint('tracker', key)
-            tracker.set_property('enable_batch_process', tracker_enable_batch_process)
-        if key == 'enable-past-frame' :
-            tracker_enable_past_frame = config.getint('tracker', key)
-            tracker.set_property('enable_past_frame', tracker_enable_past_frame)
 
     print("Adding elements to Pipeline \n")
     pipeline.add(pgie)

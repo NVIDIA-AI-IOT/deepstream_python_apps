@@ -16,7 +16,7 @@ This guide provides resources for DeepStream application development in Python.
 ## Prerequisites
 
 * Ubuntu 20.04
-* [DeepStream SDK 6.2](https://developer.nvidia.com/deepstream-download) or later
+* [DeepStream SDK 6.3](https://developer.nvidia.com/deepstream-download) or later
 * Python 3.8
 * [Gst Python](https://gstreamer.freedesktop.org/modules/gst-python.html) v1.16.2
 
@@ -46,11 +46,11 @@ Note: Compiling bindings now also generates a pip installable python wheel for t
 <a name="run_samples"></a>
 ## Running Sample Applications
 
-Clone the deepstream_python_apps repo under <DeepStream 6.2 ROOT>/sources:
+Clone the deepstream_python_apps repo under <DeepStream ROOT>/sources:
 git clone https://github.com/NVIDIA-AI-IOT/deepstream_python_apps
 
 This will create the following directory:  
-```<DeepStream 6.2 ROOT>/sources/deepstream_python_apps```
+```<DeepStream ROOT>/sources/deepstream_python_apps```
 
 The Python apps are under the "apps" directory.  
 Go into each app directory and follow instructions in the README.  
