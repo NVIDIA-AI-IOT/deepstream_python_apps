@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: Copyright (c) 2021-2022 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+ * SPDX-FileCopyrightText: Copyright (c) 2021-2023 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -298,28 +298,25 @@ namespace pydsdoc
 
                     ...
 
-                    # Allocating an NvDsEventMsgMeta instance and getting reference
-                    # to it. The underlying memory is not manged by Python so that
-                    # downstream plugins can access it. Otherwise the garbage collector
-                    # will free it when this probe exits.
-                    msg_meta=pyds.alloc_nvds_event_msg_meta()
-                    msg_meta.bbox.top =  obj_meta.rect_params.top
-                    msg_meta.bbox.left =  obj_meta.rect_params.left
-                    msg_meta.bbox.width = obj_meta.rect_params.width
-                    msg_meta.bbox.height = obj_meta.rect_params.height
-                    msg_meta.frameId = frame_number
-                    msg_meta.trackingId = long_to_uint64(obj_meta.object_id)
-                    msg_meta.confidence = obj_meta.confidence
-                    msg_meta = generate_event_msg_meta(msg_meta, obj_meta.class_id)
                     user_event_meta = pyds.nvds_acquire_user_meta_from_pool(batch_meta)
                     if(user_event_meta):
+                        # Allocating an NvDsEventMsgMeta instance and getting reference
+                        # to it. The underlying memory is not manged by Python so that
+                        # downstream plugins can access it. Otherwise the garbage collector
+                        # will free it when this probe exits.
+                        msg_meta=pyds.alloc_nvds_event_msg_meta(user_event_meta)
+                        msg_meta.bbox.top =  obj_meta.rect_params.top
+                        msg_meta.bbox.left =  obj_meta.rect_params.left
+                        msg_meta.bbox.width = obj_meta.rect_params.width
+                        msg_meta.bbox.height = obj_meta.rect_params.height
+                        msg_meta.frameId = frame_number
+                        msg_meta.trackingId = long_to_uint64(obj_meta.object_id)
+                        msg_meta.confidence = obj_meta.confidence
+                        msg_meta = generate_event_msg_meta(msg_meta, obj_meta.class_id)
+
                         user_event_meta.user_meta_data = msg_meta;
                         user_event_meta.base_meta.meta_type = pyds.NvDsMetaType.NVDS_EVENT_MSG_META
-                        # Setting callbacks in the event msg meta. The bindings layer
-                        # will wrap these callables in C functions. Currently only one
-                        # set of callbacks is supported.
-                        pyds.user_copyfunc(user_event_meta, meta_copy_func)
-                        pyds.user_releasefunc(user_event_meta, meta_free_func)
+
                         pyds.nvds_add_user_meta_to_frame(frame_meta, user_event_meta)
                     else:
                         print("Error in attaching event meta to buffer\n"))pyds";

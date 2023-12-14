@@ -1,6 +1,7 @@
 # Frequently Asked Questions and Troubleshooting Guide
 
 - [Frequently Asked Questions and Troubleshooting Guide](#frequently-asked-questions-and-troubleshooting-guide)
+    - [App causes Jetson Orin Nano to freeze and reboot](#app-causes-jetson-orin-nano-to-freeze-and-reboot)
     - [Using new gst-nvstreammux](#using-new-gst-nvstreammux)
     - [Git clone fails due to Gstreamer repo access error](#git-clone-fails-due-to-gstreamer-repo-access-error)
     - [Application fails to work with mp4 stream](#application-fails-to-work-with-mp4-stream)
@@ -12,6 +13,18 @@
     - [Pipeline unable to perform at real time](#pipeline-unable-to-perform-at-real-time)
     - [Triton container problems with multi-GPU setup](#triton-container-problems-with-multi-gpu-setup)
     - [ModuleNotFoundError: No module named 'pyds'](#modulenotfounderror-no-module-named-pyds)
+
+<a name="faq11"></a>
+### App causes Jetson Orin Nano to freeze and reboot
+Most of the DeepStream Python apps are written to use hardware encoders. The Jetson Orin Nano does not have any hardware encoders, so the app must be modified to use software encoders in the pipeline. Please see [deepstream-test1-rtsp-out](./apps/deepstream-test1-rtsp-out/deepstream_test_1_rtsp_out.py):
+```python
+if codec == "H264":
+  encoder = Gst.ElementFactory.make("nvv4l2h264enc", "encoder")
+  if enc_type == 0: # HW encoder
+      encoder = Gst.ElementFactory.make("nvv4l2h264enc", "encoder")
+  else: # SW encoder
+      encoder = Gst.ElementFactory.make("x264enc", "encoder")
+```
 
 <a name="faq10"></a>
 ### Using new gst-nvstreammux
@@ -152,5 +165,5 @@ The pyds wheel installs the pyds.so library where all the pip packages are store
 
 Command to install the pyds wheel is:
 ```bash
-   $ pip3 install ./pyds-1.1.8-py3-none*.whl
+   $ pip3 install ./pyds-1.1.10-py3-none*.whl
 ```

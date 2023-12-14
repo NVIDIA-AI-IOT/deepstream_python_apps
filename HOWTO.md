@@ -15,10 +15,10 @@ This guide provides resources for DeepStream application development in Python.
 <a name="prereqs"></a>
 ## Prerequisites
 
-* Ubuntu 20.04
-* [DeepStream SDK 6.3](https://developer.nvidia.com/deepstream-download) or later
-* Python 3.8
-* [Gst Python](https://gstreamer.freedesktop.org/modules/gst-python.html) v1.16.2
+* Ubuntu 22.04
+* [DeepStream SDK 6.4](https://developer.nvidia.com/deepstream-download) or later
+* Python 3.10
+* [Gst Python](https://gstreamer.freedesktop.org/modules/gst-python.html) v1.20.3
 
 Gst python should be already installed on Jetson.  
 If missing, install with the following steps:
@@ -84,12 +84,12 @@ Memory for MetaData is shared by the Python and C/C++ code paths. For example, a
 
 #### Allocations
 
-When MetaData objects are allocated in Python, an allocation function is provided by the bindings to ensure proper memory ownership of the object. If the constructor is used, the the object will be claimed by the garbage collector when its Python references terminate. However, the object will still need to be accessed by C/C++ code downstream, and therefore must persist beyond those Python references.  
+When MetaData objects are allocated in Python, an allocation function is provided by the bindings to ensure proper memory ownership of the object. If the constructor is used, the object will be claimed by the garbage collector when its Python references terminate. However, the object will still need to be accessed by C/C++ code downstream, and therefore must persist beyond those Python references.  
 
 Example:
 To allocate an NvDsEventMsgMeta instance, use this:  
 ```python
-msg_meta = pyds.alloc_nvds_event_msg_meta() # get reference to allocated instance without claiming memory ownership  
+msg_meta = pyds.alloc_nvds_event_msg_meta(user_event_meta) # get reference to allocated instance without claiming memory ownership  
 ```
 NOT this:  
 ```python
@@ -173,16 +173,21 @@ frame_meta = pyds.NvDsFrameMeta.cast(l_frame.data)
 
 Custom MetaData added to NvDsUserMeta require custom copy and release functions. The MetaData library relies on these custom functions to perform deep-copy of the custom structure, and free allocated resources. These functions are registered as callback function pointers in the NvDsUserMeta structure.
 
-Callback functions are registered using these functions:  
+##### Deprecation Warning
+Previously, Callback functions were registered using these functions:  
 ```python
 pyds.set_user_copyfunc(NvDsUserMeta_instance, copy_function)
 pyds.set_user_releasefunc(NvDsUserMeta_instance, free_func)
 ```
 
-*NOTE*: Callbacks need to be unregistered with the bindings library before the application exits. The bindings library currently keeps global references to the registered functions, and these cannot last beyond bindings library unload which happens at application exit. Use the following function to unregister all callbacks:
-```pyds.unset_callback_funcs()```  
+These are now DEPRECATED and are replaced by similar implementation in the binding itself. These are event_msg_meta_copy_func() and event_msg_meta_release_func() respectively. These can be found inside [bindschema.cpp](bindings/src/bindschema.cpp)
 
-See the deepstream-test4 sample application for an example of callback registration and unregistration.  
+##### Deprecation Warning
+*NOTE*: Previously, callbacks needed to be unregistered with the bindings library before the application exits. The bindings library currently keeps global references to the registered functions, and these cannot last beyond bindings library unload which happens at application exit. Use the following function to unregister all callbacks:
+```pyds.unset_callback_funcs()```  
+These callbacks are automatically set inside the alloc_nvds_event_msg_meta() function and should NOT be set from the python application (e.g. deepstream-test4)
+
+The deepstream-test4 sample application has been updated to show an example of removal of these callback registration and unregistration.
 
 Limitation: the bindings library currently only supports a single set of callback functions for each application. The last registered function will be used.  
 

@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: Copyright (c) 2021-2022 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+ * SPDX-FileCopyrightText: Copyright (c) 2021-2023 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,6 +24,145 @@ namespace py = pybind11;
 
 namespace pydeepstream {
 
+    NvDsEventMsgMeta * event_msg_meta_copy_func(void* data, void* user_data) {
+        NvDsUserMeta * srcMeta = (NvDsUserMeta*) data;
+        NvDsEventMsgMeta * srcData = (NvDsEventMsgMeta *) srcMeta->user_meta_data;
+        NvDsEventMsgMeta * destData = (NvDsEventMsgMeta *) g_malloc0(
+                        sizeof(NvDsEventMsgMeta));
+        destData->type = srcData->type;
+        destData->objType = srcData->objType;
+        destData->bbox = srcData->bbox;
+        destData->location = srcData->location;
+        destData->coordinate = srcData->coordinate;
+        destData->objSignature = srcData->objSignature;
+        destData->objClassId = srcData->objClassId;
+        destData->sensorId = srcData->sensorId;
+        destData->moduleId = srcData->moduleId;
+        destData->placeId = srcData->placeId;
+        destData->componentId = srcData->componentId;
+        destData->frameId = srcData->frameId;
+        destData->confidence = srcData->confidence;
+        destData->trackingId = srcData->trackingId;
+
+        if (srcData->ts != nullptr) {
+            destData->ts = g_strdup (srcData->ts);
+        }
+
+        if (srcData->objectId != nullptr) {
+            destData->objectId = g_strdup (srcData->objectId);
+        }
+
+        if (srcData->sensorStr != nullptr) {
+            destData->sensorStr = g_strdup (srcData->sensorStr);
+        }
+
+        if (srcData->otherAttrs != nullptr) {
+            destData->otherAttrs = g_strdup (srcData->otherAttrs);
+        }
+
+        if (srcData->videoPath != nullptr) {
+            destData->videoPath = g_strdup (srcData->videoPath);
+        }
+
+        if (srcData->extMsgSize > 0) {
+            if (srcData->objType == NVDS_OBJECT_TYPE_VEHICLE) {
+                NvDsVehicleObject *srcObj = (NvDsVehicleObject *) srcData->extMsg;
+                NvDsVehicleObject *obj =
+                        (NvDsVehicleObject *) g_malloc0 (sizeof (NvDsVehicleObject));
+                if (srcObj->type)
+                obj->type = g_strdup (srcObj->type);
+                if (srcObj->make)
+                obj->make = g_strdup (srcObj->make);
+                if (srcObj->model)
+                obj->model = g_strdup (srcObj->model);
+                if (srcObj->color)
+                obj->color = g_strdup (srcObj->color);
+                if (srcObj->license)
+                obj->license = g_strdup (srcObj->license);
+                if (srcObj->region)
+                obj->region = g_strdup (srcObj->region);
+                destData->extMsg = obj;
+                destData->extMsgSize = sizeof (NvDsVehicleObject);
+            } else if (srcData->objType == NVDS_OBJECT_TYPE_PERSON) {
+                NvDsPersonObject *srcObj = (NvDsPersonObject *) srcData->extMsg;
+                NvDsPersonObject *obj =
+                    (NvDsPersonObject *) g_malloc0 (sizeof (NvDsPersonObject));
+                obj->age = srcObj->age;
+                if (srcObj->gender)
+                    obj->gender = g_strdup (srcObj->gender);
+                if (srcObj->cap)
+                    obj->cap = g_strdup (srcObj->cap);
+                if (srcObj->hair)
+                    obj->hair = g_strdup (srcObj->hair);
+                if (srcObj->apparel)
+                    obj->apparel = g_strdup (srcObj->apparel);
+                destData->extMsg = obj;
+                destData->extMsgSize = sizeof (NvDsPersonObject);
+            }
+        }
+
+        return destData;
+    }
+
+    void event_msg_meta_release_func(void * data, void * user_data) {
+        NvDsUserMeta * srcMeta = (NvDsUserMeta*) data;
+        if (srcMeta != nullptr) {
+            NvDsEventMsgMeta * srcData = (NvDsEventMsgMeta *) srcMeta->user_meta_data;
+            if (srcData != nullptr) {
+                if (srcData->ts != nullptr) {
+                    g_free(srcData->ts);
+                    srcData->ts = NULL;
+                }
+                if (srcData->objectId != nullptr) {
+                    g_free(srcData->objectId);
+                    srcData->objectId = NULL;
+                }
+                if (srcData->sensorStr != nullptr) {
+                    g_free(srcData->sensorStr);
+                    srcData->sensorStr = NULL;
+                }
+                if (srcData->otherAttrs != nullptr) {
+                    g_free(srcData->otherAttrs);
+                    srcData->otherAttrs = NULL;
+                }
+
+                if (srcData->videoPath != nullptr) {
+                    g_free(srcData->videoPath);
+                    srcData->videoPath = NULL;
+                }
+
+                if (srcData->extMsgSize > 0) {
+                    if (srcData->objType == NVDS_OBJECT_TYPE_VEHICLE) {
+                        NvDsVehicleObject *obj = (NvDsVehicleObject *) srcData->extMsg;
+                        if (obj->type)
+                            g_free (obj->type);
+                        if (obj->color)
+                            g_free (obj->color);
+                        if (obj->make)
+                            g_free (obj->make);
+                        if (obj->model)
+                            g_free (obj->model);
+                        if (obj->license)
+                            g_free (obj->license);
+                        if (obj->region)
+                            g_free (obj->region);
+                    } else if (srcData->objType == NVDS_OBJECT_TYPE_PERSON) {
+                        NvDsPersonObject *obj = (NvDsPersonObject *) srcData->extMsg;
+                        if (obj->gender)
+                            g_free (obj->gender);
+                        if (obj->cap)
+                            g_free (obj->cap);
+                        if (obj->hair)
+                            g_free (obj->hair);
+                        if (obj->apparel)
+                            g_free (obj->apparel);
+                    }
+                    g_free (srcData->extMsg);
+                    srcData->extMsgSize = 0;
+                }
+            }
+        }
+    }
     void bindschema(py::module &m) {
         /*Start of Bindings for nvdsmeta_schema.h*/
         py::enum_<NvDsEventType>(m, "NvDsEventType",
@@ -424,9 +563,11 @@ namespace pydeepstream {
                 .def_readwrite("extMsgSize", &NvDsEventMsgMeta::extMsgSize);
 
         m.def("alloc_nvds_event_msg_meta",
-              []() {
+              [](NvDsUserMeta *user_meta) {
                   auto *msg_meta = (NvDsEventMsgMeta *) g_malloc0(
                           sizeof(NvDsEventMsgMeta));
+                  user_meta->base_meta.copy_func = (NvDsMetaCopyFunc) pydeepstream::event_msg_meta_copy_func;
+                  user_meta->base_meta.release_func = (NvDsMetaReleaseFunc) pydeepstream::event_msg_meta_release_func;
                   return msg_meta;
               },
               py::return_value_policy::reference,

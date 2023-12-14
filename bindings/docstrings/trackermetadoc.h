@@ -21,10 +21,10 @@ namespace pydsdoc
 {
     namespace trackerdoc
     {
-        namespace NvDsPastFrameObjDoc //missing doxygen comments
+        namespace NvDsTargetMiscDataFrameDoc //missing doxygen comments
         {
             constexpr const char* descr = R"pyds(
-                NvDsPastFrameObj
+                NvDsTargetMiscDataFrame
 
                 :ivar frameNum: *int*, frameNum
                 :ivar tBbox: :class:`NvOSD_RectParams`, tBbox
@@ -47,26 +47,26 @@ namespace pydsdoc
                             break
                         if(user_meta and user_meta.base_meta.meta_type==pyds.NvDsMetaType.NVDS_TRACKER_PAST_FRAME_META): #Make sure metatype is correct
                             try:
-                                # Note that user_meta.user_meta_data needs a cast to pyds.NvDsPastFrameObjBatch
-                                # The casting is done by pyds.NvDsPastFrameObjBatch.cast()
+                                # Note that user_meta.user_meta_data needs a cast to pyds.NvDsTargetMiscDataBatch
+                                # The casting is done by pyds.NvDsTargetMiscDataBatch.cast()
                                 # The casting also keeps ownership of the underlying memory
                                 # in the C code, so the Python garbage collector will leave
                                 # it alone
-                                pPastFrameObjBatch = pyds.NvDsPastFrameObjBatch.cast(user_meta.user_meta_data) #See NvDsPastFrameObjBatch for details
+                                pPastFrameObjBatch = pyds.NvDsTargetMiscDataBatch.cast(user_meta.user_meta_data) #See NvDsTargetMiscDataBatch for details
                             except StopIteration:
                                 break
-                            for trackobj in pyds.NvDsPastFrameObjBatch.list(pPastFrameObjBatch): #Iterate through list of NvDsPastFrameObjStream objects
-                                #Access NvDsPastFrameObjStream attributes
+                            for trackobj in pyds.NvDsTargetMiscDataBatch.list(pPastFrameObjBatch): #Iterate through list of NvDsTargetMiscDataStream objects
+                                #Access NvDsTargetMiscDataStream attributes
                                 print("streamId=",trackobj.streamID)
                                 print("surfaceStreamID=",trackobj.surfaceStreamID)
-                                for pastframeobj in pyds.NvDsPastFrameObjStream.list(trackobj): #Iterate through list of NvDsFrameObjList objects
-                                #Access NvDsPastFrameObjList attributes
+                                for pastframeobj in pyds.NvDsTargetMiscDataStream.list(trackobj): #Iterate through list of NvDsFrameObjList objects
+                                #Access NvDsTargetMiscDataObject attributes
                                 print("numobj=",pastframeobj.numObj)
                                 print("uniqueId=",pastframeobj.uniqueId)
                                 print("classId=",pastframeobj.classId)
                                 print("objLabel=",pastframeobj.objLabel)
-                                for objlist in pyds.NvDsPastFrameObjList.list(pastframeobj): #Iterate through list of NvDsFrameObj objects
-                                    #Access NvDsPastFrameObj attributes
+                                for objlist in pyds.NvDsTargetMiscDataObject.list(pastframeobj): #Iterate through list of NvDsFrameObj objects
+                                    #Access NvDsTargetMiscDataFrame attributes
                                     print('frameNum:', objlist.frameNum)
                                     print('tBbox.left:', objlist.tBbox.left)
                                     print('tBbox.width:', objlist.tBbox.width)
@@ -79,48 +79,48 @@ namespace pydsdoc
                         except StopIteration:
                             break)pyds";
 
-            constexpr const char* cast=R"pyds(cast given object/data to :class:`NvDsPastFrameObj`, call pyds.NvDsPastFrameObj.cast(data))pyds";
+            constexpr const char* cast=R"pyds(cast given object/data to :class:`NvDsTargetMiscDataFrame`, call pyds.NvDsTargetMiscDataFrame.cast(data))pyds";
         }
 
-        namespace NvDsPastFrameObjListDoc
+        namespace NvDsTargetMiscDataObjectDoc
         {
             constexpr const char* descr = R"pyds(
-                One object in several past frames. See :class:`NvDsPastFrameObj` for example usage.
+                One object in several past frames. See :class:`NvDsTargetMiscDataFrame` for example usage.
 
                 :ivar numObj: *int*, Number of frames this object appreared in the past.
                 :ivar uniqueId: *int*, Object tracking id.
                 :ivar classID: *int*, Object class id.
                 :ivar objLabel: An array of the string describing the object class.)pyds";
 
-            constexpr const char* list=R"pyds(Retrieve :class:`NvDsPastFrameObjList` object as list of :class:`NvDsPastFrameObj`. Contains past frame info of this object.)pyds";
-            constexpr const char* cast=R"pyds(cast given object/data to :class:`NvDsPastFrameObjList`, call pyds.NvDsPastFrameObjList.cast(data))pyds";
+            constexpr const char* list=R"pyds(Retrieve :class:`NvDsTargetMiscDataObject` object as list of :class:`NvDsTargetMiscDataFrame`. Contains past frame info of this object.)pyds";
+            constexpr const char* cast=R"pyds(cast given object/data to :class:`NvDsTargetMiscDataObject`, call pyds.NvDsTargetMiscDataObject.cast(data))pyds";
         }
 
-        namespace NvDsPastFrameObjStreamDoc
+        namespace NvDsTargetMiscDataStreamDoc
         {
             constexpr const char* descr = R"pyds(
-                List of objects in each stream. See :class:`NvDsPastFrameObj` for example usage.
+                List of objects in each stream. See :class:`NvDsTargetMiscDataFrame` for example usage.
 
                 :ivar streamID: *int*, Stream id the same as frame_meta->pad_index.
                 :ivar surfaceStreamID: *int*, Stream id used inside tracker plugin.
                 :ivar numAllocated: *int*, Maximum number of objects allocated.
                 :ivar numFilled: *int*, Number of objects in this frame.)pyds";
 
-            constexpr const char* list=R"pyds(Retrieve :class:`NvDsPastFrameObjStream` object as list of :class:`NvDsPastFrameObjList`. Contains objects inside this stream.)pyds";
-            constexpr const char* cast=R"pyds(cast given object/data to :class:`NvDsPastFrameObjStream`, call pyds.NvDsPastFrameObjStream.cast(data))pyds";
+            constexpr const char* list=R"pyds(Retrieve :class:`NvDsTargetMiscDataStream` object as list of :class:`NvDsTargetMiscDataObject`. Contains objects inside this stream.)pyds";
+            constexpr const char* cast=R"pyds(cast given object/data to :class:`NvDsTargetMiscDataStream`, call pyds.NvDsTargetMiscDataStream.cast(data))pyds";
         }
         
-        namespace NvDsPastFrameObjBatchDoc
+        namespace NvDsTargetMiscDataBatchDoc
         {
             constexpr const char* descr = R"pyds(
-                Batch of lists of buffered objects. See :class:`NvDsPastFrameObj` for example usage.
+                Batch of lists of buffered objects. See :class:`NvDsTargetMiscDataFrame` for example usage.
                 
                 :ivar numAllocated: *int*, Number of blocks allocated for the list.
                 :ivar numFilled: *int*, Number of filled blocks in the list.
                 )pyds";
 
-            constexpr const char* list=R"pyds(Retrieve :class:`NvDsPastFrameObjBatch` object as list of :class:`NvDsPastFrameObjStream`. Contains stream lists.)pyds";
-            constexpr const char* cast=R"pyds(cast given object/data to :class:`NvDsPastFrameObjBatch`, call pyds.NvDsPastFrameObjBatch.cast(data))pyds";
+            constexpr const char* list=R"pyds(Retrieve :class:`NvDsTargetMiscDataBatch` object as list of :class:`NvDsTargetMiscDataStream`. Contains stream lists.)pyds";
+            constexpr const char* cast=R"pyds(cast given object/data to :class:`NvDsTargetMiscDataBatch`, call pyds.NvDsTargetMiscDataBatch.cast(data))pyds";
         }
 
     }

@@ -40,22 +40,16 @@ mkdir -p bindings/build
 cd bindings/build
 ```
 ### step2
-#### Python 3.6
+#### Python 3.10
 ```
-cmake ..  -DPYTHON_MINOR_VERSION=6
+cmake ..  -DPYTHON_MINOR_VERSION=10
 make
-python3.6 -m venv env
-```
-#### Python 3.8
-```
-cmake ..  -DPYTHON_MINOR_VERSION=8
-make
-python3.8 -m venv env
+python3.10 -m venv env
 ```
 ### step3
 ```
 . env/bin/activate
-pip install pyds-1.1.8-py3-none-*.whl
+pip install pyds-1.1.10-py3-none-*.whl
 pip install pytest
 cd ../../tests/integration
 pytest test.py

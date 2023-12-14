@@ -1,5 +1,5 @@
 ################################################################################
-# SPDX-FileCopyrightText: Copyright (c) 2018-2022 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2018-2023 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,10 +15,11 @@
 # limitations under the License.
 ################################################################################
 [message-broker]
-password = guest
-#optional
 hostname = localhost
-username = guest
 port = 5672
+username = guest
+password = guest
 exchange = amq.topic
 topic = topicname
+amqp-framesize = 131072
+#amqp-heartbeat = 0

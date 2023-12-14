@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 ################################################################################
-# SPDX-FileCopyrightText: Copyright (c) 2019-2022 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2019-2023 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -36,7 +36,7 @@ from os import path
 MAX_DISPLAY_LEN = 64
 MUXER_OUTPUT_WIDTH = 1920
 MUXER_OUTPUT_HEIGHT = 1080
-MUXER_BATCH_TIMEOUT_USEC = 4000000
+MUXER_BATCH_TIMEOUT_USEC = 33000
 TILED_OUTPUT_WIDTH = 1280
 TILED_OUTPUT_HEIGHT = 720
 COLORS = [[128, 128, 64], [0, 0, 128], [0, 128, 128], [128, 0, 0],
@@ -208,7 +208,7 @@ def main(args):
     streammux.set_property('width', 1920)
     streammux.set_property('height', 1080)
     streammux.set_property('batch-size', 1)
-    streammux.set_property('batched-push-timeout', 4000000)
+    streammux.set_property('batched-push-timeout', MUXER_BATCH_TIMEOUT_USEC)
     seg.set_property('config-file-path', config_file)
     pgie_batch_size = seg.get_property("batch-size")
     if pgie_batch_size != num_sources:

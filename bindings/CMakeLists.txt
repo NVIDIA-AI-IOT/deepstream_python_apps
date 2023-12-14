@@ -23,7 +23,7 @@ function(check_variable_set variable_name default_value)
 endfunction()
 
 check_variable_set(PYTHON_MAJOR_VERSION 3)
-check_variable_set(PYTHON_MINOR_VERSION 8)
+check_variable_set(PYTHON_MINOR_VERSION 10)
 check_variable_set(PIP_PLATFORM linux_x86_64)
 check_variable_set(DS_PATH "/opt/nvidia/deepstream/deepstream")
 
@@ -36,7 +36,7 @@ macro(check_variable_allowed var_name var_list)
 endmacro()
 set(PYTHON_MAJVERS_ALLOWED 3)
 check_variable_allowed(PYTHON_MAJOR_VERSION PYTHON_MAJVERS_ALLOWED)
-set(PYTHON_MINVERS_ALLOWED 6 8)
+set(PYTHON_MINVERS_ALLOWED 10)
 check_variable_allowed(PYTHON_MINOR_VERSION PYTHON_MINVERS_ALLOWED)
 set(PIP_PLATFORM_ALLOWED linux_x86_64 linux_aarch64)
 check_variable_allowed(PIP_PLATFORM PIP_PLATFORM_ALLOWED)
@@ -49,7 +49,7 @@ set(CMAKE_SHARED_LINKER_FLAGS "-Wl,--no-undefined")
 
 # Setting python build versions
 set(PYTHON_VERSION ${PYTHON_MAJOR_VERSION}.${PYTHON_MINOR_VERSION})
-set(PIP_WHEEL pyds-1.1.8-py3-none-${PIP_PLATFORM}.whl)
+set(PIP_WHEEL pyds-1.1.10-py3-none-${PIP_PLATFORM}.whl)
 
 # Describing pyds build
 project(pyds DESCRIPTION "Python bindings for Deepstream")
@@ -79,9 +79,6 @@ set_target_properties(pyds PROPERTIES PREFIX "")
 set_target_properties(pyds PROPERTIES OUTPUT_NAME "pyds")
 
 set(PYTHON_LIB python${PYTHON_VERSION})
-if(${PYTHON_MINOR_VERSION} EQUAL 6)
-        set(PYTHON_LIB python${PYTHON_VERSION}m)
-endif()
 
 target_link_libraries(pyds pthread dl ${PYTHON_LIB} gstreamer-1.0 glib-2.0)
 

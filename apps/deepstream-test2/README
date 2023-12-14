@@ -16,7 +16,8 @@
 ################################################################################
 
 Prequisites:
-- DeepStreamSDK 6.3
+- DeepStreamSDK 6.4
+- Python 3.10
 - Gst-python
 
 To run the test app:
@@ -40,20 +41,18 @@ considerable behaviors of the instance are parameterized through these configs.
 For reference, here are the config files used for this sample :
 1. The 4-class detector (referred to as pgie in this sample) uses
     dstest2_pgie_config.txt
-2. The vehicle color classifier (referred to as sgie1 in this sample) uses
+2. The vehicle make classifier (referred to as sgie1 in this sample) uses
     dstest2_sgie1_config.txt
-3. The vehicle make classifier (referred to as sgie2 in this sample) uses
+3. The vehicle type classifier (referred to as sgie2 in this sample) uses
     dstest2_sgie2_config.txt
-4. The vehicle type classifier (referred to as sgie3 in this sample) uses
-    dstest2_sgie3_config.txt
-5. The tracker (referred to as nvtracker in this sample) uses
+4. The tracker (referred to as nvtracker in this sample) uses
     dstest2_tracker_config.txt
 
 **DEPRECRATED** To get the past-frame-tracking meta, the following changes have to be added to
 the dstest2_tracker_config.txt. 
 
-1. ll-lib-file=/opt/nvidia/deepstream/deepstream/lib/libnvds_nvdcf.so
-2. ll-config-file=tracker_config.yml
+1. ll-lib-file=/opt/nvidia/deepstream/deepstream/lib/libnvds_nvmultiobjecttracker.so
+2. ll-config-file=config_tracker_NvDCF_perf.yml
 3. enable-past-frame=1
 
 In this sample, we first create one instance of "nvinfer", referred as the pgie.

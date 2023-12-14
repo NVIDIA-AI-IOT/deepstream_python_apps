@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 ################################################################################
-# SPDX-FileCopyrightText: Copyright (c) 2020-2022 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2020-2023 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -47,7 +47,7 @@ perf_data = None
 MAX_DISPLAY_LEN = 64
 MUXER_OUTPUT_WIDTH = 1920
 MUXER_OUTPUT_HEIGHT = 1080
-MUXER_BATCH_TIMEOUT_USEC = 4000000
+MUXER_BATCH_TIMEOUT_USEC = 33000
 TILED_OUTPUT_WIDTH = 1920
 TILED_OUTPUT_HEIGHT = 1080
 GST_CAPS_FEATURES_NVMM = "memory:NVMM"
@@ -319,7 +319,7 @@ def main(stream_paths, output_folder):
     streammux.set_property('width', 1920)
     streammux.set_property('height', 1080)
     streammux.set_property('batch-size', number_sources)
-    streammux.set_property('batched-push-timeout', 4000000)
+    streammux.set_property('batched-push-timeout', MUXER_BATCH_TIMEOUT_USEC)
     pgie.set_property('config-file-path', "dstest_segmask_config.txt")
     pgie_batch_size = pgie.get_property("batch-size")
     if (pgie_batch_size != number_sources):

@@ -1,6 +1,6 @@
 # DeepStream python bindings
 
-SDK version supported: 6.3
+SDK version supported: 6.4
 
 The latest prebuilt release package complete with python bindings and sample applications can be downloaded from the [release section](../../../releases)
 for both x86 and Jetson platforms.
@@ -15,14 +15,14 @@ The readme is divided into three main parts:
     - [1.3 Initialization of submodules](#13-initialization-of-submodules)
     - [1.4 Installing Gst-python](#14-installing-gst-python)
   - [2 Compiling the bindings](#2-compiling-the-bindings)
-    - [2.1 Quick build (x86-ubuntu-20.04 | python 3.8 | Deepstream 6.3)](#21-quick-build-x86-ubuntu-2004--python-38--deepstream-63)
+    - [2.1 Quick build (x86-ubuntu-22.04 | python 3.10 | Deepstream 6.4)](#21-quick-build-x86-ubuntu-2204--python-310--deepstream-64)
     - [2.2 Advanced build](#22-advanced-build)
       - [2.2.1 Using Cmake options](#221-using-cmake-options)
       - [2.2.2 Available cmake options](#222-available-cmake-options)
       - [2.2.3 Example](#223-example)
     - [2.3 Cross-Compilation for aarch64 on x86](#23-cross-compilation-for-aarch64-on-x86)
       - [2.3.1 Build Pre-requisites](#231-build-pre-requisites)
-      - [2.3.2 Download the JetPack SDK 5.1.2](#232-download-the-jetpack-sdk-512)
+      - [2.3.2 Download the JetPack SDK 6.0 DP](#232-download-the-jetpack-sdk-60-dp)
       - [2.3.3 Generate the cross-compile build container](#233-generate-the-cross-compile-build-container)
       - [2.3.4 Launch the cross-compile build container](#234-launch-the-cross-compile-build-container)
       - [2.3.5 Build DeepStreamSDK python bindings](#235-build-deepstreamsdk-python-bindings)
@@ -42,21 +42,21 @@ Go to https://developer.nvidia.com/deepstream-sdk, download and install Deepstre
 
 <a name="prereq_base"></a>
 ### 1.2 Base dependencies
-To compile bindings on Ubuntu - 20.04 [use python-3.8, python-3.6 will not work] :
+To compile bindings on Ubuntu - 22.04 [use python-3.10, python-3.8 will not work] :
 ```
-apt install python3-gi python3-dev python3-gst-1.0 python-gi-dev git \
-    python3 python3-pip python3.8-dev cmake g++ build-essential libglib2.0-dev \
+apt install python3-gi python3-dev python3-gst-1.0 python-gi-dev git meson \
+    python3 python3-pip python3.10-dev cmake g++ build-essential libglib2.0-dev \
     libglib2.0-dev-bin libgstreamer1.0-dev libtool m4 autoconf automake libgirepository1.0-dev libcairo2-dev
 ```
 
 <a name="prereq_init_sub"></a>
 ### 1.3 Initialization of submodules
-Make sure you clone the deepstream_python_apps repo under <DeepStream 6.3 ROOT>/sources:
+Make sure you clone the deepstream_python_apps repo under <DeepStream ROOT>/sources:
 git clone https://github.com/NVIDIA-AI-IOT/deepstream_python_apps
 
 This will create the following directory:
 ```
-<DeepStream 6.3 ROOT>/sources/deepstream_python_apps
+<DeepStream ROOT>/sources/deepstream_python_apps
 ```
 
 The repository utilizes gst-python and pybind11 submodules.
@@ -76,10 +76,12 @@ sudo update-ca-certificates
 
 Build and install gst-python:
 ```bash
-cd 3rdparty/gst-python/
-./autogen.sh
-make
-sudo make install
+cd 3rdparty/gstreamer/subprojects/gst-python/
+meson build
+meson configure
+cd build
+ninja
+ninja install
 ```
 
 <a name="compile_bindings"></a>
@@ -88,7 +90,7 @@ Python bindings are compiled using CMake.
 Following commands provide quick cmake configurations for common compilation options:
 
 <a name="compile_quick"></a>
-### 2.1 Quick build (x86-ubuntu-20.04 | python 3.8 | Deepstream 6.3)
+### 2.1 Quick build (x86-ubuntu-22.04 | python 3.10 | Deepstream 6.4)
 ```bash
 cd deepstream_python_apps/bindings
 mkdir build
@@ -110,9 +112,9 @@ cmake .. [-D<var>=<value> [-D<var>=<value> [-D<var>=<value> ... ]]]
 
 | Var | Default value | Purpose | Available values
 |-----|:-------------:|---------|:----------------:
-| DS_VERSION | 6.3 | Used to determine default deepstream library path | should match to the deepstream version installed on your computer
+| DS_VERSION | 6.4 | Used to determine default deepstream library path | should match to the deepstream version installed on your computer
 | PYTHON_MAJOR_VERSION | 3 | Used to set the python version used for the bindings | 3
-| PYTHON_MINOR_VERSION | 8 | Used to set the python version used for the bindings | 6, 8
+| PYTHON_MINOR_VERSION | 10 | Used to set the python version used for the bindings | 10
 | PIP_PLATFORM | linux_x86_64 | Used to select the target architecture to compile the bindings | linux_x86_64, linux_aarch64
 | DS_PATH | /opt/nvidia/deepstream/deepstream-${DS_VERSION} | Path where deepstream libraries are available | Should match the existing deepstream library folder
 
@@ -124,7 +126,7 @@ Following commands can be used to compile the bindings natively on Jetson device
 cd deepstream_python_apps/bindings
 mkdir build
 cd build
-cmake ..  -DPYTHON_MAJOR_VERSION=3 -DPYTHON_MINOR_VERSION=8 \
+cmake ..  -DPYTHON_MAJOR_VERSION=3 -DPYTHON_MINOR_VERSION=10 \
     -DPIP_PLATFORM=linux_aarch64 -DDS_PATH=/opt/nvidia/deepstream/deepstream/
 make
 ```
@@ -148,17 +150,17 @@ sudo apt-get install qemu binfmt-support qemu-user-static
 docker run --rm --privileged dockerhub.nvidia.com/multiarch/qemu-user-static --reset -p yes
 
 # Verify qemu installation
-docker run --rm -t  nvcr.io/nvidia/deepstream-l4t:6.3-samples uname -m
+docker run --platform linux/aarch64 --rm -t  nvcr.io/nvidia/deepstream:6.4-samples-multiarch uname -m
 #aarch64
 ```
 
-#### 2.3.2 Download the JetPack SDK 5.1.2
+#### 2.3.2 Download the JetPack SDK 6.0 DP
 Cross-compilation for Jetson on x86 host requires some low level libraries which can be downloaded using SDK Manager.
 Follow these steps to obtain these libraries, which are utilized by the docker build later.
 
 1. Download and install the [NVIDIA SDK manager](https://developer.nvidia.com/nvidia-sdk-manager)
 2. Launch the SDK Manager and login with your NVIDIA developer account.
-3. Select the platform and target OS (example: Jetson AGX Xavier, `Linux Jetpack 5.1.2`) and click Continue.
+3. Select the platform and target OS (example: Jetson AGX Xavier, `Linux Jetpack 6.0 DP`) and click Continue.
 4. Under `Download & Install Options` change the download folder and select `Download now, Install later`. Agree to the license terms and click Continue.
 5. Go to the download folder, and run:
 
@@ -179,7 +181,7 @@ Below command generates the build container
 cd deepstream_python_apps/bindings
 # Make sure you are in deepstream_python_apps/bindings directory
 # This command builds the cross-compile docker and adds the mentioned tag
-docker build --tag=deepstream-6.3-ubuntu20.04-python-l4t -f qemu_docker/ubuntu-cross-aarch64.Dockerfile .
+docker build --platform linux/aarch64 --tag=deepstream-6.4-ubuntu22.04-python-l4t -f qemu_docker/ubuntu-cross-aarch64.Dockerfile .
 ```
 
 #### 2.3.4 Launch the cross-compile build container
@@ -189,7 +191,7 @@ docker build --tag=deepstream-6.3-ubuntu20.04-python-l4t -f qemu_docker/ubuntu-c
 mkdir export_pyds
 
 # Run the container. Make sure the tag matches the one from Generate step above
-docker run -it --entrypoint bash -v $PWD/export_pyds:/export_pyds deepstream-6.3-ubuntu20.04-python-l4t
+docker run --platform linux/aarch64 -it --entrypoint bash -v $PWD/export_pyds:/export_pyds deepstream-6.4-ubuntu22.04-python-l4t
 ```
 
 #### 2.3.5 Build DeepStreamSDK python bindings
@@ -212,7 +214,7 @@ git submodule update --init
 mkdir build && cd build
 
 # Run cmake with following options
-cmake ..  -DPYTHON_MAJOR_VERSION=3 -DPYTHON_MINOR_VERSION=8 -DPIP_PLATFORM=linux_aarch64 -DDS_PATH=/opt/nvidia/deepstream/deepstream
+cmake ..  -DPYTHON_MAJOR_VERSION=3 -DPYTHON_MINOR_VERSION=10 -DPIP_PLATFORM=linux_aarch64 -DDS_PATH=/opt/nvidia/deepstream/deepstream
 
 # Build pybind wheel and pyds.so
 make -j$(nproc)
@@ -230,7 +232,7 @@ Following commands can be used to install the generated pip wheel.
 <a name="install_wheel"></a>
 ### 3.1 Installing the pip wheel
 ```bash
-pip3 install ./pyds-1.1.8-py3-none*.whl
+pip3 install ./pyds-1.1.10-py3-none*.whl
 ```
 
 #### 3.1.1 pip wheel troubleshooting

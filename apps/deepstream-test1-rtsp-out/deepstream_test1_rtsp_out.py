@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 ################################################################################
-# SPDX-FileCopyrightText: Copyright (c) 2020-2021 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2020-2023 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -34,6 +34,7 @@ PGIE_CLASS_ID_VEHICLE = 0
 PGIE_CLASS_ID_BICYCLE = 1
 PGIE_CLASS_ID_PERSON = 2
 PGIE_CLASS_ID_ROADSIGN = 3
+MUXER_BATCH_TIMEOUT_USEC = 33000
 
 def osd_sink_pad_buffer_probe(pad,info,u_data):
     frame_number=0
@@ -176,23 +177,32 @@ def main(args):
     
     # Create a caps filter
     caps = Gst.ElementFactory.make("capsfilter", "filter")
-    caps.set_property("caps", Gst.Caps.from_string("video/x-raw(memory:NVMM), format=I420"))
+    if enc_type == 0:
+        caps.set_property("caps", Gst.Caps.from_string("video/x-raw(memory:NVMM), format=I420"))
+    else:
+        caps.set_property("caps", Gst.Caps.from_string("video/x-raw, format=I420"))
     
     # Make the encoder
     if codec == "H264":
-        encoder = Gst.ElementFactory.make("nvv4l2h264enc", "encoder")
+        if enc_type == 0:
+            encoder = Gst.ElementFactory.make("nvv4l2h264enc", "encoder")
+        else:
+            encoder = Gst.ElementFactory.make("x264enc", "encoder")
         print("Creating H264 Encoder")
     elif codec == "H265":
-        encoder = Gst.ElementFactory.make("nvv4l2h265enc", "encoder")
+        if enc_type == 0:
+            encoder = Gst.ElementFactory.make("nvv4l2h265enc", "encoder")
+        else:
+            encoder = Gst.ElementFactory.make("x265enc", "encoder")
         print("Creating H265 Encoder")
     if not encoder:
         sys.stderr.write(" Unable to create encoder")
     encoder.set_property('bitrate', bitrate)
-    if is_aarch64():
+    if is_aarch64() and enc_type == 0:
         encoder.set_property('preset-level', 1)
         encoder.set_property('insert-sps-pps', 1)
         #encoder.set_property('bufapi-version', 1)
-    
+
     # Make the payload-encode video into RTP packets
     if codec == "H264":
         rtppay = Gst.ElementFactory.make("rtph264pay", "rtppay")
@@ -219,7 +229,7 @@ def main(args):
     streammux.set_property('width', 1920)
     streammux.set_property('height', 1080)
     streammux.set_property('batch-size', 1)
-    streammux.set_property('batched-push-timeout', 4000000)
+    streammux.set_property('batched-push-timeout', MUXER_BATCH_TIMEOUT_USEC)
     
     pgie.set_property('config-file-path', "dstest1_pgie_config.txt")
     
@@ -310,6 +320,8 @@ def parse_args():
                   help="RTSP Streaming Codec H264/H265 , default=H264", choices=['H264','H265'])
     parser.add_argument("-b", "--bitrate", default=4000000,
                   help="Set the encoding bitrate ", type=int)
+    parser.add_argument("-e", "--enc_type", default=0,
+                  help="0:Hardware encoder , 1:Software encoder , default=0", choices=[0, 1], type=int)
     # Check input arguments
     if len(sys.argv)==1:
         parser.print_help(sys.stderr)
@@ -318,9 +330,11 @@ def parse_args():
     global codec
     global bitrate
     global stream_path
+    global enc_type
     codec = args.codec
     bitrate = args.bitrate
     stream_path = args.input
+    enc_type = args.enc_type
     return 0
 
 if __name__ == '__main__':

@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: Copyright (c) 2021-2022 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+ * SPDX-FileCopyrightText: Copyright (c) 2021-2023 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -437,6 +437,8 @@ namespace pydsdoc
 
         constexpr const char* alloc_nvds_event_msg_meta=R"pyds( 
             Allocate an :class:`NvDsEventMsgMeta`. 
+
+            :arg user_meta: An object of type :class:`NvDsUserMeta` acquired from user_meta_pool present in :class:`NvDsBatchMeta`
 
             :returns: Allocated :class:`NvDsEventMsgMeta`)pyds";
 

@@ -16,8 +16,8 @@
 ################################################################################
 
 Prerequisites:
-- DeepStreamSDK 6.3
-- Python 3.8
+- DeepStreamSDK 6.4
+- Python 3.10
 - Gst-python
 - NumPy package
 - OpenCV package
@@ -40,7 +40,7 @@ Yet, we need to install the introspection typelib package:
 
 Download Peoplenet model:
   Please follow instructions from the README.md located at : /opt/nvidia/deepstream/deepstream/samples/configs/tao_pretrained_models/README.md
-  to download latest supported peoplenet model (V2.6 for this release)
+  to download latest supported peoplenet model
 
 To run:
   $ python3 deepstream_imagedata-multistream_redaction.py -i <uri1> [uri2] ... [uriN] -c {H264,H265} -b BITRATE

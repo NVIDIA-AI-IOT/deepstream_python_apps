@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 ################################################################################
-# SPDX-FileCopyrightText: Copyright (c) 2022 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2022-2023 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -50,7 +50,7 @@ PGIE_CLASS_ID_PERSON = 2
 PGIE_CLASS_ID_ROADSIGN = 3
 MUXER_OUTPUT_WIDTH = 540
 MUXER_OUTPUT_HEIGHT = 540  # 1080
-MUXER_BATCH_TIMEOUT_USEC = 4000000
+MUXER_BATCH_TIMEOUT_USEC = 33000
 TILED_OUTPUT_WIDTH = 640  # 1280
 TILED_OUTPUT_HEIGHT = 360  # 720
 GST_CAPS_FEATURES_NVMM = "memory:NVMM"
@@ -321,7 +321,7 @@ def main(args, requested_pgie=None, config=None, disable_probe=False):
     streammux.set_property("width", 960)
     streammux.set_property("height", 540)
     streammux.set_property("batch-size", number_sources)
-    streammux.set_property("batched-push-timeout", 4000000)
+    streammux.set_property("batched-push-timeout", MUXER_BATCH_TIMEOUT_USEC)
     pgie.set_property("config-file-path", "ds_demux_pgie_config.txt")
     pgie_batch_size = pgie.get_property("batch-size")
     if pgie_batch_size != number_sources:

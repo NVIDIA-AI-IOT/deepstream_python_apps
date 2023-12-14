@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# SPDX-FileCopyrightText: Copyright (c) 2021 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2021-2023 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -37,7 +37,6 @@ class PipelineFakesinkTracker(GenericPipeline):
             ["nvtracker", "tracker"],  # tracker
             ["nvinfer", "secondary1-nvinference-engine"],  # sgie1
             ["nvinfer", "secondary2-nvinference-engine"],  # sgie2
-            ["nvinfer", "secondary3-nvinference-engine"],  # sgie3
             ["nvvideoconvert", "convertor"],  # nvvidconv
             ["nvdsosd", "onscreendisplay"],  # nvosd
             ["fakesink", "fakesink"],  # sink
@@ -65,7 +64,6 @@ class PipelineFakesinkTracker(GenericPipeline):
         tracker = gebn("tracker")
         sgie1 = gebn("secondary1-nvinference-engine")
         sgie2 = gebn("secondary2-nvinference-engine")
-        sgie3 = gebn("secondary3-nvinference-engine")
         nvvidconv = gebn("convertor")
         nvosd = gebn("onscreendisplay")
         sink = gebn("fakesink")
@@ -88,8 +86,7 @@ class PipelineFakesinkTracker(GenericPipeline):
         pgie.link(tracker)
         tracker.link(sgie1)
         sgie1.link(sgie2)
-        sgie2.link(sgie3)
-        sgie3.link(nvvidconv)
+        sgie2.link(nvvidconv)
         nvvidconv.link(nvosd)
         nvosd.link(sink)
         return True

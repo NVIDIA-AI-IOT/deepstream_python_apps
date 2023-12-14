@@ -527,12 +527,15 @@ py::class_<NvDsEventMsgMeta>(m, "NvDsEventMsgMeta",
                     STRING_PROPERTY(NvDsEventMsgMeta, sensorStr))
     ...
 ```
-Then, in the [deep copy function](https://github.com/NVIDIA-AI-IOT/deepstream_python_apps/blob/master/apps/deepstream-test4/deepstream_test_4.py#L83)
-where ```dstmeta``` is the newly allocated ```NvDsEventMsgMeta``` object, and ```srcmeta``` is the ```NvDsEventMsgMeta``` object to be copied:
+Then, in the [streammux src pad probe function](https://github.com/NVIDIA-AI-IOT/deepstream_python_apps/blob/master/apps/deepstream-custom-binding-test/deepstream_custom_binding_test.py#L70)
+where ```data``` is the newly allocated ```CustomDataStruct``` object, and ```test_string``` is the python string object to be copied:
 ```
-dstmeta.sensorStr = pyds.get_string(srcmeta.sensorStr)
+test_string = 'test message ' + str(frame_number)
+data = pyds.alloc_custom_struct(user_meta)
+data.message = test_string # python string object at first
+data.message = pyds.get_string(data.message)
 ```
-```srcmeta.sensorStr``` calls the getter function defined in the string property, which returns the C address of the string, which is then passed into the ```get_string``` method. The assignment operator passes the resulting string reference into the setter function for ```dstmeta.sensorStr```, which allocates memory for the C string and copies in the content of the string.
+```data.message``` calls the getter function defined in the string property, which returns the C address of the string, which is then passed into the ```get_string``` method. The assignment operator passes the resulting string reference into the setter function for ```data.message```, which allocates memory for the C string and copies in the content of the string.
 
 ### How to write docstrings
 Docstrings should be declared and defined as a ```constexpr const char*``` in a header file under [```docstrings/```](docstrings/) corresponding to the header to which the binding belongs. All docstrings belong under the ```pydsdoc::{header_name}doc``` namespace. The final documentation is generated with [Sphinx](https://www.sphinx-doc.org/en/master/index.html), so docstrings must follow .rst format and use Sphinx [directives](https://www.sphinx-doc.org/en/master/usage/restructuredtext/directives.html).

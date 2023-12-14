@@ -16,9 +16,9 @@
 ################################################################################
 
 Prerequisites:
-- DeepStreamSDK 6.3
+- DeepStreamSDK 6.4
 - NVIDIA Triton Inference Server (optional)
-- Python 3.8
+- Python 3.10
 - Gst-python
 
 To set up Triton Inference Server: (optional)
@@ -33,7 +33,7 @@ For x86_64 and Jetson Docker:
      $ pip3 install pathlib
   4. Build and install pyds bindings:
      Follow the instructions in bindings README in this repo to build and install
-     pyds wheel for Ubuntu 20.04
+     pyds wheel for Ubuntu 22.04
   5. For Triton gRPC setup, please follow the instructions at below location:
      /opt/nvidia/deepstream/deepstream/samples/configs/deepstream-app-triton-grpc/README
 
@@ -44,7 +44,7 @@ For Jetson without Docker:
      2.2 Prepare at least the Triton detector models
   2. Build and install pyds bindings:
      Follow the instructions in bindings README in this repo to build and install
-     pyds wheel for Ubuntu 20.04
+     pyds wheel for Ubuntu 22.04
   3. Clear the GStreamer cache if pipeline creation fails:
      rm ~/.cache/gstreamer-1.0/*
   4. For Triton gRPC setup, please follow the instructions at below location:
@@ -62,7 +62,7 @@ Also follow these instructions for multi-stream Triton support (optional):
             "
             enable=1
             plugin-type=0
-            model-engine-file=../../models/tao_pretrained_models/peopleNet/V2.6/<.engine file>
+            model-engine-file=../../models/tao_pretrained_models/peopleNet/<.engine file>
             batch-size=<max_batch_size>
             config-file=config_infer_primary_peoplenet.txt
             "
@@ -70,10 +70,10 @@ Also follow these instructions for multi-stream Triton support (optional):
          For ex.
             "
             tlt-model-key=tlt_encode
-            tlt-encoded-model=../../models/tao_pretrained_models/peopleNet/V2.6/resnet34_peoplenet_int8.etlt
+            tlt-encoded-model=../../models/tao_pretrained_models/peopleNet/resnet34_peoplenet_int8.etlt
             labelfile-path=/opt/nvidia/deepstream/deepstream/samples/configs/tao_pretrained_models/labels_peoplenet.txt
-            model-engine-file=../../models/tao_pretrained_models/peopleNet/V2.6/<.engine file>
-            int8-calib-file=../../models/tao_pretrained_models/peopleNet/V2.6/resnet34_peoplenet_int8.txt
+            model-engine-file=../../models/tao_pretrained_models/peopleNet/<.engine file>
+            int8-calib-file=../../models/tao_pretrained_models/peopleNet/resnet34_peoplenet_int8.txt
             batch-size=16
             "
       d. While inside the dir /opt/nvidia/deepstream/deepstream/samples/configs/tao_pretrained_models/ , run the deepstream-app
@@ -85,7 +85,7 @@ Also follow these instructions for multi-stream Triton support (optional):
       e. Create the following dir if not present:
          sudo mkdir -p /opt/nvidia/deepstream/deepstream/samples/triton_model_repo/peoplenet/1/
 
-      f. Copy engine file from dir /opt/nvidia/deepstream/deepstream/samples/models/tao_pretrained_models/peopleNet/V2.6/
+      f. Copy engine file from dir /opt/nvidia/deepstream/deepstream/samples/models/tao_pretrained_models/peopleNet/
          to
          /opt/nvidia/deepstream/deepstream/samples/triton_model_repo/peoplenet/1/
 

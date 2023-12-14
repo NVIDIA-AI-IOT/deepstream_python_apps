@@ -1,5 +1,5 @@
 ################################################################################
-# SPDX-FileCopyrightText: Copyright (c) 2019-2022 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2019-2023 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,28 +19,27 @@
 name: "peoplenet"
 platform: "tensorrt_plan"
 max_batch_size: 1
-default_model_filename: "resnet34_peoplenet_int8.etlt_b1_gpu0_int8.engine"
+default_model_filename: "resnet34_peoplenet_int8.onnx_b1_gpu0_int8.engine"
 input [
   {
-    name: "input_1"
+    name: "input_1:0"
     data_type: TYPE_FP32
-    format: FORMAT_NCHW
     dims: [ 3, 544, 960 ]
   }
 ]
 output [
   {
-    name: "output_bbox/BiasAdd"
+    name: "output_bbox/BiasAdd:0"
     data_type: TYPE_FP32
     dims: [ 12, 34, 60 ]
   },
-
   {
-    name: "output_cov/Sigmoid"
+    name: "output_cov/Sigmoid:0"
     data_type: TYPE_FP32
     dims: [ 3, 34, 60 ]
   }
 ]
+
 instance_group [
   {
     kind: KIND_GPU
@@ -48,3 +47,4 @@ instance_group [
     gpus: 0
   }
 ]
+

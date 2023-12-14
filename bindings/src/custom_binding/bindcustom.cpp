@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: Copyright (c) 2022 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+ * SPDX-FileCopyrightText: Copyright (c) 2022-2023 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,7 +24,7 @@ namespace py = pybind11;
 
 namespace pydeepstream {
 
-    void * copy_custom_struct(void* data, void* user_data) {
+    CustomDataStruct * copy_custom_struct(void* data, void* user_data) {
         NvDsUserMeta * srcMeta = (NvDsUserMeta*) data;
         CustomDataStruct * srcData = (CustomDataStruct *) srcMeta->user_meta_data;
         CustomDataStruct *destData = (CustomDataStruct *) g_malloc0(

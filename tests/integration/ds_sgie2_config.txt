@@ -1,4 +1,5 @@
-# SPDX-FileCopyrightText: Copyright (c) 2018-2021 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+################################################################################
+# SPDX-FileCopyrightText: Copyright (c) 2019-2023 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,6 +13,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+################################################################################
 
 # Following properties are mandatory when engine files are not specified:
 #   int8-calib-file(Only in INT8)
@@ -53,12 +55,11 @@
 [property]
 gpu-id=0
 net-scale-factor=1
-model-file=../../../../samples/models/Secondary_CarMake/resnet18.caffemodel
-proto-file=../../../../samples/models/Secondary_CarMake/resnet18.prototxt
-model-engine-file=../../../../samples/models/Secondary_CarMake/resnet18.caffemodel_b16_gpu0_int8.engine
-mean-file=../../../../samples/models/Secondary_CarMake/mean.ppm
-labelfile-path=../../../../samples/models/Secondary_CarMake/labels.txt
-int8-calib-file=../../../../samples/models/Secondary_CarMake/cal_trt.bin
+tlt-model-key=tlt_encode
+tlt-encoded-model=../../../../samples/models/Secondary_VehicleTypes/resnet18_vehicletypenet.etlt
+model-engine-file=../../../../samples/models/Secondary_VehicleTypes/resnet18_vehicletypenet.etlt_b16_gpu0_int8.engine
+labelfile-path=../../../../samples/models/Secondary_VehicleTypes/labels.txt
+int8-calib-file=../../../../samples/models/Secondary_VehicleTypes/cal_trt.bin
 force-implicit-batch-dim=1
 batch-size=16
 # 0=FP32 and 1=INT8 mode
@@ -72,9 +73,11 @@ gie-unique-id=3
 operate-on-gie-id=1
 operate-on-class-ids=0
 is-classifier=1
+uff-input-blob-name=input_1
 output-blob-names=predictions/Softmax
 classifier-async-mode=1
 classifier-threshold=0.51
 process-mode=2
 #scaling-filter=0
 #scaling-compute-hw=0
+infer-dims=3;244;244

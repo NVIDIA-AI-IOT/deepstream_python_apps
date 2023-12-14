@@ -1,5 +1,5 @@
 ################################################################################
-# SPDX-FileCopyrightText: Copyright (c) 2019-2022 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2019-2023 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,11 +18,11 @@
 [property]
 gpu-id=0
 net-scale-factor=0.0039215697906911373
-tlt-model-key=tlt_encode
-tlt-encoded-model=../../../../samples/models/tao_pretrained_models/peopleNet/V2.6/resnet34_peoplenet_int8.etlt
+#tlt-model-key=tlt_encode
+onnx-file=../../../../samples/models/tao_pretrained_models/peopleNet/resnet34_peoplenet_int8.onnx
 labelfile-path=../../../../samples/configs/tao_pretrained_models/labels_peoplenet.txt
-model-engine-file=../../../../samples/models/tao_pretrained_models/peopleNet/V2.6/resnet34_peoplenet_int8.etlt_b1_gpu0_int8.engine
-int8-calib-file=../../../../samples/models/tao_pretrained_models/peopleNet/V2.6/resnet34_peoplenet_int8.txt
+model-engine-file=../../../../samples/models/tao_pretrained_models/peopleNet/resnet34_peoplenet_int8.onnx_b1_gpu0_int8.engine
+int8-calib-file=../../../../samples/models/tao_pretrained_models/peopleNet/resnet34_peoplenet_int8.txt
 input-dims=3;544;960;0
 uff-input-blob-name=input_1
 batch-size=1
@@ -34,7 +34,7 @@ num-detected-classes=3
 cluster-mode=2
 interval=0
 gie-unique-id=1
-output-blob-names=output_bbox/BiasAdd;output_cov/Sigmoid
+output-blob-names=output_bbox/BiasAdd:0;output_cov/Sigmoid:0
 
 #Use the config params below for dbscan clustering mode
 #[class-attrs-all]

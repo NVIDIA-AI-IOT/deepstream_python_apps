@@ -16,8 +16,8 @@
 ################################################################################
 
 Prequisites:
-- DeepStreamSDK 6.3
-- Python 3.8
+- DeepStreamSDK 6.4
+- Python 3.10
 - Gst-python
 - GstRtspServer
 
@@ -37,6 +37,10 @@ To get test app usage information:
   
 To run the test app with default settings:
   $ python3 deepstream_test1_rtsp_out.py -i <h264_elementary_stream>
+
+To run the app on Orin Nano, you must specify the -e 1 option to use SW encoders;
+run with -e 0 or leave the option unset to use HW encoders on other Jetson platforms:
+  $ python3 deepstream_test1_rtsp_out.py -i <h264_elementary_stream> -e 1
   
 Default RTSP streaming location:
   rtsp://<server IP>:8554/ds-test

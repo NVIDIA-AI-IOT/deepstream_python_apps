@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 ################################################################################
-# SPDX-FileCopyrightText: Copyright (c) 2021-2022 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2021-2023 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -41,7 +41,7 @@ PGIE_CLASS_ID_PERSON = 2
 PGIE_CLASS_ID_ROADSIGN = 3
 MUXER_OUTPUT_WIDTH=1920
 MUXER_OUTPUT_HEIGHT=1080
-MUXER_BATCH_TIMEOUT_USEC=4000000
+MUXER_BATCH_TIMEOUT_USEC = 33000
 TILED_OUTPUT_WIDTH=1280
 TILED_OUTPUT_HEIGHT=720
 GPU_ID = 0
@@ -52,7 +52,6 @@ TRACKER_CONFIG_FILE = "dstest_tracker_config.txt"
 
 SGIE1_CONFIG_FILE = "dstest_sgie1_config.txt"
 SGIE2_CONFIG_FILE = "dstest_sgie2_config.txt"
-SGIE3_CONFIG_FILE = "dstest_sgie3_config.txt"
 
 CONFIG_GPU_ID = "gpu-id"
 CONFIG_GROUP_TRACKER = "tracker"
@@ -78,7 +77,6 @@ sink = None
 pgie = None
 sgie1 = None
 sgie2 = None
-sgie3 = None
 nvvideoconvert = None
 nvosd = None
 tiler = None
@@ -316,7 +314,6 @@ def main(args):
     global pgie
     global sgie1
     global sgie2
-    global sgie3
     global nvvideoconvert
     global nvosd
     global tiler
@@ -401,10 +398,6 @@ def main(args):
     if not sgie1:
         sys.stderr.write(" Unable to make sgie2 \n")
 
-    sgie3 = Gst.ElementFactory.make("nvinfer", "secondary3-nvinference-engine")
-    if not sgie3:
-        sys.stderr.write(" Unable to make sgie3 \n")
-
 
     if is_aarch64():
         print("Creating nv3dsink \n")
@@ -423,11 +416,10 @@ def main(args):
     #Set streammux width and height
     streammux.set_property('width', MUXER_OUTPUT_WIDTH)
     streammux.set_property('height', MUXER_OUTPUT_HEIGHT)
-    #Set pgie, sgie1, sgie2, and sgie3 configuration file paths
+    #Set pgie, sgie1, and sgie2 configuration file paths
     pgie.set_property('config-file-path', PGIE_CONFIG_FILE)
     sgie1.set_property('config-file-path', SGIE1_CONFIG_FILE)
     sgie2.set_property('config-file-path', SGIE2_CONFIG_FILE)
-    sgie3.set_property('config-file-path', SGIE3_CONFIG_FILE)
 
     #Set properties of tracker
     config = configparser.ConfigParser()
@@ -464,7 +456,6 @@ def main(args):
     pgie.set_property("gpu_id", GPU_ID)
     sgie1.set_property("gpu_id", GPU_ID)
     sgie2.set_property("gpu_id", GPU_ID)
-    sgie3.set_property("gpu_id", GPU_ID)
 
     #Set tiler properties
     tiler_rows=int(math.sqrt(num_sources))
@@ -488,7 +479,6 @@ def main(args):
     pipeline.add(tracker)
     pipeline.add(sgie1)
     pipeline.add(sgie2)
-    pipeline.add(sgie3)
     pipeline.add(tiler)
     pipeline.add(nvvideoconvert)
     pipeline.add(nvosd)
@@ -502,8 +492,7 @@ def main(args):
     pgie.link(tracker)
     tracker.link(sgie1)
     sgie1.link(sgie2)
-    sgie2.link(sgie3)
-    sgie3.link(tiler)
+    sgie2.link(tiler)
     tiler.link(nvvideoconvert)
     nvvideoconvert.link(nvosd)
     nvosd.link(sink)
