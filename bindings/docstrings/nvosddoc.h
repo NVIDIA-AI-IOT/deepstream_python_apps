@@ -287,6 +287,7 @@ namespace pydsdoc
                 :ivar width: *int*, Mask width.)pyds";
 
             constexpr const char* get_mask_array=R"pyds(Retrieve mask data as numpy array)pyds";
+            constexpr const char* alloc_mask_array=R"pyds(Retrieve and allocate mask data as numpy array)pyds";
             constexpr const char* cast=R"pyds(cast given object/data to :class:`NvOSD_MaskParams`, call pyds.NvOSD_MaskParams.cast(data))pyds";
         }
     }

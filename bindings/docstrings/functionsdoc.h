@@ -609,5 +609,23 @@ namespace pydsdoc
             This function only works for RTSP sources i.e. GStreamer elements "rtspsrc" or "uridecodebin" with an RTSP uri.
 
             :arg src_elem: GStreamer source element to be configured.)pyds";
+
+        constexpr const char* nvds_measure_buffer_latency=R"pyds(
+        Measures the latency of all frames present in the current batch.
+
+            :arg buffer: GstBuffer from which to retrieve the :class:`NvDsBatchMeta`
+
+            :returns: :sources number in batch.
+
+            Example usage:
+            ::
+
+            #enable pipeline latency measurement
+            export NVDS_ENABLE_LATENCY_MEASUREMENT=1
+            #enable compoment latency measurement
+            export NVDS_ENABLE_COMPONENT_LATENCY_MEASUREMENT=1
+
+            #add this code in plugin probe function.
+            num_sources_in_batch = pyds.nvds_measure_buffer_latency(hash(gst_buffer));)pyds";
 	}
 }

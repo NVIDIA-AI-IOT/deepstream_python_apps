@@ -61,7 +61,7 @@ model-engine-file=../../../../samples/models/Primary_Detector/resnet18_trafficca
 labelfile-path=../../../../samples/models/Primary_Detector/labels.txt
 int8-calib-file=../../../../samples/models/Primary_Detector/cal_trt.bin
 force-implicit-batch-dim=1
-batch-size=30
+batch-size=1
 process-mode=1
 model-color-format=0
 ## 0=FP32, 1=INT8, 2=FP16 mode

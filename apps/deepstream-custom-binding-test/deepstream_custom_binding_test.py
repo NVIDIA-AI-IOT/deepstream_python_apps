@@ -191,7 +191,7 @@ def main(args):
     source.link(h264parser)
     h264parser.link(decoder)
 
-    sinkpad = streammux.get_request_pad("sink_0")
+    sinkpad = streammux.request_pad_simple("sink_0")
     if not sinkpad:
         Gst.error(" Unable to get the sink pad of streammux")
 

@@ -16,7 +16,7 @@
 ################################################################################
 
 Prerequisites:
-- DeepStreamSDK 6.4
+- DeepStreamSDK 7.0
 - Python 3.10
 - Gst-python
 - NumPy package

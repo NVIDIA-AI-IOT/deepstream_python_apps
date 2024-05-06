@@ -32,7 +32,7 @@ import sys
 import os
 import math
 import platform
-from common.is_aarch_64 import is_aarch64
+from common.platform_info import PlatformInfo
 from common.bus_call import bus_call
 from common.FPS import PERF_DATA
 
@@ -265,6 +265,7 @@ def main(args, requested_pgie=None, config=None, disable_probe=False):
     global perf_data
     perf_data = PERF_DATA(number_sources)
 
+    platform_info = PlatformInfo()
     # Standard GStreamer initialization
     Gst.init(None)
 
@@ -294,7 +295,7 @@ def main(args, requested_pgie=None, config=None, disable_probe=False):
             sys.stderr.write("Unable to create source bin \n")
         pipeline.add(source_bin)
         padname = "sink_%u" % i
-        sinkpad = streammux.get_request_pad(padname)
+        sinkpad = streammux.request_pad_simple(padname)
         if not sinkpad:
             sys.stderr.write("Unable to create sink pad bin \n")
         srcpad = source_bin.get_static_pad("src")
@@ -347,14 +348,18 @@ def main(args, requested_pgie=None, config=None, disable_probe=False):
     for i in range(number_sources):
         # pipeline nvstreamdemux -> queue -> nvvidconv -> nvosd -> (if Jetson) nvegltransform -> nveglgl
         # Creating EGLsink
-        if is_aarch64():
+        if platform_info.is_integrated_gpu():
             print("Creating nv3dsink \n")
             sink = make_element("nv3dsink", i)
             if not sink:
                 sys.stderr.write(" Unable to create nv3dsink \n")
         else:
-            print("Creating EGLSink \n")
-            sink = make_element("nveglglessink", i)
+            if platform_info.is_platform_aarch64():
+                print("Creating nv3dsink \n")
+                sink = make_element("nv3dsink", i)
+            else:
+                print("Creating EGLSink \n")
+                sink = make_element("nveglglessink", i)
             if not sink:
                 sys.stderr.write(" Unable to create egl sink \n")
         pipeline.add(sink)
@@ -375,7 +380,7 @@ def main(args, requested_pgie=None, config=None, disable_probe=False):
 
         # connect nvstreamdemux -> queue
         padname = "src_%u" % i
-        demuxsrcpad = nvstreamdemux.get_request_pad(padname)
+        demuxsrcpad = nvstreamdemux.request_pad_simple(padname)
         if not demuxsrcpad:
             sys.stderr.write("Unable to create demux src pad \n")
 

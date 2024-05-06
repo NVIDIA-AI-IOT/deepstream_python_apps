@@ -20,7 +20,7 @@ import sys
 
 sys.path.append('../..')
 
-from tests.common.utils import is_aarch64, load_deepstream_libs
+from tests.common.utils import is_integrated_gpu, load_deepstream_libs
 from tests.common.pipeline_filesink import PipelineFileSink
 from tests.common.frame_iterator import FrameIterator
 
@@ -131,7 +131,7 @@ def make_and_run_pipeline(config_file, video_path):
     }
     probe_function = FrameIterator(frame_function, box_function, data_probe)
 
-    sp = PipelineFileSink(properties, is_aarch64())
+    sp = PipelineFileSink(properties, is_integrated_gpu())
     sp.set_probe(probe_function)
     sp.run()
 

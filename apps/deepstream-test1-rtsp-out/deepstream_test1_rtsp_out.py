@@ -25,7 +25,7 @@ import gi
 gi.require_version('Gst', '1.0')
 gi.require_version('GstRtspServer', '1.0')
 from gi.repository import GLib, Gst, GstRtspServer
-from common.is_aarch_64 import is_aarch64
+from common.platform_info import PlatformInfo
 from common.bus_call import bus_call
 
 import pyds
@@ -122,6 +122,7 @@ def osd_sink_pad_buffer_probe(pad,info,u_data):
 
 
 def main(args):
+    platform_info = PlatformInfo()
     # Standard GStreamer initialization
     Gst.init(None)
 
@@ -198,7 +199,7 @@ def main(args):
     if not encoder:
         sys.stderr.write(" Unable to create encoder")
     encoder.set_property('bitrate', bitrate)
-    if is_aarch64() and enc_type == 0:
+    if platform_info.is_integrated_gpu() and enc_type == 0:
         encoder.set_property('preset-level', 1)
         encoder.set_property('insert-sps-pps', 1)
         #encoder.set_property('bufapi-version', 1)
@@ -255,7 +256,7 @@ def main(args):
     print("Linking elements in the Pipeline \n")
     source.link(h264parser)
     h264parser.link(decoder)
-    sinkpad = streammux.get_request_pad("sink_0")
+    sinkpad = streammux.request_pad_simple("sink_0")
     if not sinkpad:
         sys.stderr.write(" Unable to get the sink pad of streammux \n")
     

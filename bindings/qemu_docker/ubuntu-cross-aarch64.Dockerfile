@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM nvcr.io/nvidia/deepstream:6.4-samples-multiarch
+FROM nvcr.io/nvidia/deepstream:7.0-triton-multiarch
 LABEL maintainer="NVIDIA CORPORATION"
 
 # Set timezone.

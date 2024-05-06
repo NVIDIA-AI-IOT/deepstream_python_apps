@@ -20,6 +20,7 @@
 import sys
 sys.path.append('../')
 from pathlib import Path
+from os import environ
 import gi
 import configparser
 import argparse
@@ -30,7 +31,7 @@ import time
 import sys
 import math
 import platform
-from common.is_aarch_64 import is_aarch64
+from common.platform_info import PlatformInfo
 from common.bus_call import bus_call
 from common.FPS import PERF_DATA
 
@@ -40,6 +41,7 @@ no_display = False
 silent = False
 file_loop = False
 perf_data = None
+measure_latency = False
 
 MAX_DISPLAY_LEN=64
 PGIE_CLASS_ID_VEHICLE = 0
@@ -69,6 +71,16 @@ def pgie_src_pad_buffer_probe(pad,info,u_data):
     # Retrieve batch metadata from the gst_buffer
     # Note that pyds.gst_buffer_get_nvds_batch_meta() expects the
     # C address of gst_buffer as input, which is obtained with hash(gst_buffer)
+
+    # Enable latency measurement via probe if environment variable NVDS_ENABLE_LATENCY_MEASUREMENT=1 is set.
+    # To enable component level latency measurement, please set environment variable
+    # NVDS_ENABLE_COMPONENT_LATENCY_MEASUREMENT=1 in addition to the above.
+    global measure_latency
+    if measure_latency:
+        num_sources_in_batch = pyds.nvds_measure_buffer_latency(hash(gst_buffer))
+        if num_sources_in_batch == 0:
+            print("Unable to get number of sources in GstBuffer for latency measurement")
+
     batch_meta = pyds.gst_buffer_get_nvds_batch_meta(hash(gst_buffer))
     l_frame = batch_meta.frame_meta_list
     while l_frame is not None:
@@ -205,6 +217,7 @@ def main(args, requested_pgie=None, config=None, disable_probe=False):
 
     number_sources=len(args)
 
+    platform_info = PlatformInfo()
     # Standard GStreamer initialization
     Gst.init(None)
 
@@ -234,7 +247,7 @@ def main(args, requested_pgie=None, config=None, disable_probe=False):
             sys.stderr.write("Unable to create source bin \n")
         pipeline.add(source_bin)
         padname="sink_%u" %i
-        sinkpad= streammux.get_request_pad(padname) 
+        sinkpad= streammux.request_pad_simple(padname) 
         if not sinkpad:
             sys.stderr.write("Unable to create sink pad bin \n")
         srcpad=source_bin.get_static_pad("src")
@@ -286,8 +299,8 @@ def main(args, requested_pgie=None, config=None, disable_probe=False):
     nvosd.set_property('display-text',OSD_DISPLAY_TEXT)
 
     if file_loop:
-        if is_aarch64():
-            # Set nvbuf-memory-type=4 for aarch64 for file-loop (nvurisrcbin case)
+        if platform_info.is_integrated_gpu():
+            # Set nvbuf-memory-type=4 for integrated gpu for file-loop (nvurisrcbin case)
             streammux.set_property('nvbuf-memory-type', 4)
         else:
             # Set nvbuf-memory-type=2 for x86 for file-loop (nvurisrcbin case)
@@ -299,14 +312,18 @@ def main(args, requested_pgie=None, config=None, disable_probe=False):
         sink.set_property('enable-last-sample', 0)
         sink.set_property('sync', 0)
     else:
-        if is_aarch64():
+        if platform_info.is_integrated_gpu():
             print("Creating nv3dsink \n")
             sink = Gst.ElementFactory.make("nv3dsink", "nv3d-sink")
             if not sink:
                 sys.stderr.write(" Unable to create nv3dsink \n")
         else:
-            print("Creating EGLSink \n")
-            sink = Gst.ElementFactory.make("nveglglessink", "nvvideo-renderer")
+            if platform_info.is_platform_aarch64():
+                print("Creating nv3dsink \n")
+                sink = Gst.ElementFactory.make("nv3dsink", "nv3d-sink")
+            else:
+                print("Creating EGLSink \n")
+                sink = Gst.ElementFactory.make("nveglglessink", "nvvideo-renderer")
             if not sink:
                 sys.stderr.write(" Unable to create egl sink \n")
 
@@ -379,6 +396,14 @@ def main(args, requested_pgie=None, config=None, disable_probe=False):
             pgie_src_pad.add_probe(Gst.PadProbeType.BUFFER, pgie_src_pad_buffer_probe, 0)
             # perf callback function to print fps every 5 sec
             GLib.timeout_add(5000, perf_data.perf_print_callback)
+
+    # Enable latency measurement via probe if environment variable NVDS_ENABLE_LATENCY_MEASUREMENT=1 is set.
+    # To enable component level latency measurement, please set environment variable
+    # NVDS_ENABLE_COMPONENT_LATENCY_MEASUREMENT=1 in addition to the above.
+    if environ.get('NVDS_ENABLE_LATENCY_MEASUREMENT') == '1':
+        print ("Pipeline Latency Measurement enabled!\nPlease set env var NVDS_ENABLE_COMPONENT_LATENCY_MEASUREMENT=1 for Component Latency Measurement")
+        global measure_latency
+        measure_latency = True
 
     # List the sources
     print("Now playing...")

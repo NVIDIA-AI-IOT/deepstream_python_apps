@@ -27,7 +27,7 @@ from gi.repository import GLib, Gst
 from ctypes import *
 import sys
 import math
-from common.is_aarch_64 import is_aarch64
+from common.platform_info import PlatformInfo
 from common.bus_call import bus_call
 from common.FPS import PERF_DATA
 import pyds
@@ -237,7 +237,7 @@ def main(args):
             sys.stderr.write("Unable to create source bin \n")
         pipeline.add(source_bin)
         padname = "sink_%u" % i
-        sinkpad = streammux.get_request_pad(padname)
+        sinkpad = streammux.request_pad_simple(padname)
         if not sinkpad:
             sys.stderr.write("Unable to create sink pad bin \n")
         srcpad = source_bin.get_static_pad("src")
@@ -273,8 +273,13 @@ def main(args):
     if not nvosd:
         sys.stderr.write(" Unable to create nvosd \n")
 
-    print("Creating EGLSink \n")
-    sink = Gst.ElementFactory.make("nveglglessink", "nvvideo-renderer")
+    
+    if platform_info.is_platform_aarch64():
+        print("Creating nv3dsink \n")
+        sink = Gst.ElementFactory.make("nv3dsink", "nv3d-sink")
+    else:
+        print("Creating EGLSink \n")
+        sink = Gst.ElementFactory.make("nveglglessink", "nvvideo-renderer")
     if not sink:
         sys.stderr.write(" Unable to create egl sink \n")
 
@@ -370,8 +375,9 @@ def parse_args():
 
 
 if __name__ == '__main__':
-    if is_aarch64():
-        sys.stderr.write ("\nThis app is not currently supported on aarch64. Exiting...\n\n\n\n")
+    platform_info = PlatformInfo()
+    if platform_info.is_integrated_gpu():
+        sys.stderr.write ("\nThis app is not currently supported on integrated GPU. Exiting...\n\n\n\n")
         sys.exit(1)
     stream_paths = parse_args()
     sys.exit(main(stream_paths))

@@ -32,7 +32,7 @@ import time
 import sys
 import math
 import platform
-from common.is_aarch_64 import is_aarch64
+from common.platform_info import PlatformInfo
 from common.bus_call import bus_call
 
 from common.FPS import PERF_DATA
@@ -140,7 +140,7 @@ def tiler_sink_pad_buffer_probe(pad, info, u_data):
                     frame_copy = np.array(n_frame, copy=True, order='C')
                     # convert the array into cv2 default color format
                     frame_copy = cv2.cvtColor(frame_copy, cv2.COLOR_RGBA2BGRA)
-                    if is_aarch64(): # If Jetson, since the buffer is mapped to CPU for retrieval, it must also be unmapped 
+                    if platform_info.is_integrated_gpu(): # If Jetson, since the buffer is mapped to CPU for retrieval, it must also be unmapped 
                         pyds.unmap_nvds_buf_surface(hash(gst_buffer), frame_meta.batch_id) # The unmap call should be made after operations with the original array are complete.
                                                                                             #  The original array cannot be accessed after this call.
 
@@ -210,7 +210,7 @@ def decodebin_child_added(child_proxy, Object, name, user_data):
     print("Decodebin child added:", name, "\n")
     if name.find("decodebin") != -1:
         Object.connect("child-added", decodebin_child_added, user_data)
-    if not is_aarch64() and name.find("nvv4l2decoder") != -1:
+    if not platform_info.is_integrated_gpu() and name.find("nvv4l2decoder") != -1:
         # Use CUDA unified memory in the pipeline so frames
         # can be easily accessed on CPU in Python.
         Object.set_property("cudadec-memtype", 2)
@@ -269,6 +269,8 @@ def main(uri_inputs,codec,bitrate ):
 
     os.mkdir(folder_name)
     print("Frames will be saved in ", folder_name)
+    global platform_info
+    platform_info = PlatformInfo()
     # Standard GStreamer initialization
     Gst.init(None)
 
@@ -301,7 +303,7 @@ def main(uri_inputs,codec,bitrate ):
             sys.stderr.write("Unable to create source bin \n")
         pipeline.add(source_bin)
         padname = "sink_%u" % i
-        sinkpad = streammux.get_request_pad(padname)
+        sinkpad = streammux.request_pad_simple(padname)
         if not sinkpad:
             sys.stderr.write("Unable to create sink pad bin \n")
         srcpad = source_bin.get_static_pad("src")
@@ -354,7 +356,7 @@ def main(uri_inputs,codec,bitrate ):
     if not encoder:
         sys.stderr.write(" Unable to create encoder")
     encoder.set_property('bitrate', bitrate)
-    if is_aarch64():
+    if platform_info.is_integrated_gpu():
         encoder.set_property('preset-level', 1)
         encoder.set_property('insert-sps-pps', 1)
         #encoder.set_property('bufapi-version', 1)
@@ -399,7 +401,7 @@ def main(uri_inputs,codec,bitrate ):
     tiler.set_property("width", TILED_OUTPUT_WIDTH)
     tiler.set_property("height", TILED_OUTPUT_HEIGHT)
 
-    if not is_aarch64():
+    if not platform_info.is_integrated_gpu():
         # Use CUDA unified memory in the pipeline so frames
         # can be easily accessed on CPU in Python.
         mem_type = int(pyds.NVBUF_MEM_CUDA_UNIFIED)

@@ -25,7 +25,6 @@ sys.path.append("../")
 import gi
 gi.require_version("Gst", "1.0")
 from gi.repository import GLib, Gst
-from common.is_aarch_64 import is_aarch64
 from common.bus_call import bus_call
 from ssd_parser import nvds_infer_parse_custom_tf_ssd, DetectionParam, NmsParam, BoxSizeParam
 import pyds
@@ -399,7 +398,7 @@ def main(args):
     source.link(h264parser)
     h264parser.link(decoder)
 
-    sinkpad = streammux.get_request_pad("sink_0")
+    sinkpad = streammux.request_pad_simple("sink_0")
     if not sinkpad:
         sys.stderr.write(" Unable to get the sink pad of streammux \n")
     srcpad = decoder.get_static_pad("src")

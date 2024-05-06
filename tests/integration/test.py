@@ -18,11 +18,11 @@
 import pytest
 import pyds
 
-from tests.common.frame_iterator import FrameIterator
-from tests.common.pipeline_fakesink import PipelineFakesink
-from tests.common.pipeline_fakesink_tracker import PipelineFakesinkTracker
-from tests.common.tracker_utils import get_tracker_properties_from_config
-from tests.common.utils import is_aarch64
+from tests.testcommon.frame_iterator import FrameIterator
+from tests.testcommon.pipeline_fakesink import PipelineFakesink
+from tests.testcommon.pipeline_fakesink_tracker import PipelineFakesinkTracker
+from tests.testcommon.tracker_utils import get_tracker_properties_from_config
+from tests.testcommon.utils import is_integrated_gpu
 
 VIDEO_PATH1 = "/opt/nvidia/deepstream/deepstream/samples/streams/sample_720p.h264"
 STANDARD_PROPERTIES1 = {
@@ -94,7 +94,7 @@ def test_pipeline1():
     probe_function = FrameIterator(frame_function, box_function, data_probe)
 
     # Creating the pipeline
-    sp = PipelineFakesink(STANDARD_PROPERTIES1, is_aarch64())
+    sp = PipelineFakesink(STANDARD_PROPERTIES1, is_integrated_gpu())
     # registering the probe function
     sp.set_probe(probe_function)
 
@@ -202,7 +202,7 @@ def test_pipeline2():
                                    user_function)
 
     # Creating the pipeline
-    sp = PipelineFakesinkTracker(properties, is_aarch64())
+    sp = PipelineFakesinkTracker(properties, is_integrated_gpu())
     # registering the probe function
     sp.set_probe(probe_function)
 

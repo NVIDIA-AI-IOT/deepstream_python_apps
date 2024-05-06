@@ -22,12 +22,12 @@ import gi
 gi.require_version('Gst', '1.0')
 from gi.repository import GObject, Gst
 
-from tests.common.generic_pipeline import GenericPipeline
+from tests.testcommon.generic_pipeline import GenericPipeline
 
 
 class PipelineFakesinkTracker(GenericPipeline):
 
-    def __init__(self, properties, is_aarch64):
+    def __init__(self, properties, is_integrated_gpu):
         pipeline_base = [
             ["filesrc", "file-source"],  # source
             ["h264parse", "h264-parser"],  # h264parser
@@ -43,7 +43,7 @@ class PipelineFakesinkTracker(GenericPipeline):
         ]
         pipeline_arm64 = [
         ]
-        super().__init__(properties, is_aarch64, pipeline_base,
+        super().__init__(properties, is_integrated_gpu, pipeline_base,
                          pipeline_arm64)
 
     def set_probe(self, probe_function):
@@ -76,7 +76,7 @@ class PipelineFakesinkTracker(GenericPipeline):
             sys.stderr.write(" Unable to get source pad of decoder \n")
             return False
 
-        sinkpad = streammux.get_request_pad("sink_0")
+        sinkpad = streammux.request_pad_simple("sink_0")
         if not sinkpad:
             sys.stderr.write(" Unable to get the sink pad of streammux \n")
             return False

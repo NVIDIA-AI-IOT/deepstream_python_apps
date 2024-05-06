@@ -30,7 +30,7 @@ import sys
 import math
 import random
 import platform
-from common.is_aarch_64 import is_aarch64
+from common.platform_info import PlatformInfo
 
 import pyds
 
@@ -87,7 +87,7 @@ def decodebin_child_added(child_proxy,Object,name,user_data):
     if(name.find("decodebin") != -1):
         Object.connect("child-added",decodebin_child_added,user_data)   
     if(name.find("nvv4l2decoder") != -1):
-        if (is_aarch64()):
+        if (platform_info.is_integrated_gpu()):
             Object.set_property("enable-max-performance", True)
             Object.set_property("drop-frame-interval", 0)
             Object.set_property("num-extra-surfaces", 0)
@@ -110,7 +110,9 @@ def cb_newpad(decodebin,pad,data):
         pad_name = "sink_%u" % source_id
         print(pad_name)
         #Get a sink pad from the streammux, link to decodebin
-        sinkpad = streammux.get_request_pad(pad_name)
+        sinkpad = streammux.request_pad_simple(pad_name)
+        if not sinkpad:
+            sys.stderr.write("Unable to create sink pad bin \n")
         if pad.link(sinkpad) == Gst.PadLinkReturn.OK:
             print("Decodebin linked to pipeline")
         else:
@@ -325,6 +327,8 @@ def main(args):
 
     num_sources=len(args)-1
 
+    global platform_info
+    platform_info = PlatformInfo()
     # Standard GStreamer initialization
     Gst.init(None)
 
@@ -399,14 +403,18 @@ def main(args):
         sys.stderr.write(" Unable to make sgie2 \n")
 
 
-    if is_aarch64():
+    if platform_info.is_integrated_gpu():
         print("Creating nv3dsink \n")
         sink = Gst.ElementFactory.make("nv3dsink", "nv3d-sink")
         if not sink:
             sys.stderr.write(" Unable to create nv3dsink \n")
     else:
-        print("Creating EGLSink \n")
-        sink = Gst.ElementFactory.make("nveglglessink", "nvvideo-renderer")
+        if platform_info.is_platform_aarch64():
+            print("Creating nv3dsink \n")
+            sink = Gst.ElementFactory.make("nv3dsink", "nv3d-sink")
+        else:
+            print("Creating EGLSink \n")
+            sink = Gst.ElementFactory.make("nveglglessink", "nvvideo-renderer")
         if not sink:
             sys.stderr.write(" Unable to create egl sink \n")
     if is_live:
@@ -470,8 +478,8 @@ def main(args):
     nvvideoconvert.set_property("gpu_id", GPU_ID)
     nvosd.set_property("gpu_id", GPU_ID)
 
-    #Set gpu ID of sink if not aarch64
-    if(not is_aarch64()):
+    #Set gpu ID of sink if not integrated gpu
+    if(not platform_info.is_integrated_gpu() and not platform_info.is_platform_aarch64()):
         sink.set_property("gpu_id", GPU_ID)
 
     print("Adding elements to Pipeline \n")
@@ -486,7 +494,7 @@ def main(args):
 
     # We link elements in the following order:
     # sourcebin -> streammux -> nvinfer -> nvtracker -> nvdsanalytics ->
-    # nvtiler -> nvvideoconvert -> nvdsosd -> (if aarch64, transform ->) sink
+    # nvtiler -> nvvideoconvert -> nvdsosd -> sink
     print("Linking elements in the Pipeline \n")
     streammux.link(pgie)
     pgie.link(tracker)

@@ -26,7 +26,10 @@ check_variable_set(PYTHON_MAJOR_VERSION 3)
 check_variable_set(PYTHON_MINOR_VERSION 10)
 check_variable_set(PIP_PLATFORM linux_x86_64)
 check_variable_set(DS_PATH "/opt/nvidia/deepstream/deepstream")
-
+if (DEFINED IS_SBSA)
+	message("IS_SBSA is set. Enabling definitions for ARM_SBSA")
+	add_compile_definitions(IS_SBSA)
+endif()
 
 # Checking values are allowed
 macro(check_variable_allowed var_name var_list)
@@ -49,7 +52,7 @@ set(CMAKE_SHARED_LINKER_FLAGS "-Wl,--no-undefined")
 
 # Setting python build versions
 set(PYTHON_VERSION ${PYTHON_MAJOR_VERSION}.${PYTHON_MINOR_VERSION})
-set(PIP_WHEEL pyds-1.1.10-py3-none-${PIP_PLATFORM}.whl)
+set(PIP_WHEEL pyds-1.1.11-py3-none-${PIP_PLATFORM}.whl)
 
 # Describing pyds build
 project(pyds DESCRIPTION "Python bindings for Deepstream")

@@ -19,6 +19,10 @@ import sys
 import time
 import gi
 
+sys.path.append('../../')
+sys.path.append('../../apps/')
+from common.platform_info import PlatformInfo
+
 gi.require_version('Gst', '1.0')
 from gi.repository import GObject, Gst
 
@@ -66,8 +70,9 @@ def load_deepstream_libs():
     sys.path.append('/opt/nvidia/deepstream/deepstream/lib')
 
 
-def is_aarch64():
-    return platform.uname()[4] == 'aarch64'
+def is_integrated_gpu():
+    platforminfo = PlatformInfo()
+    return platforminfo.is_integrated_gpu()
 
 
 def long_to_int(l):

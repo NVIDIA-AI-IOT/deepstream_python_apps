@@ -315,17 +315,17 @@ namespace pydeepstream {
                   auto *inputnvsurface = reinterpret_cast<NvBufSurface *>(inmap.data);
                   gst_buffer_unmap(buffer, &inmap);
 
-                  if (inputnvsurface->surfaceList->colorFormat !=
-                      NVBUF_COLOR_FORMAT_RGBA) {
+                  if (inputnvsurface->surfaceList->colorFormat != NVBUF_COLOR_FORMAT_RGBA &&
+                      inputnvsurface->surfaceList->colorFormat != NVBUF_COLOR_FORMAT_RGB ) {
                       throw std::runtime_error(
-                              "get_nvds_buf_Surface: Currently we only support RGBA color Format");
+                      "get_nvds_buf_Surface: Currently we only support RGBA/RGB color Format");
                   }
 
-                  int channels = 4;
+                  int channels = inputnvsurface->surfaceList->colorFormat != NVBUF_COLOR_FORMAT_RGB ? 4:3;
                   /* use const reference here so input_surface is not altered
                      during mapping and syncing for CPU */
                   const NvBufSurfaceParams &input_surface = inputnvsurface->surfaceList[batchID];
-#ifdef __aarch64__
+#if defined __aarch64__ && !defined IS_SBSA
                   /* Map the buffer if it has not been mapped already, before syncing the
                      mapped buffer to CPU.*/
                   if (nullptr == input_surface.mappedAddr.addr[0]) {
@@ -384,19 +384,19 @@ namespace pydeepstream {
                   auto *inputnvsurface = reinterpret_cast<NvBufSurface *>(inmap.data);
                   gst_buffer_unmap(buffer, &inmap);
 
-                  if (inputnvsurface->surfaceList->colorFormat !=
-                      NVBUF_COLOR_FORMAT_RGBA) {
+                  if (inputnvsurface->surfaceList->colorFormat != NVBUF_COLOR_FORMAT_RGBA &&
+                      inputnvsurface->surfaceList->colorFormat != NVBUF_COLOR_FORMAT_RGB) {
                       throw std::runtime_error(
-                              "get_nvds_buf_surface_gpu: Currently we only support RGBA color Format");
+                              "get_nvds_buf_surface_gpu: Currently we only support RGB/RGBA color Format");
                   }
 
-#ifdef __aarch64__
+#if defined __aarch64__ && !defined IS_SBSA
                   /* Map the buffer if it has not been mapped already, otherwise sync the
                      mapped buffer to CPU.*/
                   throw std::runtime_error(
                           "get_nvds_buf_surface_gpu: Currently we only support x86");
 #else
-                  int channels = 4;
+                  int channels = inputnvsurface->surfaceList->colorFormat != NVBUF_COLOR_FORMAT_RGB ? 4:3;
                   int height = inputnvsurface->surfaceList[batchID].height;
                   int width = inputnvsurface->surfaceList[batchID].width;
                   int pitch = inputnvsurface->surfaceList[batchID].pitch;
@@ -806,5 +806,38 @@ namespace pydeepstream {
               "src_elem"_a,
               pydsdoc::methodsDoc::configure_source_for_ntp_sync);
 
+        m.def("nvds_measure_buffer_latency",
+            [](size_t gst_buffer) {
+                  int num_sources_in_batch = 0;
+                  if(nvds_enable_latency_measurement)
+                  {
+                        auto *buffer = reinterpret_cast<GstBuffer *>(gst_buffer);
+                        NvDsBatchMeta *batch_meta = gst_buffer_get_nvds_batch_meta (buffer);
+                        if (!batch_meta) {
+                            cout <<"Batch meta not found for buffer "<< buffer << endl;
+                            return num_sources_in_batch;
+                        }
+
+                        nvds_acquire_meta_lock (batch_meta);
+                        NvDsFrameLatencyInfo* latency_info = (NvDsFrameLatencyInfo*)g_malloc0(
+                        sizeof(NvDsFrameLatencyInfo) * batch_meta->max_frames_in_batch);
+                        nvds_release_meta_lock (batch_meta);
+                        if(latency_info){
+                              num_sources_in_batch = nvds_measure_buffer_latency(buffer, latency_info);
+                              cout << "************BATCH-NUM = "<< latency_info[0].frame_num << "**************" << endl;
+                              for(int i = 0; i < num_sources_in_batch; i++)
+                              {
+                                    cout << "Source id = " << latency_info[i].source_id <<
+                                            " Frame_num = " << latency_info[i].frame_num << 
+                                            " Frame latency = " << latency_info[i].latency << " (ms) " << endl;
+                              }
+                              g_free(latency_info);
+                              latency_info = NULL;
+                        }
+                  }
+                  return num_sources_in_batch;
+              },
+              "gst_buffer"_a, py::return_value_policy::reference,
+              pydsdoc::methodsDoc::nvds_measure_buffer_latency);
     }
 }

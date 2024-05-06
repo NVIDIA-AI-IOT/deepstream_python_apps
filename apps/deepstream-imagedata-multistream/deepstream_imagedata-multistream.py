@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 ################################################################################
-# SPDX-FileCopyrightText: Copyright (c) 2020-2023 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2020-2024 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -30,7 +30,7 @@ import time
 import sys
 import math
 import platform
-from common.is_aarch_64 import is_aarch64
+from common.platform_info import PlatformInfo
 from common.bus_call import bus_call
 from common.FPS import PERF_DATA
 import numpy as np
@@ -63,7 +63,6 @@ pgie_classes_str = ["Vehicle", "TwoWheeler", "Person", "RoadSign"]
 
 MIN_CONFIDENCE = 0.3
 MAX_CONFIDENCE = 0.4
-
 
 # tiler_sink_pad_buffer_probe  will extract metadata received on tiler src pad
 # and update params for drawing rectangle, object information etc.
@@ -125,7 +124,8 @@ def tiler_sink_pad_buffer_probe(pad, info, u_data):
                     frame_copy = np.array(n_frame, copy=True, order='C')
                     # convert the array into cv2 default color format
                     frame_copy = cv2.cvtColor(frame_copy, cv2.COLOR_RGBA2BGRA)
-                    if is_aarch64(): # If Jetson, since the buffer is mapped to CPU for retrieval, it must also be unmapped 
+                    if platform_info.is_integrated_gpu():
+                        # If Jetson, since the buffer is mapped to CPU for retrieval, it must also be unmapped 
                         pyds.unmap_nvds_buf_surface(hash(gst_buffer), frame_meta.batch_id) # The unmap call should be made after operations with the original array are complete.
                                                                                             #  The original array cannot be accessed after this call.
 
@@ -212,9 +212,11 @@ def decodebin_child_added(child_proxy, Object, name, user_data):
     if name.find("decodebin") != -1:
         Object.connect("child-added", decodebin_child_added, user_data)
 
-    if not is_aarch64() and name.find("nvv4l2decoder") != -1:
-        # Use CUDA unified memory in the pipeline so frames
-        # can be easily accessed on CPU in Python.
+    if not platform_info.is_integrated_gpu() and name.find("nvv4l2decoder") != -1:
+        # Use CUDA unified memory in the pipeline so frames can be easily accessed on CPU in Python.
+        # 0: NVBUF_MEM_CUDA_DEVICE, 1: NVBUF_MEM_CUDA_PINNED, 2: NVBUF_MEM_CUDA_UNIFIED
+        # Dont use direct macro here like NVBUF_MEM_CUDA_UNIFIED since nvv4l2decoder uses a
+        # different enum internally
         Object.set_property("cudadec-memtype", 2)
 
     if "source" in name:
@@ -258,6 +260,7 @@ def create_source_bin(index, uri):
         return None
     return nbin
 
+
 def main(args):
     # Check input arguments
     if len(args) < 2:
@@ -276,6 +279,8 @@ def main(args):
 
     os.mkdir(folder_name)
     print("Frames will be saved in ", folder_name)
+    global platform_info
+    platform_info = PlatformInfo()
     # Standard GStreamer initialization
     Gst.init(None)
 
@@ -308,7 +313,7 @@ def main(args):
             sys.stderr.write("Unable to create source bin \n")
         pipeline.add(source_bin)
         padname = "sink_%u" % i
-        sinkpad = streammux.get_request_pad(padname)
+        sinkpad = streammux.request_pad_simple(padname)
         if not sinkpad:
             sys.stderr.write("Unable to create sink pad bin \n")
         srcpad = source_bin.get_static_pad("src")
@@ -343,14 +348,18 @@ def main(args):
     nvosd = Gst.ElementFactory.make("nvdsosd", "onscreendisplay")
     if not nvosd:
         sys.stderr.write(" Unable to create nvosd \n")
-    if is_aarch64():
+    if platform_info.is_integrated_gpu():
         print("Creating nv3dsink \n")
         sink = Gst.ElementFactory.make("nv3dsink", "nv3d-sink")
         if not sink:
             sys.stderr.write(" Unable to create nv3dsink \n")
     else:
-        print("Creating EGLSink \n")
-        sink = Gst.ElementFactory.make("nveglglessink", "nvvideo-renderer")
+        if platform_info.is_platform_aarch64():
+            print("Creating nv3dsink \n")
+            sink = Gst.ElementFactory.make("nv3dsink", "nv3d-sink")
+        else:
+            print("Creating EGLSink \n")
+            sink = Gst.ElementFactory.make("nveglglessink", "nvvideo-renderer")
         if not sink:
             sys.stderr.write(" Unable to create egl sink \n")
 
@@ -378,13 +387,22 @@ def main(args):
     sink.set_property("sync", 0)
     sink.set_property("qos", 0)
 
-    if not is_aarch64():
+    if not platform_info.is_integrated_gpu():
         # Use CUDA unified memory in the pipeline so frames
         # can be easily accessed on CPU in Python.
         mem_type = int(pyds.NVBUF_MEM_CUDA_UNIFIED)
         streammux.set_property("nvbuf-memory-type", mem_type)
         nvvidconv.set_property("nvbuf-memory-type", mem_type)
-        nvvidconv1.set_property("nvbuf-memory-type", mem_type)
+        if platform_info.is_wsl():
+            #opencv functions like cv2.line and cv2.putText is not able to access NVBUF_MEM_CUDA_UNIFIED memory
+            #in WSL systems due to some reason and gives SEGFAULT. Use NVBUF_MEM_CUDA_PINNED memory for such
+            #usecases in WSL. Here, nvvidconv1's buffer is used in tiler sink pad probe and cv2 operations are
+            #done on that.
+            print("using nvbuf_mem_cuda_pinned memory for nvvidconv1\n")
+            vc_mem_type = int(pyds.NVBUF_MEM_CUDA_PINNED)
+            nvvidconv1.set_property("nvbuf-memory-type", vc_mem_type)
+        else:
+            nvvidconv1.set_property("nvbuf-memory-type", mem_type)
         tiler.set_property("nvbuf-memory-type", mem_type)
 
     print("Adding elements to Pipeline \n")

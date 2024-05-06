@@ -19,7 +19,7 @@
 import sys
 sys.path.append("../")
 from common.bus_call import bus_call
-from common.is_aarch_64 import is_aarch64
+from common.platform_info import PlatformInfo
 import pyds
 import platform
 import math
@@ -175,6 +175,7 @@ def main(args):
     # Check input arguments
     number_sources = len(args)
 
+    platform_info = PlatformInfo()
     # Standard GStreamer initialization
     Gst.init(None)
 
@@ -204,7 +205,7 @@ def main(args):
             sys.stderr.write("Unable to create source bin \n")
         pipeline.add(source_bin)
         padname = "sink_%u" % i
-        sinkpad = streammux.get_request_pad(padname)
+        sinkpad = streammux.request_pad_simple(padname)
         if not sinkpad:
             sys.stderr.write("Unable to create sink pad bin \n")
         srcpad = source_bin.get_static_pad("src")
@@ -252,7 +253,7 @@ def main(args):
     if not encoder:
         sys.stderr.write(" Unable to create encoder")
     encoder.set_property("bitrate", bitrate)
-    if is_aarch64():
+    if platform_info.is_integrated_gpu():
         encoder.set_property("preset-level", 1)
         encoder.set_property("insert-sps-pps", 1)
         #encoder.set_property("bufapi-version", 1)

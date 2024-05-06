@@ -2,19 +2,25 @@
 
 This repository contains Python bindings and sample applications for the [DeepStream SDK](https://developer.nvidia.com/deepstream-sdk).  
 
-SDK version supported: 6.4
+SDK version supported: 7.0
 
-<b>This release only supports Ubuntu 22.04 for DeepStreamSDK 6.4 with Python 3.10 and [gst-python](3rdparty/gst-python/) 1.20.3! Ubuntu 20.04 for DeepStreamSDK 6.3 with Python 3.8 support is NOW DEPRECATED</b>
+<b>This release only supports Ubuntu 22.04 for DeepStreamSDK 7.0 with Python 3.10 and [gst-python](3rdparty/gst-python/) 1.20.3! Ubuntu 20.04 for DeepStreamSDK 6.3 with Python 3.8 support is NOW DEPRECATED</b>
 
-The bindings sources along with build instructions are available under [bindings](bindings)! We include one [guide](bindings/BINDINGSGUIDE.md) for contributing to bindings and another [guide](bindings/CUSTOMUSERMETAGUIDE.md) for advanced use-cases such as writing bindings for custom data structures.
-
-Download the latest release package complete with bindings and sample applications from the [release section](../../releases).  
+The bindings sources along with build instructions are available under [bindings](bindings)! We include one [guide](bindings/BINDINGSGUIDE.md) for contributing to bindings and another [guide](bindings/CUSTOMUSERMETAGUIDE.md) for advanced use-cases such as writing bindings for custom data structures. 
 
 Please report any issues or bugs on the [DeepStream SDK Forums](https://devtalk.nvidia.com/default/board/209). This enables the DeepStream community to find help at a central location.
 
 - [DeepStream Python Apps](#deepstream-python-apps)
+  - [Setup](#setup)
   - [Python Bindings](#python-bindings)
+    - [Python Bindings Breaking API Change](#python-bindings-breaking-api-change)
   - [Sample Applications](#sample-applications)
+
+## Setup
+Once you have DeepStreamSDK pre-requisites and DeepStreamSDK installed on the system, navigate to <DS_ROOT>/sources/ dir which is /opt/nvidia/deepstream/deepstream/sources/ and git clone deepstream_python_apps repo here.
+
+The latest bindings can be installed from [release section](../../releases).
+You can also build the bindings from source using the instructions in the [bindings readme](bindings/README.md) if needed.
 
 <a name="metadata_bindings"></a>
 ## Python Bindings
@@ -45,13 +51,13 @@ To run the sample applications or write your own, please consult the [HOW-TO Gui
 
 We currently provide the following sample applications:
 * [deepstream-test1](apps/deepstream-test1) -- 4-class object detection pipeline, also demonstrates support for new nvstreammux
-* **UPDATED** [deepstream-test2](apps/deepstream-test2) -- 4-class object detection, tracking and attribute classification pipeline - now uses new names for tracker meta data types in DS 6.4
+* [deepstream-test2](apps/deepstream-test2) -- 4-class object detection, tracking and attribute classification pipeline
 * [deepstream-test3](apps/deepstream-test3) -- multi-stream pipeline performing 4-class object detection, also supports triton inference server, no-display mode, file-loop and silent mode
-* **UPDATED** [deepstream-test4](apps/deepstream-test4) -- msgbroker for sending analytics results to the cloud - now supports MQTT protocol adaptor
+* [deepstream-test4](apps/deepstream-test4) -- msgbroker for sending analytics results to the cloud
 * [deepstream-imagedata-multistream](apps/deepstream-imagedata-multistream) -- multi-stream pipeline with access to image buffers
 * [deepstream-ssd-parser](apps/deepstream-ssd-parser) -- SSD model inference via Triton server with output parsing in Python
 * [deepstream-test1-usbcam](apps/deepstream-test1-usbcam) -- deepstream-test1 pipeline with USB camera input
-* **UPDATED** [deepstream-test1-rtsp-out](apps/deepstream-test1-rtsp-out) -- deepstream-test1 pipeline with RTSP output - now demonstrates adding software encoder option to support Jetson Orin Nano
+* [deepstream-test1-rtsp-out](apps/deepstream-test1-rtsp-out) -- deepstream-test1 pipeline with RTSP output, demonstrates adding software encoder option to support Jetson Orin Nano
 * [deepstream-opticalflow](apps/deepstream-opticalflow) -- optical flow and visualization pipeline with flow vectors returned in NumPy array
 * [deepstream-segmentation](apps/deepstream-segmentation) -- segmentation and visualization pipeline with segmentation mask returned in NumPy array
 * [deepstream-nvdsanalytics](apps/deepstream-nvdsanalytics) -- multistream pipeline with analytics plugin

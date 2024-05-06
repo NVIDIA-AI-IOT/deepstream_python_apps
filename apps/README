@@ -20,7 +20,7 @@ DeepStream SDK Python Bindings
 ================================================================================
 Setup pre-requisites:
 - Ubuntu 22.04
-- NVIDIA DeepStream SDK 6.4
+- NVIDIA DeepStream SDK 7.0
 - Python 3.10
 - Gst-python
 
@@ -36,7 +36,7 @@ Package Contents
 Installing Pre-requisites:
 --------------------------------------------------------------------------------
 
-DeepStream SDK 6.4
+DeepStream SDK 7.0
 --------------------
 Download and install from https://developer.nvidia.com/deepstream-download
 
@@ -51,16 +51,23 @@ If missing, install with the following steps:
 $ sudo apt update
 $ sudo apt install python3-gi python3-dev python3-gst-1.0 -y
 
+cuda-python
+-----------
+$ pip3 install cuda-python
+
 --------------------------------------------------------------------------------
 Running the samples
 --------------------------------------------------------------------------------
-The apps are configured to work from inside the DeepStream SDK 6.4 installation.
+The apps are configured to work from inside the DeepStream SDK 7.0 installation.
 
 Clone the deepstream_python_apps repo under <DeepStream ROOT>/sources:
 $ git clone https://github.com/NVIDIA-AI-IOT/deepstream_python_apps
 This will create the following directory:
 <DeepStream ROOT>/sources/deepstream_python_apps
-
+Cuda python APIs are used to distinguish between iGPU and dGPU.
+Install cuda-python using:
+pip3 install cuda-python
+NOTE: is_aarch64.py is deprecated in favor of platform_info.py
 Follow README in each app's directory to run the app.
 
 Example: running test1 app:

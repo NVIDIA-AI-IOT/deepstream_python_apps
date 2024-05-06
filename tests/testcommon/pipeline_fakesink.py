@@ -22,12 +22,12 @@ import gi
 gi.require_version('Gst', '1.0')
 from gi.repository import GObject, Gst
 
-from tests.common.generic_pipeline import GenericPipeline
+from tests.testcommon.generic_pipeline import GenericPipeline
 
 
-class PipelineNveglgleSink(GenericPipeline):
+class PipelineFakesink(GenericPipeline):
 
-    def __init__(self, properties, is_aarch64):
+    def __init__(self, properties, is_integrated_gpu):
         pipeline_base = [
             ["filesrc", "file-source"],  # source
             ["h264parse", "h264-parser"],  # h264parser
@@ -36,12 +36,11 @@ class PipelineNveglgleSink(GenericPipeline):
             ["nvinfer", "primary-inference"],  # pgie
             ["nvvideoconvert", "convertor"],  # nvvidconv
             ["nvdsosd", "onscreendisplay"],  # nvosd
-            ["nveglglessink", "nvvideo-renderer"],  # sink
+            ["fakesink", "fakesink"],  # sink
         ]
         pipeline_arm64 = [
-            ["nvegltransform", "nvegl-transform"]  # transform
         ]
-        super().__init__(properties, is_aarch64, pipeline_base,
+        super().__init__(properties, is_integrated_gpu, pipeline_base,
                          pipeline_arm64)
 
     def set_probe(self, probe_function):
@@ -61,7 +60,7 @@ class PipelineNveglgleSink(GenericPipeline):
         pgie = gebn("primary-inference")
         nvvidconv = gebn("convertor")
         nvosd = gebn("onscreendisplay")
-        sink = gebn("nvvideo-renderer")
+        sink = gebn("fakesink")
 
         source.link(h264parser)
         h264parser.link(decoder)
@@ -71,7 +70,7 @@ class PipelineNveglgleSink(GenericPipeline):
             sys.stderr.write(" Unable to get source pad of decoder \n")
             return False
 
-        sinkpad = streammux.get_request_pad("sink_0")
+        sinkpad = streammux.request_pad_simple("sink_0")
         if not sinkpad:
             sys.stderr.write(" Unable to get the sink pad of streammux \n")
             return False
@@ -80,10 +79,5 @@ class PipelineNveglgleSink(GenericPipeline):
         streammux.link(pgie)
         pgie.link(nvvidconv)
         nvvidconv.link(nvosd)
-        if self._is_aarch64:
-            transform = gebn("nvegl-transform")
-            nvosd.link(transform)
-            transform.link(sink)
-        else:
-            nvosd.link(sink)
+        nvosd.link(sink)
         return True

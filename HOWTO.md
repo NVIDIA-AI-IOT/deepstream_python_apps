@@ -16,7 +16,7 @@ This guide provides resources for DeepStream application development in Python.
 ## Prerequisites
 
 * Ubuntu 22.04
-* [DeepStream SDK 6.4](https://developer.nvidia.com/deepstream-download) or later
+* [DeepStream SDK 7.0](https://developer.nvidia.com/deepstream-download) or later
 * Python 3.10
 * [Gst Python](https://gstreamer.freedesktop.org/modules/gst-python.html) v1.20.3
 

@@ -22,7 +22,7 @@ import gi
 
 gi.require_version('Gst', '1.0')
 from gi.repository import Gst, GLib
-from tests.common.utils import bus_call
+from tests.testcommon.utils import bus_call
 
 
 class PipelineElement:
@@ -42,13 +42,13 @@ class GenericPipeline:
     its content. There are
     """
 
-    def __init__(self, properties, is_aarch64, data_pipeline,
+    def __init__(self, properties, is_integrated_gpu, data_pipeline,
                  data_pipeline_arm64):
         self._pipeline = None
         self._loop = None
         self._pipeline_content = {}
         self._properties = properties
-        self._is_aarch64 = is_aarch64
+        self._is_integrated_gpu = is_integrated_gpu
         self._data_pipeline = data_pipeline
         self._data_pipeline_arm64 = data_pipeline_arm64
         # Standard GStreamer initialization
@@ -101,7 +101,7 @@ class GenericPipeline:
         for elm in self._data_pipeline:
             self._create_element(elm)
 
-        if self._is_aarch64:
+        if self._is_integrated_gpu:
             for elm in self._data_pipeline_arm64:
                 self._create_element(elm)
 

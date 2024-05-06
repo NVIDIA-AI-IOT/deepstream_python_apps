@@ -1,5 +1,5 @@
 ################################################################################
-# SPDX-FileCopyrightText: Copyright (c) 2022-2023 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2022-2024 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,18 +29,33 @@ batch-size=1
 process-mode=1
 model-color-format=0
 ## 0=FP32, 1=INT8, 2=FP16 mode
-network-mode=2
+network-mode=1
 num-detected-classes=3
 cluster-mode=1
 interval=0
 gie-unique-id=1
 output-blob-names=output_bbox/BiasAdd;output_cov/Sigmoid
 
+#Use the config params below for dbscan clustering mode
+#[class-attrs-all]
+#detected-min-w=4
+#detected-min-h=4
+#minBoxes=3
+#eps=0.7
+
+#Use the config params below for NMS clustering mode
 [class-attrs-all]
+topk=20
+nms-iou-threshold=0.5
+pre-cluster-threshold=0.2
+
+## Per class configurations
+[class-attrs-0]
+topk=20
+nms-iou-threshold=0.5
 pre-cluster-threshold=0.4
-## Set eps=0.7 and minBoxes for cluster-mode=1(DBSCAN)
-eps=0.7
-minBoxes=1
-[class-attrs-1]
-# disable bag detection
-pre-cluster-threshold=1.0
+
+#[class-attrs-1]
+#pre-cluster-threshold=0.05
+#eps=0.7
+#dbscan-min-score=0.5

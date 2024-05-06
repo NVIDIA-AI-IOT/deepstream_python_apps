@@ -27,7 +27,6 @@ gi.require_version('Gst', '1.0')
 from gi.repository import GLib, Gst
 import sys
 import math
-from common.is_aarch_64 import is_aarch64
 from common.bus_call import bus_call
 import os
 from os import path
@@ -244,7 +243,7 @@ def main(args):
             sys.stderr.write("Unable to create source bin \n")
         pipeline.add(source_bin)
         padname="sink_%u" %i
-        sinkpad= streammux.get_request_pad(padname) 
+        sinkpad= streammux.request_pad_simple(padname) 
         if not sinkpad:
             sys.stderr.write("Unable to create sink pad bin \n")
         srcpad=source_bin.get_static_pad("src")

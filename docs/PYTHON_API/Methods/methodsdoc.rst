@@ -410,4 +410,8 @@ NvBufSurfaceMapEglImage
 
 .. autofunction:: pyds.NvBufSurfaceMapEglImage
 
+=============================
+nvds_measure_buffer_latency
+=============================
 
+.. autofunction:: pyds.nvds_measure_buffer_latency

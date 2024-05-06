@@ -1,5 +1,5 @@
 ################################################################################
-# SPDX-FileCopyrightText: Copyright (c) 2019-2023 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2019-2024 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -47,16 +47,15 @@ output-blob-names=output_bbox/BiasAdd:0;output_cov/Sigmoid:0
 [class-attrs-all]
 topk=20
 nms-iou-threshold=0.5
-pre-cluster-threshold=0.4
+pre-cluster-threshold=0.2
 
 ## Per class configurations
-#[class-attrs-0]
-#topk=20
-#nms-iou-threshold=0.5
-#pre-cluster-threshold=0.4
+[class-attrs-0]
+topk=20
+nms-iou-threshold=0.5
+pre-cluster-threshold=0.4
 
-[class-attrs-1]
-#disable bag detection
-pre-cluster-threshold=1.0
+#[class-attrs-1]
+#pre-cluster-threshold=0.05
 #eps=0.7
 #dbscan-min-score=0.5

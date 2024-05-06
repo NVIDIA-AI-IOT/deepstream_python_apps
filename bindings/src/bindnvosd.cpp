@@ -428,7 +428,18 @@ namespace pydeepstream {
                     },
                      py::return_value_policy::reference,
                      pydsdoc::NvOSD::NvOSD_MaskParams::get_mask_array)
-                    
+                .def("alloc_mask_array",
+                    [](NvOSD_MaskParams &self) -> py::array {
+                         if (self.data)
+                            g_free(self.data);
+                         self.size = self.width*self.height*sizeof(float);
+                         self.data = (float*)g_malloc0(self.size);
+                         auto dtype = py::dtype(py::format_descriptor<float>::format());
+                         return py::array(dtype, {self.size / sizeof(float)}, {sizeof(float)}, self.data, py::cast(self.data));
+                    },
+                    py::return_value_policy::reference,
+                    pydsdoc::NvOSD::NvOSD_MaskParams::alloc_mask_array)
+
                 .def("cast",
                      [](void *data) {
                          return (NvOSD_MaskParams *) data;

@@ -26,7 +26,7 @@ gi.require_version('Gst', '1.0')
 from gi.repository import GLib, Gst
 import sys
 from optparse import OptionParser
-from common.is_aarch_64 import is_aarch64
+from common.platform_info import PlatformInfo
 from common.bus_call import bus_call
 from common.utils import long_to_uint64
 import pyds
@@ -230,6 +230,7 @@ def osd_sink_pad_buffer_probe(pad, info, u_data):
 
 
 def main(args):
+    platform_info = PlatformInfo()
     Gst.init(None)
 
     # Deprecated: following meta_copy_func and meta_free_func
@@ -305,14 +306,18 @@ def main(args):
         if not sink:
             sys.stderr.write(" Unable to create fakesink \n")
     else:
-        if is_aarch64():
+        if platform_info.is_integrated_gpu():
             print("Creating nv3dsink \n")
             sink = Gst.ElementFactory.make("nv3dsink", "nv3d-sink")
             if not sink:
                 sys.stderr.write(" Unable to create nv3dsink \n")
         else:
-            print("Creating EGLSink \n")
-            sink = Gst.ElementFactory.make("nveglglessink", "nvvideo-renderer")
+            if platform_info.is_platform_aarch64():
+                print("Creating nv3dsink \n")
+                sink = Gst.ElementFactory.make("nv3dsink", "nv3d-sink")
+            else:
+                print("Creating EGLSink \n")
+                sink = Gst.ElementFactory.make("nveglglessink", "nvvideo-renderer")
             if not sink:
                 sys.stderr.write(" Unable to create egl sink \n")
 
@@ -352,7 +357,7 @@ def main(args):
     source.link(h264parser)
     h264parser.link(decoder)
 
-    sinkpad = streammux.get_request_pad("sink_0")
+    sinkpad = streammux.request_pad_simple("sink_0")
     if not sinkpad:
         sys.stderr.write(" Unable to get the sink pad of streammux \n")
     srcpad = decoder.get_static_pad("src")
@@ -368,8 +373,8 @@ def main(args):
     msgconv.link(msgbroker)
     queue2.link(sink)
     sink_pad = queue1.get_static_pad("sink")
-    tee_msg_pad = tee.get_request_pad('src_%u')
-    tee_render_pad = tee.get_request_pad("src_%u")
+    tee_msg_pad = tee.request_pad_simple('src_%u')
+    tee_render_pad = tee.request_pad_simple("src_%u")
     if not tee_msg_pad or not tee_render_pad:
         sys.stderr.write("Unable to get request pads\n")
     tee_msg_pad.link(sink_pad)

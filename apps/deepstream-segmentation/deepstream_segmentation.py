@@ -25,7 +25,7 @@ import math
 
 gi.require_version('Gst', '1.0')
 from gi.repository import GLib, Gst
-from common.is_aarch_64 import is_aarch64
+from common.platform_info import PlatformInfo
 from common.bus_call import bus_call
 import cv2
 import pyds
@@ -140,6 +140,7 @@ def main(args):
     config_file = args[1]
     num_sources = len(args) - 3
     # Standard GStreamer initialization
+    platform_info = PlatformInfo()
     Gst.init(None)
 
     # Create gstreamer elements
@@ -189,20 +190,24 @@ def main(args):
     if not nvsegvisual:
         sys.stderr.write("Unable to create nvsegvisual\n")
 
-    if is_aarch64():
+    if platform_info.is_integrated_gpu():
         print("Creating nv3dsink \n")
         sink = Gst.ElementFactory.make("nv3dsink", "nv3d-sink")
         if not sink:
             sys.stderr.write(" Unable to create nv3dsink \n")
     else:
-        print("Creating EGLSink \n")
-        sink = Gst.ElementFactory.make("nveglglessink", "nvvideo-renderer")
+        if platform_info.is_platform_aarch64():
+            print("Creating nv3dsink \n")
+            sink = Gst.ElementFactory.make("nv3dsink", "nv3d-sink")
+        else:
+            print("Creating EGLSink \n")
+            sink = Gst.ElementFactory.make("nveglglessink", "nvvideo-renderer")
         if not sink:
             sys.stderr.write(" Unable to create egl sink \n")
 
     print("Playing file %s " % args[2])
     source.set_property('location', args[2])
-    if is_aarch64() and ("mjpeg" in args[2] or "mjpg" in args[2]):
+    if platform_info.is_integrated_gpu() and ("mjpeg" in args[2] or "mjpg" in args[2]):
         print ("setting decoder mjpeg property")
         decoder.set_property('mjpeg', 1)
     streammux.set_property('width', 1920)
@@ -237,7 +242,7 @@ def main(args):
     source.link(jpegparser)
     jpegparser.link(decoder)
 
-    sinkpad = streammux.get_request_pad("sink_0")
+    sinkpad = streammux.request_pad_simple("sink_0")
     if not sinkpad:
         sys.stderr.write(" Unable to get the sink pad of streammux \n")
     srcpad = decoder.get_static_pad("src")

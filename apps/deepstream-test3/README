@@ -16,7 +16,7 @@
 ################################################################################
 
 Prerequisites:
-- DeepStreamSDK 6.4
+- DeepStreamSDK 7.0
 - NVIDIA Triton Inference Server (optional)
 - Python 3.10
 - Gst-python
@@ -131,6 +131,8 @@ Note:
 5) -s/--silent option can be used to suppress verbose output.
 6) --file-loop option can be used to loop input files after EOS.
 7) --disable-probe option can be used to disable the probe function and to use nvdslogger for perf measurements.
+8) To enable Pipeline Latency Measurement, set environment variable : NVDS_ENABLE_LATENCY_MEASUREMENT=1
+9) To enable Component Level Latency Measurement, set environment variable : NVDS_ENABLE_COMPONENT_LATENCY_MEASUREMENT=1 in addition to NVDS_ENABLE_LATENCY_MEASUREMENT=1
 
 This document describes the sample deepstream-test3 application.
 
@@ -142,6 +144,7 @@ This document describes the sample deepstream-test3 application.
    batch for better resource utilization.
  * Extract the stream metadata, which contains useful information about the
    frames in the batched buffer.
+ * Showcases how to enable latency measurement using probe function
 
 Refer to the deepstream-test1 sample documentation for an example of simple
 single-stream inference, bounding-box overlay, and rendering.

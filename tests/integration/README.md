@@ -49,7 +49,7 @@ python3.10 -m venv env
 ### step3
 ```
 . env/bin/activate
-pip install pyds-1.1.10-py3-none-*.whl
+pip install pyds-1.1.11-py3-none-*.whl
 pip install pytest
 cd ../../tests/integration
 pytest test.py
