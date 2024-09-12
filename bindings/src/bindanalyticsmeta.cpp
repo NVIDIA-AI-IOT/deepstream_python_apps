@@ -34,6 +34,7 @@ namespace pydeepstream {
                 .def_readwrite("ocStatus", &NvDsAnalyticsObjInfo::ocStatus)
                 .def_readwrite("lcStatus", &NvDsAnalyticsObjInfo::lcStatus)
                 .def_readwrite("dirStatus", &NvDsAnalyticsObjInfo::dirStatus)
+                .def_readwrite("objStatus", &NvDsAnalyticsObjInfo::objStatus)
                 .def_readwrite("unique_id", &NvDsAnalyticsObjInfo::unique_id)
 
                 .def_static("cast",
