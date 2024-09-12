@@ -49,7 +49,7 @@ namespace pydsdoc
                             if user_meta_data.lcStatus: print("Object {0} line crossing status: {1}".format(obj_meta.object_id, user_meta_data.lcStatus))
                             if user_meta_data.ocStatus: print("Object {0} overcrowding status: {1}".format(obj_meta.object_id, user_meta_data.ocStatus))
                             if user_meta_data.roiStatus: print("Object {0} roi status: {1}".format(obj_meta.object_id, user_meta_data.roiStatus))
-                            if user_meta_data.objStatus: print("Object {0} is: {1}".format(obj_meta.object_id, user_meta_data.objStatus))
+                            if user_meta_data.objStatus: print("Object {0} status: {1}".format(obj_meta.object_id, user_meta_data.objStatus))
                         except StopIteration:
                             break
 
