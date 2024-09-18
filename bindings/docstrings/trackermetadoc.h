@@ -123,5 +123,28 @@ namespace pydsdoc
             constexpr const char* cast=R"pyds(cast given object/data to :class:`NvDsTargetMiscDataBatch`, call pyds.NvDsTargetMiscDataBatch.cast(data))pyds";
         }
 
+        namespace NvDsObjReidDoc
+        {
+            constexpr const char* descr = R"pyds(
+                Holds Reid Vector information for an object. See :class:`NvDsObjReid` for example usage.
+
+                :ivar featureSize: *int*, ReID vector length.
+                )pyds";
+
+            constexpr const char* get_host_reid_vector =R"pyds(
+                This function converts the float* ptr_host to a NumPy array (py::array_t<float>).
+                It constructs a NumPy array with the shape defined by featureSize and the data provided by ptr_host without copying the data. The array uses the float* directly from the C++ struct.
+
+                :returns: {Returns Host ReID vector as NumPy array})pyds";
+
+            constexpr const char* get_dev_reid_vector =R"pyds(
+                This function converts the float* ptr_dev to a NumPy array (py::array_t<float>).
+                It constructs a NumPy array with the shape defined by featureSize and the data provided by ptr_dev without copying the data. The array uses the float* directly from the C++ struct.
+
+                :returns: {Returns Device ReID vector as NumPy array})pyds";
+
+            constexpr const char* cast=R"pyds(cast given object/data to :class:`NvDsObjReid`, call pyds.NvDsObjReid.cast(data))pyds";
+        }
+
     }
 }
