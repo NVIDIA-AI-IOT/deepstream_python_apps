@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 ################################################################################
-# SPDX-FileCopyrightText: Copyright (c) 2021-2023 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2021-2024 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -526,7 +526,13 @@ def main(args):
     # start play back and listed to events		
     pipeline.set_state(Gst.State.PLAYING)
 
-    GLib.timeout_add_seconds(10, add_sources, g_source_bin_list)
+    print("Waiting for state change\n")
+    status, state, pending = pipeline.get_state(Gst.CLOCK_TIME_NONE)
+    print(f"Current state {state}, pending state {pending}, status {status}\n")
+    if (state == Gst.State.PLAYING) and (pending == Gst.State.VOID_PENDING):
+        GLib.timeout_add_seconds(10, add_sources, g_source_bin_list)
+    else:
+        print("Pipeline is not in playing state to add sources\n")
 
     try:
         loop.run()

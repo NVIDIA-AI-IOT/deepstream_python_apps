@@ -24,8 +24,13 @@
 #include <functional>
 #include <iostream>
 #include "gstnvdsmeta.h"
+#include "pyds.hpp"
 #include "nvdsmeta_schema.h"
 #include "utils.hpp"
+#include "nvds_obj_encode.h"
+#include "bind_string_property_definitions.h"
+#include "../../docstrings/utilsdoc.h"
+
 /**
  * Specifies the type of function to copy meta data.
  * It is passed the pointer to meta data and user specific data.
@@ -47,6 +52,57 @@ using RELEASEFUNC_SIG = void(gpointer, gpointer);
 namespace pydeepstream {
     pybind11::arg operator ""_a(const char *str, size_t len) {
         return pybind11::arg(str);
+    }
+}
+
+// Utils
+namespace pydeepstream {
+    void bindutils(py::module &m) {
+        py::class_<NvDsObjEncOutParams>(m, "NvDsObjEncOutParams",
+                                        pydsdoc::utilsdoc::NvDsObjEncOutParamsDoc::descr)
+                .def(py::init<>())
+                .def("outBuffer", [](const NvDsObjEncOutParams &self) {
+                    // Use this if the C++ buffer should NOT be deallocated
+                    // once Python no longer has a reference to it
+                    py::capsule buffer_handle([](){});
+                    return py::array(self.outLen, self.outBuffer, buffer_handle);
+                })
+                .def("cast", [](size_t data) {
+                         return (NvDsObjEncOutParams *) data;
+                     },
+                     py::return_value_policy::reference,
+                     pydsdoc::utilsdoc::NvDsObjEncOutParamsDoc::cast)
+                .def("cast", [](void *data) {
+                         return (NvDsObjEncOutParams *) data;
+                     },
+                     py::return_value_policy::reference,
+                     pydsdoc::utilsdoc::NvDsObjEncOutParamsDoc::cast);
+
+        py::class_<NvDsObjEncUsrArgs>(m, "NvDsObjEncUsrArgs",
+                                     pydsdoc::utilsdoc::NvDsObjEncUsrArgsDoc::descr)
+                .def(py::init<>())
+                .def_readwrite("saveImg", &NvDsObjEncUsrArgs::saveImg)
+                .def_readwrite("attachUsrMeta", &NvDsObjEncUsrArgs::attachUsrMeta)
+                .def_readwrite("scaleImg", &NvDsObjEncUsrArgs::scaleImg)
+                .def_readwrite("scaledWidth", &NvDsObjEncUsrArgs::scaledWidth)
+                .def_readwrite("scaledHeight", &NvDsObjEncUsrArgs::scaledHeight)
+                .def_property("fileNameImg", STRING_CHAR_ARRAY(NvDsObjEncUsrArgs, fileNameImg))
+                .def_readwrite("objNum", &NvDsObjEncUsrArgs::objNum)
+                .def_readwrite("quality", &NvDsObjEncUsrArgs::quality)
+                .def_readwrite("isFrame", &NvDsObjEncUsrArgs::isFrame)
+                .def_readwrite("calcEncodeTime", &NvDsObjEncUsrArgs::calcEncodeTime)
+                .def("cast",
+                     [](size_t data) {
+                         return (NvDsObjEncUsrArgs *) data;
+                     },
+                     py::return_value_policy::reference,
+                     pydsdoc::utilsdoc::NvDsObjEncUsrArgsDoc::cast)
+                .def("cast",
+                     [](void *data) {
+                         return (NvDsObjEncUsrArgs *) data;
+                     },
+                     py::return_value_policy::reference,
+                     pydsdoc::utilsdoc::NvDsObjEncUsrArgsDoc::cast);
     }
 }
 

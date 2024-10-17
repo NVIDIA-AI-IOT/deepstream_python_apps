@@ -356,6 +356,10 @@ def main(args, requested_pgie=None, config=None, disable_probe=False):
     tiler.set_property("columns",tiler_columns)
     tiler.set_property("width", TILED_OUTPUT_WIDTH)
     tiler.set_property("height", TILED_OUTPUT_HEIGHT)
+    if platform_info.is_integrated_gpu():
+        tiler.set_property("compute-hw", 2)
+    else:
+        tiler.set_property("compute-hw", 1)
     sink.set_property("qos",0)
 
     print("Adding elements to Pipeline \n")

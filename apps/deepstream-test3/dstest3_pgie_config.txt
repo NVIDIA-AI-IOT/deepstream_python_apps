@@ -1,5 +1,5 @@
 ################################################################################
-# SPDX-FileCopyrightText: Copyright (c) 2019-2023 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2019-2024 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,7 +26,7 @@
 #
 # Optional properties for detectors:
 #   cluster-mode(Default=Group Rectangles), interval(Primary mode only, Default=0)
-#   custom-lib-path,
+#   custom-lib-path
 #   parse-bbox-func-name
 #
 # Mandatory properties for classifiers:
@@ -55,12 +55,10 @@
 [property]
 gpu-id=0
 net-scale-factor=0.00392156862745098
-tlt-model-key=tlt_encode
-tlt-encoded-model=../../../../samples/models/Primary_Detector/resnet18_trafficcamnet.etlt
-model-engine-file=../../../../samples/models/Primary_Detector/resnet18_trafficcamnet.etlt_b30_gpu0_int8.engine
+onnx-file=../../../../samples/models/Primary_Detector/resnet18_trafficcamnet_pruned.onnx
+model-engine-file=../../../../samples/models/Primary_Detector/resnet18_trafficcamnet_pruned.onnx_b1_gpu0_int8.engine
 labelfile-path=../../../../samples/models/Primary_Detector/labels.txt
 int8-calib-file=../../../../samples/models/Primary_Detector/cal_trt.bin
-force-implicit-batch-dim=1
 batch-size=30
 process-mode=1
 model-color-format=0
@@ -69,15 +67,9 @@ network-mode=1
 num-detected-classes=4
 interval=0
 gie-unique-id=1
-uff-input-order=0
-uff-input-blob-name=input_1
-output-blob-names=output_cov/Sigmoid;output_bbox/BiasAdd
-#scaling-filter=0
-#scaling-compute-hw=0
 cluster-mode=2
-infer-dims=3;544;960
 
 [class-attrs-all]
 pre-cluster-threshold=0.2
-eps=0.2
-group-threshold=1
+topk=20
+nms-iou-threshold=0.5

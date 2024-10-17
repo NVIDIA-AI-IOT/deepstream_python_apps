@@ -71,11 +71,11 @@ def test_pipeline1():
     ### INIT DATA
 
     # defining the function to be called at each frame
-    def frame_function(batch_meta, frame_meta, dict_data):
+    def frame_function(batch_meta, frame_meta, dict_data, gst_buffer):
         pass
 
     # defining the function to be called at each object
-    def box_function(batch_meta, frame_meta, obj_meta, dict_data):
+    def box_function(batch_meta, frame_meta, obj_meta, dict_data, gst_buffer):
         obj_counter = dict_data["obj_counter"]
         pgie_class_id = dict_data["pgie_class_id"]
         obj_counter[pgie_class_id[obj_meta.class_id]] += 1
@@ -112,7 +112,7 @@ def test_pipeline2():
     ### INIT DATA
 
     # defining the function to be called at each frame
-    def frame_function(batch_meta, frame_meta, dict_data):
+    def frame_function(batch_meta, frame_meta, dict_data, gst_buffer):
         pass
 
     tracker_qty_expected = {
@@ -130,7 +130,7 @@ def test_pipeline2():
         "confidence": 464,
         "age": 464}
 
-    def user_function(batch_meta, user_meta, dict_data):
+    def user_function(batch_meta, user_meta, dict_data, gst_buffer):
         if not user_meta:
             return
         if not user_meta.base_meta.meta_type == pyds.NvDsMetaType.NVDS_TRACKER_PAST_FRAME_META:
@@ -155,10 +155,27 @@ def test_pipeline2():
                     tracker_data["age"].add(miscDataFrame.confidence)
 
     # defining the function to be called at each object
-    def box_function(batch_meta, frame_meta, obj_meta, dict_data):
+    def box_function(batch_meta, frame_meta, obj_meta, dict_data, gst_buffer):
         obj_counter = dict_data["obj_counter"]
         pgie_class_id = dict_data["pgie_class_id"]
         obj_counter[pgie_class_id[obj_meta.class_id]] += 1
+
+        l_obj_user_meta = obj_meta.obj_user_meta_list
+        while l_obj_user_meta is not None:
+            try:
+                user_meta=pyds.NvDsUserMeta.cast(l_obj_user_meta.data)
+                if not user_meta.base_meta.meta_type == pyds.NvDsMetaType.NVDS_TRACKER_OBJ_REID_META:
+                    continue
+                reid=pyds.NvDsObjReid.cast(user_meta.user_meta_data)
+                vec = reid.get_host_reid_vector()
+                assert reid.featureSize == vec.size
+                # print(f"reid featureSize {reid.featureSize} == {vec.__class__} == {vec.size}")
+            except StopIteration:
+                break
+            try:
+                l_obj_user_meta=l_obj_user_meta.next
+            except StopIteration:
+                break
 
     tracker_cfg = get_tracker_properties_from_config("ds_tracker_config.txt")
     properties = {
@@ -214,3 +231,103 @@ def test_pipeline2():
     for key, expected_qty in tracker_qty_expected.items():
         qty = len(data_probe["tracker_data"][key])
         assert qty > 0
+
+
+def test_pipeline3():
+    ### INIT DATA
+
+    # Creating the pipeline
+    sp = PipelineFakesink(STANDARD_PROPERTIES1, is_integrated_gpu())
+
+    # Create Context for Object Encoding.
+    # Takes GPU ID as a parameter.
+    obj_ctx_handle = pyds.nvds_obj_enc_create_context (0)
+
+    # defining the function to be called at each frame
+    def frame_function(batch_meta, frame_meta, dict_data, gst_buffer):
+        frame_number=frame_meta.frame_num
+        if frame_number < 3:
+            frameData = pyds.NvDsObjEncUsrArgs()
+            frameData.isFrame = 1
+            frameData.saveImg = False
+            frameData.attachUsrMeta = True
+            frameData.scaleImg = False
+            frameData.scaledWidth = 0
+            frameData.scaledHeight = 0
+            frameData.quality = 80
+            frameData.calcEncodeTime = 1
+            pyds.nvds_obj_enc_process (obj_ctx_handle, frameData, hash(gst_buffer), None, frame_meta)
+
+    # defining the function to be called at each object
+    def box_function(batch_meta, frame_meta, obj_meta, dict_data, gst_buffer):
+        count = 0
+        frame_number=frame_meta.frame_num
+        num_obj = frame_meta.num_obj_meta
+        if frame_number < 3 and count == 0:
+            count += 1
+            objData = pyds.NvDsObjEncUsrArgs()
+            objData.saveImg = False
+            objData.attachUsrMeta = True
+            objData.scaleImg = False
+            objData.scaledWidth = 0
+            objData.scaledHeight = 0
+            objData.objNum = num_obj
+            objData.quality = 80
+            objData.calcEncodeTime = 1
+            pyds.nvds_obj_enc_process (obj_ctx_handle, objData, hash(gst_buffer), obj_meta, frame_meta)
+
+    def post_process(gst_buffer):
+        pyds.nvds_obj_enc_finish(obj_ctx_handle)
+
+    # Creating the probe function
+    probe_function = FrameIterator(frame_function, box_function, None, None, post_process)
+    # registering the probe function
+    sp.set_fix_elem_probe("primary-inference", "src", probe_function)
+
+    def frame_function2(batch_meta, frame_meta, dict_data, gst_buffer):
+        fusrMetaList = frame_meta.frame_user_meta_list
+        frame_number = frame_meta.frame_num
+        while fusrMetaList is not None:
+            try:
+                fuser_meta = pyds.NvDsUserMeta.cast(fusrMetaList.data)
+                if fuser_meta.base_meta.meta_type == pyds.NvDsMetaType.NVDS_CROP_IMAGE_META:
+                    fenc_output = pyds.NvDsObjEncOutParams.cast(fuser_meta.user_meta_data)
+                    foutput = fenc_output.outBuffer()
+                    assert foutput is not None
+                    foutput.tofile(f"frame-{frame_number}-out.jpg")
+            except StopIteration:
+                break
+            try:
+                fusrMetaList = fusrMetaList.next
+            except StopIteration:
+                break
+
+    def box_function2(batch_meta, frame_meta, obj_meta, dict_data, gst_buffer):
+        frame_number = frame_meta.frame_num
+        usrMetaList = obj_meta.obj_user_meta_list
+        count = 0
+        while usrMetaList is not None:
+            try:
+                user_meta = pyds.NvDsUserMeta.cast(usrMetaList.data)
+                if user_meta.base_meta.meta_type == pyds.NvDsMetaType.NVDS_CROP_IMAGE_META:
+                    enc_output = pyds.NvDsObjEncOutParams.cast(user_meta.user_meta_data)
+                    output = enc_output.outBuffer()
+                    assert output is not None
+                    output.tofile(f"frame-{frame_number}-obj-{count}-out.jpg")
+                    count += 1
+            except StopIteration:
+                break
+            try:
+                usrMetaList = usrMetaList.next
+            except StopIteration:
+                break
+
+    probe_function2 = FrameIterator(frame_function2, box_function2, None)
+    sp.set_probe(probe_function2)
+
+    ### LAUNCH BEHAVIOR
+    # Running the pipeline
+    sp.run()
+
+    # Destroy context for Object Encoding
+    pyds.nvds_obj_enc_destroy_context (obj_ctx_handle)

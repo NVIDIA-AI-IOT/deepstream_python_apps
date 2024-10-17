@@ -726,3 +726,19 @@ m.def("gst_element_send_nvevent_new_stream_reset",
 ```
 
 So now, we can return the status of whether the event was handled properly, which is provided by ```gst_element_send_event()``` back to Python app as a boolean.
+
+Some additional notes: if you call a potentially blocking send event function in a sub-thread, you may need to manually release the [GIL](https://docs.python.org/3/c-api/init.html#thread-state-and-the-global-interpreter-lock). Here is an example:
+
+```cpp
+m.def("gst_element_send_nvevent_interval_update",
+        [](size_t gst_element, char* stream_id, int interval) {
+            bool ret = false;
+            auto *element = reinterpret_cast<GstElement *>(gst_element);
+            auto *event = gst_nvevent_infer_interval_update(stream_id, interval);
+            Py_BEGIN_ALLOW_THREADS;
+            ret = gst_element_send_event(element, event);
+            Py_END_ALLOW_THREADS;
+            return ret;
+        },
+        pydsdoc::methodsDoc::gst_element_send_nvevent_interval_update);
+```

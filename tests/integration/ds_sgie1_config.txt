@@ -1,5 +1,5 @@
 ################################################################################
-# SPDX-FileCopyrightText: Copyright (c) 2019-2023 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2019-2024 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -55,12 +55,10 @@
 [property]
 gpu-id=0
 net-scale-factor=1
-tlt-model-key=tlt_encode
-tlt-encoded-model=../../../../samples/models/Secondary_VehicleMake/resnet18_vehiclemakenet.etlt
-model-engine-file=../../../../samples/models/Secondary_VehicleMake/resnet18_vehiclemakenet.etlt_b16_gpu0_int8.engine
+onnx-file=../../../../samples/models/Secondary_VehicleMake/resnet18_vehiclemakenet_pruned.onnx
+model-engine-file=../../../../samples/models/Secondary_VehicleMake/resnet18_vehiclemakenet_pruned.onnx_b16_gpu0_int8.engine
 labelfile-path=../../../../samples/models/Secondary_VehicleMake/labels.txt
 int8-calib-file=../../../../samples/models/Secondary_VehicleMake/cal_trt.bin
-force-implicit-batch-dim=1
 batch-size=16
 # 0=FP32 and 1=INT8 mode
 network-mode=1
@@ -73,11 +71,8 @@ gie-unique-id=2
 operate-on-gie-id=1
 operate-on-class-ids=0
 is-classifier=1
-uff-input-blob-name=input_1
-output-blob-names=predictions/Softmax
 classifier-async-mode=1
 classifier-threshold=0.51
 process-mode=2
 #scaling-filter=0
 #scaling-compute-hw=0
-infer-dims=3;244;244

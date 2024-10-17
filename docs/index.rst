@@ -17,6 +17,7 @@ Deepstream Python API Reference
     PYTHON_API/NvDs360DMeta/NvDs360DMeta_toc
     PYTHON_API/NvDsOpticalFlow/NvDsOpticalFlow_toc
     PYTHON_API/GstNvDsMeta/GstNvDsMeta_toc
+    PYTHON_API/Utils/Utils_toc
     PYTHON_API/Methods/pymethods.rst
     PYTHON_API/CustomDataStruct/CustomDataStruct_toc
 

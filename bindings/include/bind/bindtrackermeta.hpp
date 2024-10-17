@@ -20,6 +20,7 @@
 
 #include "../../docstrings/trackermetadoc.h"
 #include "pyds.hpp"
+#include "pybind11/numpy.h"
 
 namespace py = pybind11;
 

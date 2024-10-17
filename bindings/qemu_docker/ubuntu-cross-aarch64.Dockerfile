@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM nvcr.io/nvidia/deepstream:7.0-triton-multiarch
+FROM nvcr.io/nvidia/deepstream:7.1-triton-multiarch
 LABEL maintainer="NVIDIA CORPORATION"
 
 # Set timezone.
@@ -69,6 +69,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 RUN pip3 install --upgrade pip
 RUN pip3 install setuptools>=41.0.0
+RUN pip3 install build
 
 COPY docker/jetpack_files/Jetson*Linux_R*aarch64.tbz2 /bsp_files/
 

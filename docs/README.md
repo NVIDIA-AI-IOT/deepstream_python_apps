@@ -2,7 +2,7 @@ Please follow the following steps to build html files
 
 requirements
 ===================
-1. python 3.8 (The default `python --version` should be 3.8)
+1. python 3.10 (The default `python --version` should be 3.10)
 2. sphinx (>=4.2)
 3. breathe extension
 4. recommonmark
@@ -18,7 +18,7 @@ pip3 install sphinx_rtd_theme
 ```
 
 1. Run parse_bindings.py to generate rst files for classes and enums
-2. Copy the pyds.so from ds_python/bindings/build dir into this (docs) directory
+2. Follow README in `../bindings` to compile and install bindings
 3. Then run
    ```bash
     make html

@@ -16,15 +16,17 @@
 ################################################################################
 
 Prerequisites:
-- DeepStreamSDK 7.0
+- DeepStreamSDK 7.0 **NOT CURRENTLY SUPPORTED BY 7.1**
 - Python 3.10
 - Gst-python
-- NumPy package
+- NumPy package <2.0, >=1.22 (2.0 and above not supported)
 - OpenCV package
 
 To install required packages:
 $ sudo apt update
 $ sudo apt install python3-numpy python3-opencv -y
+
+**NOTE**: this application is not currently supported by DeepStream 7.1, due to removal of segmentation models.
 
 Download PeopleSegNet model:
   Please follow instructions from the README.md located at : /opt/nvidia/deepstream/deepstream/samples/configs/tao_pretrained_models/README.md

@@ -593,7 +593,17 @@ namespace pydsdoc
             :arg gst_element: element for to which the generated event needs to be sent.
             :arg source_id: source id for which this event needs to be generated
             :returns: True for success.)pyds";
-        
+
+        constexpr const char* gst_element_send_nvevent_interval_update=R"pyds(
+            Sends a "nv-infer-interval-update" event to nvinfer.
+
+            This function is used to update the value of the interval property of nvinfer
+
+            :arg gst_element: nvinfer for to which the interval-update event needs to be sent.
+            :arg source_id: Stream ID of the stream for which infer-interval-update is to be sent
+            :arg interval: The infer interval obtained corresponding to stream ID for the event.
+            :returns: True for success.)pyds";
+
         constexpr const char* alloc_custom_struct=R"pyds( 
             Allocate an :class:`CustomDataStruct`. 
 
@@ -611,21 +621,51 @@ namespace pydsdoc
             :arg src_elem: GStreamer source element to be configured.)pyds";
 
         constexpr const char* nvds_measure_buffer_latency=R"pyds(
-        Measures the latency of all frames present in the current batch.
+            Measures the latency of all frames present in the current batch.
 
             :arg buffer: GstBuffer from which to retrieve the :class:`NvDsBatchMeta`
 
-            :returns: :sources number in batch.
+            :returns: sources number in batch.
 
             Example usage:
             ::
 
-            #enable pipeline latency measurement
-            export NVDS_ENABLE_LATENCY_MEASUREMENT=1
-            #enable compoment latency measurement
-            export NVDS_ENABLE_COMPONENT_LATENCY_MEASUREMENT=1
+                #enable pipeline latency measurement
+                export NVDS_ENABLE_LATENCY_MEASUREMENT=1
+                #enable compoment latency measurement
+                export NVDS_ENABLE_COMPONENT_LATENCY_MEASUREMENT=1
 
-            #add this code in plugin probe function.
-            num_sources_in_batch = pyds.nvds_measure_buffer_latency(hash(gst_buffer));)pyds";
-	}
+                #add this code in plugin probe function.
+                num_sources_in_batch = pyds.nvds_measure_buffer_latency(hash(gst_buffer));)pyds";
+
+        constexpr const char* nvds_obj_enc_create_context=R"pyds(
+            Create context and return a handle to NvObjEncCtx.
+
+            :arg gpu_id: gpu id.
+
+            :returns: handle to NvObjEncCtx.)pyds";
+
+        constexpr const char* nvds_obj_enc_process=R"pyds(
+            Enqueue an object crop for JPEG encode.
+            This is a non-blocking call and user should call `nvds_obj_enc_finish()`
+            to make sure all enqueued object crops have been processed.
+
+            :arg context: handle to NvObjEncCtx.
+            :arg args: An object of type :class:`NvDsObjEncUsrArgs`.
+            :arg buffer: GstBuffer from which to retrieve the :class:`NvBufSurface`
+            :arg obj_meta: An object of type :class:`NvDsOjbectMeta`.
+            :arg frame_meta: An object of type :class:`NvDsFrameMeta`.
+
+            :returns: 0 for success, -1 for failure.)pyds";
+
+        constexpr const char* nvds_obj_enc_finish=R"pyds(
+            Wait for all enqueued crops to be encoded.
+
+            :arg context: handle to NvObjEncCtx.)pyds";
+
+        constexpr const char* nvds_obj_enc_destroy_context=R"pyds(
+            Destroy NvObjEncCtx context.
+
+            :arg context: handle to NvObjEncCtx.)pyds";
+    }
 }

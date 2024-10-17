@@ -23,7 +23,6 @@
 namespace py = pybind11;
 
 namespace pydeepstream {
-
     void bindtrackermeta(py::module &m) {
         /*Start of Bindings for nvds_tracker_meta.h*/
         py::class_<NvDsTargetMiscDataFrame>(m, "NvDsTargetMiscDataFrame",
@@ -115,6 +114,26 @@ namespace pydeepstream {
                      py::keep_alive<0, 1>(), py::return_value_policy::reference,
                      pydsdoc::trackerdoc::NvDsTargetMiscDataBatchDoc::list);
 
+
+         py::class_<NvDsObjReid>(m, "NvDsObjReid",
+                                pydsdoc::trackerdoc::NvDsObjReidDoc::descr)
+                .def(py::init<>())
+                .def_readwrite("featureSize",
+                               &NvDsObjReid::featureSize)
+                // Expose a method to get the ReID vector as a NumPy array
+                .def("get_host_reid_vector", [](NvDsObjReid &self) {
+                    return py::array_t<float>(
+                        {self.featureSize},       // Shape of the array
+                        {sizeof(float)},          // Stride of the array
+                        self.ptr_host           // Data pointer (ptr_host from C++)
+                    );
+                }, "Returns Host ReID vector as NumPy array")
+                .def("cast",
+                     [](void *data) {
+                         return (NvDsObjReid *) data;
+                     },
+                     py::return_value_policy::reference,
+                     pydsdoc::trackerdoc::NvDsObjReidDoc::cast);
     }
 
 }

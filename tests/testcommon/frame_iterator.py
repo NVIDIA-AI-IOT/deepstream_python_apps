@@ -24,22 +24,26 @@ from gi.repository import GObject, Gst
 
 class FrameIterator:
 
-    def __init__(self, fun_frame, fun_obj, data_dict, fun_user=None):
+    def __init__(self, fun_frame, fun_obj, data_dict, fun_user=None, fun_post_process=None):
         self._fun_frame = fun_frame
         self._fun_obj = fun_obj
         self._fun_user = fun_user
         self._data_dict = data_dict
+        self._fun_post_process = fun_post_process
 
-    def _process_frame_function(self, batch_meta, frame_meta):
+    def _process_frame_function(self, batch_meta, frame_meta, gst_buffer):
+        self._fun_frame(batch_meta, frame_meta, self._data_dict, gst_buffer)
 
-        self._fun_frame(batch_meta, frame_meta, self._data_dict)
+    def _process_obj_function(self, batch_meta, frame_meta, obj_meta, gst_buffer):
+        self._fun_obj(batch_meta, frame_meta, obj_meta, self._data_dict, gst_buffer)
 
-    def _process_obj_function(self, batch_meta, frame_meta, obj_meta):
-        self._fun_obj(batch_meta, frame_meta, obj_meta, self._data_dict)
-
-    def _process_user_function(self, batch_meta, user_meta):
+    def _process_user_function(self, batch_meta, user_meta, gst_buffer):
         if self._fun_user:
-            self._fun_user(batch_meta, user_meta, self._data_dict)
+            self._fun_user(batch_meta, user_meta, self._data_dict, gst_buffer)
+
+    def _post_process_function(self, gst_buffer):
+        if self._fun_post_process:
+            self._fun_post_process(gst_buffer)
 
     def __call__(self, pad, info, u_data):
 
@@ -62,14 +66,14 @@ class FrameIterator:
                     obj_meta = pyds.NvDsObjectMeta.cast(l_obj.data)
                 except StopIteration:
                     break
-                self._process_obj_function(batch_meta, frame_meta, obj_meta)
+                self._process_obj_function(batch_meta, frame_meta, obj_meta, gst_buffer)
 
                 try:
                     l_obj = l_obj.next
                 except StopIteration:
                     break
 
-            self._process_frame_function(batch_meta, frame_meta)
+            self._process_frame_function(batch_meta, frame_meta, gst_buffer)
 
             try:
                 l_frame = l_frame.next
@@ -82,10 +86,12 @@ class FrameIterator:
                 user_meta = pyds.NvDsUserMeta.cast(l_user.data)
             except StopIteration:
                 break
-            self._process_user_function(batch_meta, user_meta)
+            self._process_user_function(batch_meta, user_meta, gst_buffer)
             try:
                 l_user = l_user.next
             except StopIteration:
                 break
+
+        self._post_process_function(gst_buffer)
 
         return Gst.PadProbeReturn.OK

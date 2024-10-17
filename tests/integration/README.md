@@ -34,24 +34,30 @@ Installing:
 * python virtual env for the requested python version
 * dependencies listed in the `bindings` folder
 * pytest
+* ReID model for tracker
+    ```
+    cd /opt/nvidia/deepstream/deepstream/samples/models
+    mkdir Tracker && cd Tracker
+    wget --content-disposition 'https://api.ngc.nvidia.com/v2/models/org/nvidia/team/tao/reidentificationnet/deployable_v1.2/files?redirect=true&path=resnet50_market1501_aicity156.onnx' -O resnet50_market1501_aicity156.onnx
+    export PATH=$PATH:/usr/src/tensorrt/bin
+    trtexec --minShapes=input:1x3x256x128 --optShapes=input:8x3x256x128 --maxShapes=input:16x3x256x128  --fp16 --saveEngine=resnet50_market1501_aicity156.onnx_b16_gpu0_fp16.engine --onnx=resnet50_market1501_aicity156.onnx
+    ```
 ### step1
-```
-mkdir -p bindings/build
-cd bindings/build
-```
+
+Compile bindings as per [Python Binding instructions](../../bindings)
+
 ### step2
 #### Python 3.10
 ```
-cmake ..  -DPYTHON_MINOR_VERSION=10
-make
+apt install python3.10-venv
 python3.10 -m venv env
 ```
 ### step3
 ```
 . env/bin/activate
-pip install pyds-1.1.11-py3-none-*.whl
-pip install pytest
-cd ../../tests/integration
+pip install /opt/nvidia/deepstream/deepstream/sources/deepstream_python_apps/bindings/dist/pyds-1.2.0*.whl
+pip install pytest pygobject cuda-python numpy==1.26.0
+cd /opt/nvidia/deepstream/deepstream/sources/deepstream_python_apps/tests/integration
 pytest test.py
 ```
 

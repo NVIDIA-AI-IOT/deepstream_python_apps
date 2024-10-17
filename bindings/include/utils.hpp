@@ -43,6 +43,9 @@ namespace pydeepstream {
     pybind11::arg operator ""_a(const char *str, size_t len);
 }
 
+namespace pydeepstream {
+    void bindutils(py::module &m);
+}
 
 namespace pydeepstream::utils {
 

@@ -329,7 +329,7 @@ def main(args):
 
     streammux.set_property("width", 1920)
     streammux.set_property("height", 1080)
-    streammux.set_property("batch-size", 1)
+    streammux.set_property("batch-size", number_sources)
     streammux.set_property("batched-push-timeout", MUXER_BATCH_TIMEOUT_USEC)
     preprocess.set_property("config-file", "config_preprocess.txt")
     pgie.set_property("config-file-path", "dstest1_pgie_config.txt")

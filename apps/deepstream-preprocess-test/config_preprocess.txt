@@ -40,7 +40,7 @@ network-input-shape=8;3;544;960
 network-color-format=0
     # 0=FP32, 1=UINT8, 2=INT8, 3=UINT32, 4=INT32, 5=FP16
 tensor-data-type=0
-tensor-name=input_1
+tensor-name=input_1:0
     # 0=NVBUF_MEM_DEFAULT 1=NVBUF_MEM_CUDA_PINNED 2=NVBUF_MEM_CUDA_DEVICE 3=NVBUF_MEM_CUDA_UNIFIED
 scaling-pool-memory-type=0
     # 0=NvBufSurfTransformCompute_Default 1=NvBufSurfTransformCompute_GPU 2=NvBufSurfTransformCompute_VIC

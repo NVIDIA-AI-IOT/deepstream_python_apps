@@ -17,6 +17,8 @@
 
 #include "bind_string_property_definitions.h"
 #include "bindfunctions.hpp"
+#include "gst-nvdscustomevent.h"
+#include "nvds_obj_encode.h"
 
 namespace py = pybind11;
 using namespace std;
@@ -272,7 +274,9 @@ namespace pydeepstream {
               pydsdoc::methodsDoc::nvds_copy_obj_meta_list1);
 
         m.def("nvds_get_user_meta_type",
-              &nvds_get_user_meta_type,
+              [](const char* meta_descriptor) {
+                  return g_quark_from_string((gchar*)meta_descriptor) + NVDS_START_USER_META;
+              },
               "meta_descriptor"_a,
               pydsdoc::methodsDoc::nvds_get_user_meta_type1);
 
@@ -797,6 +801,18 @@ namespace pydeepstream {
               },
               pydsdoc::methodsDoc::gst_element_send_nvevent_new_stream_reset);
 
+        m.def("gst_element_send_nvevent_interval_update",
+            [](size_t gst_element, char* stream_id, int interval) {
+                bool ret = false;
+                auto *element = reinterpret_cast<GstElement *>(gst_element);
+                auto *event = gst_nvevent_infer_interval_update(stream_id, interval);
+                Py_BEGIN_ALLOW_THREADS;
+                ret = gst_element_send_event(element, event);
+                Py_END_ALLOW_THREADS;
+                return ret;
+            },
+            pydsdoc::methodsDoc::gst_element_send_nvevent_interval_update);
+
         m.def("configure_source_for_ntp_sync",
             [](size_t src_elem) {
                   auto *element = reinterpret_cast<GstElement *>(src_elem);
@@ -839,5 +855,48 @@ namespace pydeepstream {
               },
               "gst_buffer"_a, py::return_value_policy::reference,
               pydsdoc::methodsDoc::nvds_measure_buffer_latency);
-    }
+
+        m.def("nvds_obj_enc_create_context",
+            [](int gpu_id) -> size_t {
+                auto handle = nvds_obj_enc_create_context(gpu_id);
+                return reinterpret_cast<size_t>(handle);
+            }, py::return_value_policy::reference,
+            pydsdoc::methodsDoc::nvds_obj_enc_create_context);
+
+        m.def("nvds_obj_enc_process",
+            [](size_t ctx, NvDsObjEncUsrArgs *args,
+                size_t gst_buffer, NvDsObjectMeta *obj_meta, NvDsFrameMeta *frame_meta) -> bool {
+                auto *buffer = reinterpret_cast<GstBuffer *>(gst_buffer);
+                auto *handle = reinterpret_cast<NvDsObjEncCtxHandle>(ctx);
+                if (buffer == nullptr || handle == nullptr) {
+                    std::cout << "buffer: " << buffer << " handle: " << handle << std::endl;
+                    return false;
+                }
+
+                GstMapInfo inmap;
+                gst_buffer_map(buffer, &inmap, GST_MAP_READ);
+                auto *inputnvsurface = reinterpret_cast<NvBufSurface *>(inmap.data);
+                gst_buffer_unmap(buffer, &inmap);
+
+                return nvds_obj_enc_process(handle, args, inputnvsurface, obj_meta, frame_meta);
+            }, "ctx"_a, "args"_a, "gst_buffer"_a, "obj_meta"_a, "frame_meta"_a,
+            py::return_value_policy::reference,
+            pydsdoc::methodsDoc::nvds_obj_enc_process);
+
+        m.def("nvds_obj_enc_finish",
+            [](size_t ctx) {
+                auto *handle = reinterpret_cast<NvDsObjEncCtxHandle>(ctx);
+                if (handle != nullptr) {
+                    nvds_obj_enc_finish(handle);
+                }
+            }, "ctx"_a, pydsdoc::methodsDoc::nvds_obj_enc_finish);
+
+        m.def("nvds_obj_enc_destroy_context",
+            [](size_t ctx) {
+                auto *handle = reinterpret_cast<NvDsObjEncCtxHandle>(ctx);
+                if (handle != nullptr) {
+                    nvds_obj_enc_destroy_context(handle);
+                }
+            }, "ctx"_a, pydsdoc::methodsDoc::nvds_obj_enc_destroy_context);
+     }
 }

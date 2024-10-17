@@ -17,6 +17,12 @@ gst_element_send_nvevent_new_stream_reset
 .. autofunction:: pyds.gst_element_send_nvevent_new_stream_reset
 
 ======================
+gst_element_send_nvevent_interval_update
+======================
+
+.. autofunction:: pyds.gst_element_send_nvevent_interval_update
+
+======================
 get_segmentation_masks
 ======================
 
@@ -415,3 +421,27 @@ nvds_measure_buffer_latency
 =============================
 
 .. autofunction:: pyds.nvds_measure_buffer_latency
+
+=============================
+nvds_obj_enc_create_context
+=============================
+
+.. autofunction:: pyds.nvds_obj_enc_create_context
+
+=============================
+nvds_obj_enc_process
+=============================
+
+.. autofunction:: pyds.nvds_obj_enc_process
+
+=============================
+nvds_obj_enc_finish
+=============================
+
+.. autofunction:: pyds.nvds_obj_enc_finish
+
+=============================
+nvds_obj_enc_destroy_context
+=============================
+
+.. autofunction:: pyds.nvds_obj_enc_destroy_context

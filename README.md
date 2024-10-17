@@ -2,13 +2,22 @@
 
 This repository contains Python bindings and sample applications for the [DeepStream SDK](https://developer.nvidia.com/deepstream-sdk).  
 
-SDK version supported: 7.0
+SDK version supported: 7.1
 
-<b>This release only supports Ubuntu 22.04 for DeepStreamSDK 7.0 with Python 3.10 and [gst-python](3rdparty/gst-python/) 1.20.3! Ubuntu 20.04 for DeepStreamSDK 6.3 with Python 3.8 support is NOW DEPRECATED</b>
+<b>This release only supports Ubuntu 22.04 for DeepStreamSDK 7.1 with Python 3.10 and [gst-python](3rdparty/gst-python/) 1.20.3! Ubuntu 20.04 for DeepStreamSDK 6.3 with Python 3.8 support is NOW DEPRECATED</b>
 
-The bindings sources along with build instructions are available under [bindings](bindings)! We include one [guide](bindings/BINDINGSGUIDE.md) for contributing to bindings and another [guide](bindings/CUSTOMUSERMETAGUIDE.md) for advanced use-cases such as writing bindings for custom data structures. 
+The bindings sources along with build instructions are available under [bindings](bindings)! PyDS 1.2.0 for DeepStream 7.1 uses an updated build system for PyPA to support pip 24.2, which deprecated setup.py command line. We include one [guide](bindings/BINDINGSGUIDE.md) for contributing to bindings and another [guide](bindings/CUSTOMUSERMETAGUIDE.md) for advanced use-cases such as writing bindings for custom data structures. 
 
 Please report any issues or bugs on the [DeepStream SDK Forums](https://devtalk.nvidia.com/default/board/209). This enables the DeepStream community to find help at a central location.
+
+<b>NOTE:<b> numpy 2.x is not supported. If you have numpy 2.x installed, please downgrade by running
+```
+pip3 install --force-reinstall numpy==1.26.0
+```
+
+<b>NOTE:<b> deepstream-segmask and deepstream-segmentation applications are not currently supported by DeepStream 7.1, due to removal of segmentation models.
+
+<b>NOTE for DeepStream dockers:<b> If you installed PyDS by running the user_deepstream_python_apps_install.sh script, be sure you also run the <b>user_additional_install.sh script<b>.
 
 - [DeepStream Python Apps](#deepstream-python-apps)
   - [Setup](#setup)
@@ -59,7 +68,7 @@ We currently provide the following sample applications:
 * [deepstream-test1-usbcam](apps/deepstream-test1-usbcam) -- deepstream-test1 pipeline with USB camera input
 * [deepstream-test1-rtsp-out](apps/deepstream-test1-rtsp-out) -- deepstream-test1 pipeline with RTSP output, demonstrates adding software encoder option to support Jetson Orin Nano
 * [deepstream-opticalflow](apps/deepstream-opticalflow) -- optical flow and visualization pipeline with flow vectors returned in NumPy array
-* [deepstream-segmentation](apps/deepstream-segmentation) -- segmentation and visualization pipeline with segmentation mask returned in NumPy array
+* [deepstream-segmentation](apps/deepstream-segmentation) -- **NOT CURRENTLY SUPPORTED IN DS 7.1** segmentation and visualization pipeline with segmentation mask returned in NumPy array
 * [deepstream-nvdsanalytics](apps/deepstream-nvdsanalytics) -- multistream pipeline with analytics plugin
 * [runtime_source_add_delete](apps/runtime_source_add_delete) -- add/delete source streams at runtime
 * [deepstream-imagedata-multistream-redaction](apps/deepstream-imagedata-multistream-redaction) -- multi-stream pipeline with face detection and redaction
@@ -67,7 +76,7 @@ We currently provide the following sample applications:
 * [deepstream-preprocess-test](apps/deepstream-preprocess-test) -- multi-stream pipeline using nvdspreprocess plugin with custom ROIs
 * [deepstream-demux-multi-in-multi-out](apps/deepstream-demux-multi-in-multi-out) -- multi-stream pipeline using nvstreamdemux plugin to generated separate buffer outputs
 * [deepstream-imagedata-multistream-cupy](apps/deepstream-imagedata-multistream-cupy) -- access imagedata buffer from GPU in a multistream source as CuPy array - x86 only
-* [deepstream-segmask](apps/deepstream-segmask) -- access and interpret segmentation mask information from NvOSD_MaskParams
+* [deepstream-segmask](apps/deepstream-segmask) -- **NOT CURRENTLY SUPPORTED IN DS 7.1** access and interpret segmentation mask information from NvOSD_MaskParams
 * [deepstream-custom-binding-test](apps/deepstream-custom-binding-test) -- demonstrate usage of NvDsUserMeta for attaching custom data structure - see also the [Custom User Meta Guide](bindings/CUSTOMUSERMETAGUIDE.md)
 
 

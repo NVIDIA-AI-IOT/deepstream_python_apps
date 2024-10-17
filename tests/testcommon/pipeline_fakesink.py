@@ -40,6 +40,7 @@ class PipelineFakesink(GenericPipeline):
         ]
         pipeline_arm64 = [
         ]
+        self.pipeline_base = pipeline_base
         super().__init__(properties, is_integrated_gpu, pipeline_base,
                          pipeline_arm64)
 
@@ -50,6 +51,16 @@ class PipelineFakesink(GenericPipeline):
             sys.stderr.write("Unable to get sink pad of nvosd \n")
 
         osdsinkpad.add_probe(Gst.PadProbeType.BUFFER, probe_function, 0)
+
+    def set_fix_elem_probe(self, elem_name, direction, probe_function):
+        assert elem_name in [item[1] for item in self.pipeline_base]
+        assert direction in ["src", "sink"]
+        element = self._get_elm_by_name(elem_name)
+        pad = element.get_static_pad(direction)
+        if not pad:
+            sys.stderr.write("Unable to get sink pad of {elem_name} \n")
+
+        pad.add_probe(Gst.PadProbeType.BUFFER, probe_function, 0)
 
     def _link_elements(self):
         gebn = lambda n: self._get_elm_by_name(n)

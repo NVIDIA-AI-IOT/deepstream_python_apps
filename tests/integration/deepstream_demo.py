@@ -52,7 +52,7 @@ def make_text_display(display_meta, frame_number, num_rects, obj_counter):
     py_nvosd_text_params.text_bg_clr.set(0.0, 0.0, 0.0, 1.0)
 
 
-def frame_function(batch_meta, frame_meta, dict_data):
+def frame_function(batch_meta, frame_meta, dict_data, gst_buffer):
     obj_counter = dict_data["obj_counter"]
     pgie_class_id = dict_data["pgie_class_id"]
     frame_number = frame_meta.frame_num
@@ -66,7 +66,7 @@ def frame_function(batch_meta, frame_meta, dict_data):
     pyds.nvds_add_display_meta_to_frame(frame_meta, display_meta)
 
 
-def box_function(batch_meta, frame_meta, obj_meta, dict_data):
+def box_function(batch_meta, frame_meta, obj_meta, dict_data, gst_buffer):
     obj_counter = dict_data["obj_counter"]
     pgie_class_id = dict_data["pgie_class_id"]
     obj_counter[pgie_class_id[obj_meta.class_id]] += 1

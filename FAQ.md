@@ -165,5 +165,5 @@ The pyds wheel installs the pyds.so library where all the pip packages are store
 
 Command to install the pyds wheel is:
 ```bash
-   $ pip3 install ./pyds-1.1.11-py3-none*.whl
+   $ pip3 install ./pyds-1.2.0*.whl
 ```

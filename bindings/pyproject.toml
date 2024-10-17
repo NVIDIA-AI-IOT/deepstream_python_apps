@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2021 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,15 +13,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import setuptools
+[build-system]
+requires = [
+    "setuptools>=42",
+    "wheel",
+    "ninja",
+    "cmake>=3.12",
+]
+build-backend = "setuptools.build_meta"
 
-setuptools.setup(
-    name="pyds",
-    version="1.1.11",
-    author="NVIDIA",
-    description="Install precompiled DeepStream Python bindings extension",
-    url="nvidia.com",
-    packages=[''],
-    package_data={'': ['pyds.so']},
-    install_requires=["pgi", "PyGObject"]
-)
+[tool.mypy]
+files = "setup.py"
+python_version = "3.10"
+strict = true
+show_error_codes = true
+enable_error_code = ["ignore-without-code", "redundant-expr", "truthy-bool"]
+warn_unreachable = true
+
+[[tool.mypy.overrides]]
+module = ["ninja"]
+ignore_missing_imports = true

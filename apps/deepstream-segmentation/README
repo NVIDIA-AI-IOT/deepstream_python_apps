@@ -16,10 +16,10 @@
 ################################################################################
 
 Prerequisites:
-- DeepStreamSDK 7.0
+- DeepStreamSDK 7.0 **NOT SUPPORTED BY 7.1**
 - Python 3.10
 - Gst-python
-- NumPy package
+- NumPy package <2.0, >=1.22 (2.0 and above not supported)
 - OpenCV package
 
 To install required packages:
