@@ -1,10 +1,10 @@
-[submodule "3rdparty/pybind11"]
+[submodule "bindings/3rdparty/pybind11"]
 	path = bindings/3rdparty/pybind11
 	url = https://github.com/pybind/pybind11.git
-[submodule "3rdparty/git-partial-submodule"]
+[submodule "bindings/3rdparty/git-partial-submodule"]
 	path = bindings/3rdparty/git-partial-submodule
 	url = https://github.com/Reedbeta/git-partial-submodule.git
-[submodule "3rdparty/gstreamer"]
+[submodule "bindings/3rdparty/gstreamer"]
 	path = bindings/3rdparty/gstreamer
 	url = https://github.com/GStreamer/gstreamer.git
 	sparse-checkout = subprojects/gst-python/
