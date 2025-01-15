@@ -10,3 +10,5 @@ bindschema.cpp
 bindtrackermeta.cpp
 utils.cpp
 custom_binding/bindcustom.cpp
+bindnvdspreprocess_meta.cpp
+bindnvds_roi_meta.cpp

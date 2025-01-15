@@ -1,0 +1,7 @@
+=================
+NvDsAnalyticsMeta
+=================
+
+.. toctree::
+	NvDsAnalyticsObjInfo
+	NvDsAnalyticsFrameMeta

@@ -1,0 +1,7 @@
+==========================
+GstNvDsPreProcessBatchMeta
+==========================
+
+.. toctree::
+	NvDsPreProcessTensorMeta
+	GstNvDsPreProcessBatchMeta

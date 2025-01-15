@@ -71,6 +71,33 @@ def pgie_src_pad_buffer_probe(pad, info, u_data):
     # Note that pyds.gst_buffer_get_nvds_batch_meta() expects the
     # C address of gst_buffer as input, which is obtained with hash(gst_buffer)
     batch_meta = pyds.gst_buffer_get_nvds_batch_meta(hash(gst_buffer))
+    
+    l_user=batch_meta.batch_user_meta_list
+    while l_user is not None:
+        try:
+            # Note that l_user.data needs a cast to pyds.NvDsUserMeta
+            # The casting is done by pyds.NvDsUserMeta.cast()
+            # The casting also keeps ownership of the underlying memory
+            # in the C code, so the Python garbage collector will leave
+            # it alone
+            user_meta=pyds.NvDsUserMeta.cast(l_user.data)
+        except StopIteration:
+            break
+        if(user_meta and user_meta.base_meta.meta_type==pyds.NvDsMetaType.NVDS_PREPROCESS_BATCH_META):
+            try:
+                # Note that user_meta.user_meta_data needs a cast to pyds.NvDsTargetMiscDataBatch
+                # The casting is done by pyds.NvDsTargetMiscDataBatch.cast()
+                # The casting also keeps ownership of the underlying memory
+                # in the C code, so the Python garbage collector will leave
+                # it alone
+                print("NVDS_PREPROCESS_BATCH_META")
+            except StopIteration:
+                break
+        try:
+            l_user=l_user.next
+        except StopIteration:
+            break
+    
     l_frame = batch_meta.frame_meta_list
     while l_frame is not None:
         try:
@@ -331,7 +358,7 @@ def main(args):
     streammux.set_property("height", 1080)
     streammux.set_property("batch-size", number_sources)
     streammux.set_property("batched-push-timeout", MUXER_BATCH_TIMEOUT_USEC)
-    preprocess.set_property("config-file", "config_preprocess.txt")
+    preprocess.set_property("config-file", "/opt/nvidia/deepstream/deepstream-7.1/sources/apps/sample_apps/deepstream-3d-action-recognition/config_preprocess_3d_custom.txt")
     pgie.set_property("config-file-path", "dstest1_pgie_config.txt")
 
     pgie_batch_size = pgie.get_property("batch-size")

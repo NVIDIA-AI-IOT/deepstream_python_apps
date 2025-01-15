@@ -25,7 +25,7 @@ endfunction()
 check_variable_set(PYTHON_MAJOR_VERSION 3)
 check_variable_set(PYTHON_MINOR_VERSION 10)
 
-check_variable_set(DS_PATH "/opt/nvidia/deepstream/deepstream")
+check_variable_set(DS_PATH "/opt/nvidia/deepstream/deepstream-7.1")
 if (DEFINED IS_SBSA)
 	message("IS_SBSA is set. Enabling definitions for ARM_SBSA")
 	add_compile_definitions(IS_SBSA)
@@ -74,7 +74,7 @@ add_library(pyds SHARED src/pyds.cpp src/utils.cpp src/bindanalyticsmeta.cpp
             src/bindfunctions.cpp src/bindgstnvdsmeta.cpp
             src/bindmeta360.cpp src/bindnvbufsurface.cpp src/bindnvdsinfer.cpp
             src/bindnvdsmeta.cpp src/bindnvosd.cpp src/bindopticalflow.cpp
-            src/bindschema.cpp src/bindtrackermeta.cpp src/custom_binding/bindcustom.cpp)
+            src/bindschema.cpp src/bindtrackermeta.cpp src/bindnvdspreprocess_meta.cpp src/bindnvds_roi_meta.cpp src/custom_binding/bindcustom.cpp)
 
 set_target_properties(pyds PROPERTIES PREFIX "")
 set_target_properties(pyds PROPERTIES OUTPUT_NAME "pyds")

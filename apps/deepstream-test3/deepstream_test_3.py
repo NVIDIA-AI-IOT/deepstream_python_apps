@@ -397,7 +397,7 @@ def main(args, requested_pgie=None, config=None, disable_probe=False):
         sys.stderr.write(" Unable to get src pad \n")
     else:
         if not disable_probe:
-            pgie_src_pad.add_probe(Gst.PadProbeType.BUFFER, pgie_src_pad_buffer_probe, 0)
+            pgie_src_pad.add_probe(Gst.PadProbeType.BUFFER, pgie_src_pad_buffer_probe, 0, 0)
             # perf callback function to print fps every 5 sec
             GLib.timeout_add(5000, perf_data.perf_print_callback)
 

@@ -52,6 +52,7 @@ namespace pydsdoc
             constexpr const char* NVDS_GST_CUSTOM_META=R"pyds(metadata type to be set for metadata attached by nvidia gstreamer plugins before nvstreammux gstreamer plugin. It is set as user metadata inside :class:`NvDsFrameMeta`. NVIDIA specific gst meta are in the range from NVDS_GST_CUSTOM_META to NVDS_GST_CUSTOM_META + 4096)pyds";
             constexpr const char* NVDS_START_USER_META=R"pyds(NVDS_START_USER_META)pyds"; 
             constexpr const char* NVDS_FORCE32_META=R"pyds(NVDS_FORCE32_META)pyds";
+            constexpr const char* NVDS_PREPROCESS_BATCH_META=R"pyds(NVDS_PREPROCESS_BATCH_META)pyds";
         }    
 
         namespace NvDsComp_BboxInfoDoc
@@ -338,4 +339,37 @@ namespace pydsdoc
         }
 
     }
+    // namespace nvdspreprocessmetadoc
+    // {
+    //     namespace NvDsPreProcessTensorMeta
+    //     {
+    //         constexpr const char* descr = R"pyds(
+    //             Holds information of user metadata in the frame.
+
+    //             :ivar raw_tensor_buffer: raw_tensor_buffer.
+    //             :ivar buffer_size: *int*, buffer size.
+    //             :ivar tensor_shape: *vector<int>*, tensor_shape.
+    //             :ivar private_data: private_data.
+    //             :ivar gpu_id: *int* , gpu_id.
+    //             :ivar meta_id: *int*, meta_id.
+    //             :ivar maintain_aspect_ratio: maintain_aspect_ratio.
+    //             :ivar tensor_name: *string*, tensor_name.
+    //             :ivar data_type: :class:`NvDsDataType`, data_type.)pyds";
+
+    //         constexpr const char* cast=R"pyds(cast given object/data to :class:`NvDsPreProcessTensorMeta`, call pyds.NvDsPreProcessTensorMeta.cast(data))pyds";
+
+    //     }
+    //     namespace GstNvDsPreProcessBatchMeta
+    //     {
+    //         constexpr const char* descr = R"pyds(
+    //             Holds information of user metadata in the frame.
+
+    //             :ivar target_unique_ids: *int*, buffer target_unique_ids.
+    //             :ivar private_data: private_data.
+    //             :ivar tensor_meta: :class:`NvDsPreProcessTensorMeta`, tensor_meta.)pyds";
+
+    //         constexpr const char* cast=R"pyds(cast given object/data to :class:`GstNvDsPreProcessBatchMeta`, call pyds.GstNvDsPreProcessBatchMeta.cast(data))pyds";
+
+    //     }
+    // }
 }

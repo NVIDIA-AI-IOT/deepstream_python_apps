@@ -44,10 +44,12 @@ for filename in fileL:
     api_output_dir = ''
     api_toctree_file = ''
     # Open bindings file
+    print(filepath)
     with open(filepath) as f:
         # Iterate through lines in file
         for line in f:
             line = line.strip()
+            # print(line)
             # API name is taken from first comment in the file
             if not api_name and line.startswith("//"):
                 # Comment with API name should be formatted as "// API_NAME"

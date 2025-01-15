@@ -1,0 +1,6 @@
+================
+CustomDataStruct
+================
+
+.. toctree::
+	CustomDataStruct
