@@ -8,41 +8,6 @@ namespace py = pybind11;
 
 namespace pydeepstream {
        void bindnvds_roi_meta(py::module &m) {
-              /*Start of Bindings for nvdsroimeta.h*/
-
-              // py::class_<NvBufSurfaceParams>(m, "NvBufSurfaceParams",
-              //                         pydsdoc::NvDsRoiMetaDoc::NvBufSurfaceParams::descr)
-              //   .def(py::init<>())
-
-              //   .def("cast",
-              //        [](void *data) {
-              //            return (NvBufSurfaceParams *) data;
-              //        },
-              //        py::return_value_policy::reference,
-              //        pydsdoc::NvDsRoiMetaDoc::NvBufSurfaceParams::cast);
-
-              // py::class_<NvDsFrameMeta>(m, "NvDsFrameMeta",
-              //                         pydsdoc::NvDsRoiMetaDoc::NvDsFrameMeta::descr)
-              //   .def(py::init<>())
-
-              //   .def("cast",
-              //        [](void *data) {
-              //            return (NvDsFrameMeta *) data;
-              //        },
-              //        py::return_value_policy::reference,
-              //        pydsdoc::NvDsRoiMetaDoc::NvDsFrameMeta::cast);
-
-              // py::class_<NvDsObjectMeta>(m, "NvDsObjectMeta",
-              //                         pydsdoc::NvDsRoiMetaDoc::NvDsObjectMeta::descr)
-              //   .def(py::init<>())
-
-              //   .def("cast",
-              //        [](void *data) {
-              //            return (NvDsObjectMeta *) data;
-              //        },
-              //        py::return_value_policy::reference,
-              //        pydsdoc::NvDsRoiMetaDoc::NvDsObjectMeta::cast);
-
               py::enum_<NvDsDataType>(m, "NvDsDataType",
                                    pydsdoc::NvDsRoiMetaDoc::NvDsDataTypeDoc::descr)
                      .value("NvDsDataType_FP32", NvDsDataType_FP32,
