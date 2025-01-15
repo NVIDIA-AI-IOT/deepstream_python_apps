@@ -50,26 +50,20 @@ namespace pydeepstream {
                        pydsdoc::nvmeta::MetaTypeDoc::NVDS_EVENT_MSG_META)
                 .value("NVDS_OPTICAL_FLOW_META", NVDS_OPTICAL_FLOW_META,
                        pydsdoc::nvmeta::MetaTypeDoc::NVDS_OPTICAL_FLOW_META)
-                .value("NVDS_LATENCY_MEASUREMENT_META",
-                       NVDS_LATENCY_MEASUREMENT_META,
+                .value("NVDS_LATENCY_MEASUREMENT_META", NVDS_LATENCY_MEASUREMENT_META,
                        pydsdoc::nvmeta::MetaTypeDoc::NVDS_LATENCY_MEASUREMENT_META)
-                .value("NVDSINFER_TENSOR_OUTPUT_META",
-                       NVDSINFER_TENSOR_OUTPUT_META,
+                .value("NVDSINFER_TENSOR_OUTPUT_META", NVDSINFER_TENSOR_OUTPUT_META,
                        pydsdoc::nvmeta::MetaTypeDoc::NVDSINFER_TENSOR_OUTPUT_META)
-                .value("NVDSINFER_SEGMENTATION_META",
-                       NVDSINFER_SEGMENTATION_META,
+                .value("NVDSINFER_SEGMENTATION_META", NVDSINFER_SEGMENTATION_META,
                        pydsdoc::nvmeta::MetaTypeDoc::NVDSINFER_SEGMENTATION_META)
                         /*adding new field*/
                 .value("NVDS_CROP_IMAGE_META", NVDS_CROP_IMAGE_META,
                        pydsdoc::nvmeta::MetaTypeDoc::NVDS_CROP_IMAGE_META)
-                .value("NVDS_TRACKER_PAST_FRAME_META",
-                       NVDS_TRACKER_PAST_FRAME_META,
+                .value("NVDS_TRACKER_PAST_FRAME_META", NVDS_TRACKER_PAST_FRAME_META,
                        pydsdoc::nvmeta::MetaTypeDoc::NVDS_TRACKER_PAST_FRAME_META)
-                .value("NVDS_TRACKER_BATCH_REID_META",
-                       NVDS_TRACKER_BATCH_REID_META,
+                .value("NVDS_TRACKER_BATCH_REID_META", NVDS_TRACKER_BATCH_REID_META,
                        pydsdoc::nvmeta::MetaTypeDoc::NVDS_TRACKER_BATCH_REID_META)
-                .value("NVDS_TRACKER_OBJ_REID_META",
-                       NVDS_TRACKER_OBJ_REID_META,
+                .value("NVDS_TRACKER_OBJ_REID_META", NVDS_TRACKER_OBJ_REID_META,
                        pydsdoc::nvmeta::MetaTypeDoc::NVDS_TRACKER_OBJ_REID_META)
                 .value("NVDS_AUDIO_BATCH_META", NVDS_AUDIO_BATCH_META,
                        pydsdoc::nvmeta::MetaTypeDoc::NVDS_AUDIO_BATCH_META)
@@ -83,6 +77,8 @@ namespace pydeepstream {
                        pydsdoc::nvmeta::MetaTypeDoc::NVDS_START_USER_META)
                 .value("NVDS_FORCE32_META", NVDS_FORCE32_META,
                        pydsdoc::nvmeta::MetaTypeDoc::NVDS_FORCE32_META)
+                .value("NVDS_PREPROCESS_BATCH_META", NVDS_PREPROCESS_BATCH_META,
+                       pydsdoc::nvmeta::MetaTypeDoc::NVDS_PREPROCESS_BATCH_META)
                 .export_values();
 
 
