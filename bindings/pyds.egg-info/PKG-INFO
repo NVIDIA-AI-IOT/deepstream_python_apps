@@ -1,0 +1,11 @@
+Metadata-Version: 2.2
+Name: pyds
+Version: 1.2.0
+Summary: Install precompiled DeepStream Python bindings extension
+Home-page: nvidia.com
+Author: NVIDIA
+Requires-Python: >=3.10
+Dynamic: author
+Dynamic: home-page
+Dynamic: requires-python
+Dynamic: summary

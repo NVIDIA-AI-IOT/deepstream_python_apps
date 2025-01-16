@@ -9,4 +9,6 @@ bindopticalflow.cpp
 bindschema.cpp
 bindtrackermeta.cpp
 utils.cpp
+bindnvdspreprocess_meta.cpp
+bindnvd_roi_meta.cpp
 custom_binding/bindcustom.cpp

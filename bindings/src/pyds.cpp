@@ -28,6 +28,8 @@
 #include "bindschema.hpp"
 #include "bindtrackermeta.hpp"
 #include "custom_binding/include/bindcustom.hpp"
+#include "bindnvdspreprocess_meta.hpp"
+#include "bindnvds_roi_meta.hpp"
 
 #include "pyds.hpp"
 
@@ -64,6 +66,8 @@ namespace pydeepstream {
         bindnvdsinfer(m);
         bindopticalflowmeta(m);
         bindutils(m);
+        bindnvds_roi_meta(m);
+        bindnvdspreprocess_meta(m);
         bindcustom(m);
 
     }   // end PYBIND11_MODULE(pyds, m)
