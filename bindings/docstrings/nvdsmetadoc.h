@@ -52,6 +52,7 @@ namespace pydsdoc
             constexpr const char* NVDS_GST_CUSTOM_META=R"pyds(metadata type to be set for metadata attached by nvidia gstreamer plugins before nvstreammux gstreamer plugin. It is set as user metadata inside :class:`NvDsFrameMeta`. NVIDIA specific gst meta are in the range from NVDS_GST_CUSTOM_META to NVDS_GST_CUSTOM_META + 4096)pyds";
             constexpr const char* NVDS_START_USER_META=R"pyds(NVDS_START_USER_META)pyds"; 
             constexpr const char* NVDS_FORCE32_META=R"pyds(NVDS_FORCE32_META)pyds";
+            constexpr const char* NVDS_PREPROCESS_BATCH_META=R"pyds(NVDS_PREPROCESS_BATCH_META)pyds";
         }    
 
         namespace NvDsComp_BboxInfoDoc

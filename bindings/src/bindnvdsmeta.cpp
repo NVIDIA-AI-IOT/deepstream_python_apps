@@ -83,6 +83,8 @@ namespace pydeepstream {
                        pydsdoc::nvmeta::MetaTypeDoc::NVDS_START_USER_META)
                 .value("NVDS_FORCE32_META", NVDS_FORCE32_META,
                        pydsdoc::nvmeta::MetaTypeDoc::NVDS_FORCE32_META)
+                .value("NVDS_PREPROCESS_BATCH_META", NVDS_PREPROCESS_BATCH_META,
+                    pydsdoc::nvmeta::MetaTypeDoc::NVDS_PREPROCESS_BATCH_META)
                 .export_values();
 
 
