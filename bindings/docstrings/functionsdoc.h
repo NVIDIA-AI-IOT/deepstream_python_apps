@@ -21,6 +21,13 @@ namespace pydsdoc
 {
     namespace methodsDoc
 	{
+        constexpr const char* get_nvds_LayerInfo_buffer=R"pyds(
+            This function returns the buffer of an :class:`NvDsInferLayerInfo` in Numpy format with dtype numpy.byte and ndim=1.
+
+            :arg data: An object of type :class:`NvDsInferLayerInfo`
+            
+            :returns: NumPy array containing the buffer of an :class:`NvDsInferLayerInfo` object)pyds";
+        
         constexpr const char* get_segmentation_masks=R"pyds(
             This function returns the inferred masks in Numpy format in the height X width shape, these height and width are obtained from the :class:`NvDsInferSegmentationMeta`.
 

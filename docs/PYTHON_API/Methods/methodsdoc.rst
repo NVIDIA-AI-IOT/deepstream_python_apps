@@ -23,6 +23,12 @@ gst_element_send_nvevent_interval_update
 .. autofunction:: pyds.gst_element_send_nvevent_interval_update
 
 ======================
+get_nvds_LayerInfo_buffer
+======================
+
+.. autofunction:: pyds.get_nvds_LayerInfo_buffer
+
+======================
 get_segmentation_masks
 ======================
 
