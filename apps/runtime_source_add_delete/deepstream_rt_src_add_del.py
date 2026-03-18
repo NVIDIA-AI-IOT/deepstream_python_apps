@@ -88,10 +88,10 @@ def decodebin_child_added(child_proxy,Object,name,user_data):
         Object.connect("child-added",decodebin_child_added,user_data)   
     if(name.find("nvv4l2decoder") != -1):
         if (platform_info.is_integrated_gpu()):
-            Object.set_property("enable-max-performance", True)
             Object.set_property("drop-frame-interval", 0)
             Object.set_property("num-extra-surfaces", 0)
         else:
+            Object.set_property("enable-max-performance", True)
             Object.set_property("gpu_id", GPU_ID)
 
 

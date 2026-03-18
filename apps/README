@@ -20,7 +20,7 @@ DeepStream SDK Python Bindings
 ================================================================================
 Setup pre-requisites:
 - Ubuntu 24.04
-- NVIDIA DeepStream SDK 8.0
+- NVIDIA DeepStream SDK 9.0
 - Python 3.12
 - Gst-python
 
@@ -36,7 +36,7 @@ Package Contents
 Installing Pre-requisites:
 --------------------------------------------------------------------------------
 
-DeepStream SDK 8.0
+DeepStream SDK 9.0
 --------------------
 Download and install from https://developer.nvidia.com/deepstream-download
 
@@ -56,16 +56,16 @@ $ pip3 install PyGObject
 
 cuda-python
 -----------
-**WARNING** cuda-python 13.0.0 is now installed by default. For x86, cuda-python 12.8.0 must
-be installed to match Cuda version 12.8:
-$ pip3 install cuda-python==12.8.0
+**WARNING** cuda-python 13.0.0 is now installed by default. For x86, cuda-python 13.1.0 must
+be installed to match Cuda version 13.1:
+$ pip3 install cuda-python==13.1.0
 For Jetson, Cuda version is 13.0:
 $ pip3 install cuda-python
 
 --------------------------------------------------------------------------------
 Running the samples
 --------------------------------------------------------------------------------
-The apps are configured to work from inside the DeepStream SDK 8.0 installation.
+The apps are configured to work from inside the DeepStream SDK 9.0 installation.
 
 Clone the deepstream_python_apps repo under <DeepStream ROOT>/sources:
 $ git clone https://github.com/NVIDIA-AI-IOT/deepstream_python_apps

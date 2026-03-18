@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 ################################################################################
-# SPDX-FileCopyrightText: Copyright (c) 2021-2023 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -253,9 +253,9 @@ def main(args):
     if not encoder:
         sys.stderr.write(" Unable to create encoder")
     encoder.set_property("bitrate", bitrate)
+    encoder.set_property("insert-sps-pps", 1)
     if platform_info.is_integrated_gpu():
         encoder.set_property("preset-level", 1)
-        encoder.set_property("insert-sps-pps", 1)
         #encoder.set_property("bufapi-version", 1)
 
     # Make the payload-encode video into RTP packets

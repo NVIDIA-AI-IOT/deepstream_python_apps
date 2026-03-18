@@ -1,6 +1,6 @@
 # DeepStream python bindings
 
-SDK version supported: 8.0
+SDK version supported: 9.0
 
 The latest prebuilt release package complete with python bindings and sample applications can be downloaded from the [release section](../../../releases)
 for x86, Jetson and SBSA platforms.
@@ -15,16 +15,16 @@ The readme is divided into three main parts:
     - [1.3 Initialization of submodules](#13-initialization-of-submodules)
     - [1.4 Installing Gst-python](#14-installing-gst-python)
   - [2 Compiling the bindings](#2-compiling-the-bindings)
-    - [2.1 Quick build 1 (x86-ubuntu-24.04 | python 3.12 | Deepstream 8.0)](#21-quick-build-1-x86-ubuntu-2404--python-312--deepstream-80)
-    - [2.2 Quick build 2 (Jetson-ubuntu-24.04 | python 3.12 | Deepstream 8.0)](#22-quick-build-2-jetson-ubuntu-2404--python-312--deepstream-80)
-    - [2.3 Quick build 3 (SBSA-ubuntu-24.04 | python 3.12 | Deepstream 8.0)](#23-quick-build-3-sbsa-ubuntu-2404--python-312--deepstream-80)
+    - [2.1 Quick build 1 (x86-ubuntu-24.04 | python 3.12 | Deepstream 9.0)](#21-quick-build-1-x86-ubuntu-2404--python-312--deepstream-80)
+    - [2.2 Quick build 2 (Jetson-ubuntu-24.04 | python 3.12 | Deepstream 9.0)](#22-quick-build-2-jetson-ubuntu-2404--python-312--deepstream-80)
+    - [2.3 Quick build 3 (SBSA-ubuntu-24.04 | python 3.12 | Deepstream 9.0)](#23-quick-build-3-sbsa-ubuntu-2404--python-312--deepstream-80)
     - [2.4 Advanced build](#24-advanced-build)
       - [2.4.1 Using Cmake options](#241-using-cmake-options)
       - [2.4.2 Available cmake options](#242-available-cmake-options)
       - [2.4.3 Example](#243-example)
     - [2.5 Cross-Compilation for aarch64 on x86](#25-cross-compilation-for-aarch64-on-x86)
       - [2.5.1 Build Pre-requisites](#251-build-pre-requisites)
-      - [2.5.2 Download the JetPack SDK 7.0 GA](#252-download-the-jetpack-sdk-70-ga)
+      - [2.5.2 Download the JetPack SDK 7.1 GA](#252-download-the-jetpack-sdk-71-ga)
       - [2.5.3 Generate the cross-compile build container](#253-generate-the-cross-compile-build-container)
       - [2.5.4 Launch the cross-compile build container](#254-launch-the-cross-compile-build-container)
       - [2.5.5 Build DeepStreamSDK python bindings](#255-build-deepstreamsdk-python-bindings)
@@ -90,7 +90,7 @@ Python bindings are compiled using PyPA with a CMake extension. The compiled bin
 Following commands provide instructions for common compilation options:
 
 <a name="compile_quick"></a>
-### 2.1 Quick build 1 (x86-ubuntu-24.04 | python 3.12 | Deepstream 8.0)
+### 2.1 Quick build 1 (x86-ubuntu-24.04 | python 3.12 | Deepstream 9.0)
 ```bash
 cd deepstream_python_apps/bindings
 export CMAKE_BUILD_PARALLEL_LEVEL=$(nproc)
@@ -98,7 +98,7 @@ python3 -m build
 ```
 
 <a name="compile_quick_2"></a>
-### 2.2 Quick build 2 (Jetson-ubuntu-24.04 | python 3.12 | Deepstream 8.0)
+### 2.2 Quick build 2 (Jetson-ubuntu-24.04 | python 3.12 | Deepstream 9.0)
 The following commands will work for a native build on Jetson platform.
 ```bash
 cd deepstream_python_apps/bindings
@@ -107,8 +107,8 @@ python3 -m build
 ```
 
 <a name="compile_quick_3"></a>
-### 2.3 Quick build 3 (SBSA-ubuntu-24.04 | python 3.12 | Deepstream 8.0)
-The following commands will work for a native build on SBSA platform.
+### 2.3 Quick build 3 (SBSA-ubuntu-24.04 | python 3.12 | Deepstream 9.0)
+The following commands will work for a native build on SBSA platform or DGX Spark Platform.
 ```bash
 cd deepstream_python_apps/bindings
 export CMAKE_ARGS="-DIS_SBSA=on"
@@ -129,7 +129,7 @@ export CMAKE_ARGS="-D<var>=<value> -D<var>=<value> -D<var>=<value> ..."
 
 | Var | Default value | Purpose | Available values
 |-----|:-------------:|---------|:----------------:
-| DS_VERSION | 8.0 | Used to determine default deepstream library path | should match to the deepstream version installed on your computer
+| DS_VERSION | 9.0 | Used to determine default deepstream library path | should match to the deepstream version installed on your computer
 | PYTHON_MAJOR_VERSION | 3 | Used to set the python version used for the bindings | 3
 | PYTHON_MINOR_VERSION | 12 | Used to set the python version used for the bindings | 10
 | DS_PATH | /opt/nvidia/deepstream/deepstream-${DS_VERSION} | Path where deepstream libraries are available | Should match the existing deepstream library folder
@@ -174,17 +174,17 @@ sudo apt-get install qemu-system qemu-utils
 docker run --rm --privileged dockerhub.nvidia.com/multiarch/qemu-user-static --reset -p yes
 
 # Verify qemu installation
-docker run --platform linux/aarch64 --rm -t  nvcr.io/nvidia/deepstream:8.0-samples-multiarch uname -m
+docker run --platform linux/aarch64 --rm -t  nvcr.io/nvidia/deepstream:9.0-samples-multiarch uname -m
 #aarch64
 ```
 
-#### 2.5.2 Download the JetPack SDK 7.0 GA
+#### 2.5.2 Download the JetPack SDK 7.1 GA
 Cross-compilation for Jetson on x86 host requires some low level libraries which can be downloaded using SDK Manager.
 Follow these steps to obtain these libraries, which are utilized by the docker build later.
 
 1. Download and install the [NVIDIA SDK manager](https://developer.nvidia.com/nvidia-sdk-manager)
 2. Launch the SDK Manager and login with your NVIDIA developer account.
-3. Select the platform and target OS (example: Jetson AGX Xavier, `Linux Jetpack 7.0`) and click Continue.
+3. Select the platform and target OS (example: Jetson AGX Xavier, `Linux Jetpack 7.1`) and click Continue.
 4. Under `Download & Install Options` change the download folder and select `Download now, Install later`. Agree to the license terms and click Continue.
 5. Go to the download folder, and run:
 
@@ -205,7 +205,7 @@ Below command generates the build container
 cd deepstream_python_apps/bindings
 # Make sure you are in deepstream_python_apps/bindings directory
 # This command builds the cross-compile docker and adds the mentioned tag
-docker build --platform linux/aarch64 --tag=deepstream-8.0-ubuntu24.04-python-l4t -f qemu_docker/ubuntu-cross-aarch64.Dockerfile .
+docker build --platform linux/aarch64 --tag=deepstream-9.0-ubuntu24.04-python-l4t -f qemu_docker/ubuntu-cross-aarch64.Dockerfile .
 ```
 
 #### 2.5.4 Launch the cross-compile build container
@@ -215,7 +215,7 @@ docker build --platform linux/aarch64 --tag=deepstream-8.0-ubuntu24.04-python-l4
 mkdir export_pyds
 
 # Run the container. Make sure the tag matches the one from Generate step above
-docker run --platform linux/aarch64 -it --entrypoint bash -v $PWD/export_pyds:/export_pyds deepstream-8.0-ubuntu24.04-python-l4t
+docker run --platform linux/aarch64 -it --entrypoint bash -v $PWD/export_pyds:/export_pyds deepstream-9.0-ubuntu24.04-python-l4t
 ```
 
 #### 2.5.5 Build DeepStreamSDK python bindings

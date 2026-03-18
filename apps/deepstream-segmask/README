@@ -16,7 +16,7 @@
 ################################################################################
 
 Prerequisites:
-- DeepStreamSDK 8.0
+- DeepStreamSDK 9.0
 - Python 3.12
 - Gst-python
 - NumPy package <2.0, >=1.22 (2.0 and above not supported)
@@ -36,7 +36,7 @@ Additionally, compile the libnvds_infercustomparser_tao.so lib:
 $ git clone https://github.com/NVIDIA-AI-IOT/deepstream_tao_apps.git
 $ cd /path/to/deepstream_tao_apps/post_processor
 For x86:
-$ export CUDA_VER=12.8
+$ export CUDA_VER=13.1
 For aarch64:
 $ export CUDA_VER=13.0
 For both platforms:

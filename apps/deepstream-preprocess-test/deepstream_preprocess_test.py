@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 ################################################################################
-# SPDX-FileCopyrightText: Copyright (c) 2022-2023 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2022-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -55,11 +55,12 @@ OSD_PROCESS_MODE = 0
 OSD_DISPLAY_TEXT = 0
 pgie_classes_str = ["Vehicle", "TwoWheeler", "Person", "RoadSign"]
 
-# pgie_src_pad_buffer_probe  will extract metadata received on tiler sink pad
-# and update params for drawing rectangle, object information etc.
-
 
 def pgie_src_pad_buffer_probe(pad, info, u_data):
+    """Pad probe attached to PGIE src pad.
+    will extract metadata received on src pad
+    and update params for drawing label ROI.
+    """
     frame_number = 0
     num_rects = 0
     gst_buffer = info.get_buffer()
@@ -329,9 +330,9 @@ def main(args):
     if not encoder:
         sys.stderr.write(" Unable to create encoder")
     encoder.set_property("bitrate", bitrate)
+    encoder.set_property("insert-sps-pps", 1)
     if platform_info.is_integrated_gpu():
         encoder.set_property("preset-level", 1)
-        encoder.set_property("insert-sps-pps", 1)
         #encoder.set_property("bufapi-version", 1)
 
     # Make the payload-encode video into RTP packets

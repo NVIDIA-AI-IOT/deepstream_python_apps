@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 ################################################################################
-# SPDX-FileCopyrightText: Copyright (c) 2020-2024 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2020-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -352,7 +352,7 @@ def main(args):
         print("Creating nv3dsink \n")
         sink = Gst.ElementFactory.make("nv3dsink", "nv3d-sink")
         if not sink:
-            sys.stderr.write(" Unable to create nv3dsink \n")
+            sys.stderr.write(" Unable to create sink \n")
     else:
         if platform_info.is_platform_aarch64():
             print("Creating nv3dsink \n")
@@ -361,7 +361,7 @@ def main(args):
             print("Creating EGLSink \n")
             sink = Gst.ElementFactory.make("nveglglessink", "nvvideo-renderer")
         if not sink:
-            sys.stderr.write(" Unable to create egl sink \n")
+            sys.stderr.write(" Unable to create sink \n")
 
     if is_live:
         print("Atleast one of the sources is live")
@@ -404,6 +404,14 @@ def main(args):
         else:
             nvvidconv1.set_property("nvbuf-memory-type", mem_type)
         tiler.set_property("nvbuf-memory-type", mem_type)
+        nvvidconv1.set_property("copy-hw",2)
+    else:
+        if platform_info.is_dgx_spark():
+            nvvidconv1.set_property("copy-hw",1)
+            nvvidconv1.set_property("nvbuf-memory-type", 1)
+        else:
+            nvvidconv1.set_property("copy-hw",2)
+            nvvidconv1.set_property("nvbuf-memory-type", 4)
 
     print("Adding elements to Pipeline \n")
     pipeline.add(pgie)

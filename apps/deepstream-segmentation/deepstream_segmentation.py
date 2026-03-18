@@ -166,11 +166,19 @@ def main(args):
     if not jpegparser:
         sys.stderr.write("Unable to create jpegparser \n")
 
-    # Use nvdec for hardware accelerated decode on GPU
-    print("Creating Decoder \n")
-    decoder = Gst.ElementFactory.make("nvjpegdec", "nvjpeg-decoder")
-    if not decoder:
-        sys.stderr.write(" Unable to create NvJPEG Decoder \n")
+    
+    if platform_info.is_integrated_gpu():
+    # Use nvjpegdec for Jetson
+        print("Creating Decoder \n")
+        decoder = Gst.ElementFactory.make("nvjpegdec", "nvjpeg-decoder")
+        if not decoder:
+            sys.stderr.write(" Unable to create NvJPEG Decoder \n")
+    else:
+        # Use nvv4l2decoder for x86/SBSA. Spark requires WAR from FAQ.md
+        print("Creating Decoder \n")
+        decoder = Gst.ElementFactory.make("nvv4l2decoder", "nvv4l2decoder")
+        if not decoder:
+            sys.stderr.write(" Unable to create nvv4l2decoder \n")
 
     # Create nvvideoconvert to convert jpegdecoder's I420 to NV12
     nvvidconv1 = Gst.ElementFactory.make("nvvideoconvert", "nvvideconvert1")
@@ -254,7 +262,7 @@ def main(args):
         sys.stderr.write(" Unable to get the sink pad of streammux \n")
     srcpad = nvvidconv1.get_static_pad("src")
     if not srcpad:
-        sys.stderr.write(" Unable to get source pad of decoder \n")
+        sys.stderr.write(" Unable to get source pad of videoconvert \n")
     srcpad.link(sinkpad)
     streammux.link(nvvidconv)
     nvvidconv.link(seg)

@@ -87,4 +87,4 @@ Tests are written in 3 parts:
 * Checking results
 
 ### Note
-For DeepStream 8.0 on WSL, there is a known issue with object encoding. Thus, test3 pipeline has been disabled for WSL.
+For DeepStream 9.0 on WSL, there is a known issue with object encoding. Thus, test3 pipeline has been disabled for WSL.

@@ -17,6 +17,9 @@
 
 import sys
 import platform
+import os
+from pathlib import Path
+from typing import Dict, Tuple
 from threading import Lock
 from cuda.bindings import runtime
 from cuda.bindings import driver
@@ -31,6 +34,7 @@ class PlatformInfo:
         self.is_integrated_gpu_verified = False
         self.is_aarch64_platform = False
         self.is_aarch64_verified = False
+        self.is_dgx_spark_platform = False
 
     def is_wsl(self):
         with guard_platform_info:
@@ -90,5 +94,37 @@ class PlatformInfo:
                 self.is_aarch64_platform =  True
             self.is_aarch64_verified = True
         return self.is_aarch64_platform
+
+    DMI_PATHS = {
+        "product_name": Path("/sys/class/dmi/id/product_name"),
+        "board_name": Path("/sys/class/dmi/id/board_name"),
+        "product_sku": Path("/sys/class/dmi/id/product_sku"),
+        "sys_vendor": Path("/sys/class/dmi/id/sys_vendor"),
+    }
+
+    def read_dmi_field(self, path: Path) -> str:
+        try:
+            if path.is_file():
+                return path.read_text(encoding="utf-8", errors="ignore").strip()
+        except Exception:
+            pass
+        return ""
+
+    def is_dgx_spark(self) -> bool:
+        """
+        Return True if this system is detected as DGX Spark, else False.
+        Detection is based on DMI product/board/SKU strings.
+        """
+        product_name = self.read_dmi_field(self.DMI_PATHS["product_name"])
+        board_name = self.read_dmi_field(self.DMI_PATHS["board_name"])
+        product_sku = self.read_dmi_field(self.DMI_PATHS["product_sku"])
+
+        combined = " ".join(
+            s for s in (product_name, board_name, product_sku) if s
+        ).lower()
+
+        self.is_dgx_spark_platform = "dgx spark" in combined
+        return self.is_dgx_spark_platform
+
 
 sys.path.append('/opt/nvidia/deepstream/deepstream/lib')

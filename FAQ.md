@@ -183,30 +183,36 @@ source ./pyds/bin/activate
 ```
 
 <a name="faq12"></a>  
-### Running deepstream-segmentation app on x86 with mjpeg streams
-There is a current limitation in deepstream-segmentation app. When mjpeg streams are used on x86, the app hangs. However, there is a workaround. Please apply below patch to the app and it should work with mjpeg as well as jpeg streams on x86:
+### Running deepstream-segmentation app on DGX Spark with mjpeg streams
+There is a current limitation in deepstream-segmentation app. When mjpeg streams are used on DGX Spark. However, there is a workaround. Please apply below patch to the app and it should work with mjpeg as well as jpeg streams on DGX Spark:
 ```
 diff --git a/apps/deepstream-segmentation/deepstream_segmentation.py b/apps/deepstream-segmentation/deepstream_segmentation.py
-index ec38b1c..13c28f9 100755
+index b593abe..d03ccba 100755
 --- a/apps/deepstream-segmentation/deepstream_segmentation.py
 +++ b/apps/deepstream-segmentation/deepstream_segmentation.py
-@@ -168,7 +168,7 @@ def main(args):
+@@ -166,19 +166,11 @@ def main(args):
+     if not jpegparser:
+         sys.stderr.write("Unable to create jpegparser \n")
  
-     # Use nvdec for hardware accelerated decode on GPU
-     print("Creating Decoder \n")
--    decoder = Gst.ElementFactory.make("nvjpegdec", "nvjpeg-decoder")
-+    decoder = Gst.ElementFactory.make("nvv4l2decoder", "nvjpeg-decoder")
-     if not decoder:
-         sys.stderr.write(" Unable to create NvJPEG Decoder \n")
+-    
+-    if platform_info.is_integrated_gpu():
+-    # Use nvjpegdec for Jetson
+-        print("Creating Decoder \n")
+-        decoder = Gst.ElementFactory.make("nvjpegdec", "nvjpeg-decoder")
+-        if not decoder:
+-            sys.stderr.write(" Unable to create NvJPEG Decoder \n")
+-    else:
+-        # Use nvv4l2decoder for x86/SBSA. Spark requires WAR from FAQ.md
+-        print("Creating Decoder \n")
+-        decoder = Gst.ElementFactory.make("nvv4l2decoder", "nvv4l2decoder")
+-        if not decoder:
+-            sys.stderr.write(" Unable to create nvv4l2decoder \n")
++    # Use nvv4l2decoder for x86/SBSA. Spark requires WAR from FAQ.md
++    print("Creating Decoder \n")
++    decoder = Gst.ElementFactory.make("nvv4l2decoder", "nvv4l2decoder")
++    if not decoder:
++        sys.stderr.write(" Unable to create nvv4l2decoder \n")
  
-@@ -214,6 +214,9 @@ def main(args):
- 
-     print("Playing file %s " % args[2])
-     source.set_property('location', args[2])
-+    if platform_info.is_integrated_gpu() and ("mjpeg" in args[2] or "mjpg" in args[2]):
-+        print ("setting decoder mjpeg property")
-+        decoder.set_property('mjpeg', 1)
- 
-     streammux.set_property('width', 1920)
-     streammux.set_property('height', 1080)
+     # Create nvvideoconvert to convert jpegdecoder's I420 to NV12
+     nvvidconv1 = Gst.ElementFactory.make("nvvideoconvert", "nvvideconvert1")
 ```

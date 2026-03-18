@@ -2,9 +2,9 @@
 
 This repository contains Python bindings and sample applications for the [DeepStream SDK](https://developer.nvidia.com/deepstream-sdk).  
 
-SDK version supported: 8.0
+SDK version supported: 9.0
 
-<b>This release only supports Ubuntu 24.04 for DeepStreamSDK 8.0 with Python 3.12 and [gst-python](3rdparty/gst-python/) 1.24.1!</b>
+<b>This release only supports Ubuntu 24.04 for DeepStreamSDK 9.0 with Python 3.12 and [gst-python](3rdparty/gst-python/) 1.24.1!</b>
 
 The bindings sources along with build instructions are available under [bindings](bindings)! PyDS 1.2.0+ for DeepStream 7.1+ uses an updated build system for PyPA to support pip 24.2+, which deprecated setup.py command line. We include one [guide](bindings/BINDINGSGUIDE.md) for contributing to bindings and another [guide](bindings/CUSTOMUSERMETAGUIDE.md) for advanced use-cases such as writing bindings for custom data structures. 
 
@@ -26,8 +26,6 @@ source ./pyds/bin/activate
 ```
 pip3 install --force-reinstall numpy==1.26.0
 ```
-
-<b>NOTE:<b> deepstream-segmask and deepstream-segmentation applications are not currently supported by DeepStream 8.0, due to removal of segmentation and ssd models.
 
 <b>NOTE:<b> deepstream-ssd-parser app is not supported since ssd models have been deprecated. The ssd-parser app is removed.
 
