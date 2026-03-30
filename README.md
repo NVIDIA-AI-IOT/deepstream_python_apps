@@ -5,6 +5,7 @@ This repository contains Python bindings and sample applications for the [DeepSt
 SDK version supported: 9.0
 
 <b>This release only supports Ubuntu 24.04 for DeepStreamSDK 9.0 with Python 3.12 and [gst-python](3rdparty/gst-python/) 1.24.1!</b>
+<b>Since DeepStream Python bindings are deprecated, there will be no more wheel files released from DeepStream 9.0 onwards. Please build wheels using instructions provided in bindings README. Users are recommended to use PyServiceMaker instead.</b>
 
 The bindings sources along with build instructions are available under [bindings](bindings)! PyDS 1.2.0+ for DeepStream 7.1+ uses an updated build system for PyPA to support pip 24.2+, which deprecated setup.py command line. We include one [guide](bindings/BINDINGSGUIDE.md) for contributing to bindings and another [guide](bindings/CUSTOMUSERMETAGUIDE.md) for advanced use-cases such as writing bindings for custom data structures. 
 
