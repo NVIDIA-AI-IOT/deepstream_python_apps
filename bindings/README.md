@@ -255,7 +255,7 @@ Following commands can be used to install the generated pip wheel.
 ### 3.1 Installing the pip wheel
 ```bash
 cd dist/
-pip3 install ./pyds-1.2.2-*.whl
+pip3 install ./pyds-1.2.3-*.whl
 ```
 
 #### 3.1.1 pip wheel troubleshooting

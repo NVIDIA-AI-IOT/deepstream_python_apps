@@ -55,7 +55,7 @@ python3 -m venv env
 ### step3
 ```
 . env/bin/activate
-pip install /opt/nvidia/deepstream/deepstream/sources/deepstream_python_apps/bindings/dist/pyds-1.2.2*.whl
+pip install /opt/nvidia/deepstream/deepstream/sources/deepstream_python_apps/bindings/dist/pyds-1.2.3*.whl
 pip install pytest pygobject cuda-python numpy==1.26.0
 cd /opt/nvidia/deepstream/deepstream/sources/deepstream_python_apps/tests/integration
 pytest test.py

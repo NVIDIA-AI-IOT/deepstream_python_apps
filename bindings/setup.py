@@ -73,7 +73,7 @@ class CMakeBuild(build_ext):
 # logic and declaration, and simpler if you include description/version in a file.
 setup(
     name="pyds",
-    version="1.2.2",
+    version="1.2.3",
     author="NVIDIA",
     description="Install precompiled DeepStream Python bindings extension",
     url="nvidia.com",
