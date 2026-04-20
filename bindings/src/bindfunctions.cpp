@@ -774,6 +774,35 @@ namespace pydeepstream {
               },
               py::return_value_policy::reference);
 
+        m.def("get_nvds_LayerInfo_buffer",
+              [](void *data) {
+                  auto *info = (NvDsInferLayerInfo *) data;
+                  unsigned char element_size = 0;
+                  switch (info->dataType) {
+                    case FLOAT:
+                    element_size = 4;
+                    break;
+                    case HALF:
+                    element_size = 2;
+                    break;
+                    case INT32:
+                    element_size = 4;
+                    break;
+                    case INT8:
+                    element_size = 1;
+                    break;
+                    case INT64:
+                    element_size = 8;
+                    break;
+                  }
+                  auto dtype = py::dtype(py::format_descriptor<signed char>::format());
+                  return py::array(dtype, {(info->inferDims).numElements * element_size},
+                                   {sizeof(signed char)},
+                                   info->buffer);
+              },
+              "data"_a,
+              pydsdoc::methodsDoc::get_nvds_LayerInfo_buffer);
+
         m.def("get_segmentation_masks",
               [](void *data) {
                   auto *META = (NvDsInferSegmentationMeta *) data;
