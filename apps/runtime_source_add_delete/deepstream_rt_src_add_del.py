@@ -163,6 +163,7 @@ def stop_release_source(source_id):
         print(pad_name)
         #Retrieve sink pad to be released
         sinkpad = streammux.get_static_pad(pad_name)
+        sinkpad.send_event(Gst.Event.new_eos())
         #Send flush stop event to the sink pad, then release from the streammux
         sinkpad.send_event(Gst.Event.new_flush_stop(False))
         streammux.release_request_pad(sinkpad)
@@ -180,6 +181,7 @@ def stop_release_source(source_id):
         pad_name = "sink_%u" % source_id
         print(pad_name)
         sinkpad = streammux.get_static_pad(pad_name)
+        sinkpad.send_event(Gst.Event.new_eos())
         sinkpad.send_event(Gst.Event.new_flush_stop(False))
         streammux.release_request_pad(sinkpad)
         print("STATE CHANGE ASYNC\n")
