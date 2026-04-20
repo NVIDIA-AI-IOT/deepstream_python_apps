@@ -399,7 +399,7 @@ def main(args):
         sys.stderr.write(" Unable to make sgie1 \n")
 
     sgie2 = Gst.ElementFactory.make("nvinfer", "secondary2-nvinference-engine")
-    if not sgie1:
+    if not sgie2:
         sys.stderr.write(" Unable to make sgie2 \n")
 
 
