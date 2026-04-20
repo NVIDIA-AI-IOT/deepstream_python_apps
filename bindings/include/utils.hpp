@@ -33,7 +33,7 @@
 #include <optional>
 #include <mutex>
 #include <pybind11/cast.h>
-#include <pybind11.h>
+#include <pybind11/pybind11.h>
 
 namespace py = pybind11;
 
